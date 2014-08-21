@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.0'
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'me.champeau.gradle.groovy-android'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "com.arasthel.swissknife"
+        minSdkVersion 8
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'org.codehaus.groovy:groovy:2.4.0-beta-2:grooid'
+    compile 'com.android.support:support-v4:20.0.0'
+}
+
+// Script to upload plugin to Maven
+apply from: '../maven_push.gradle'
+
