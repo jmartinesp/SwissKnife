@@ -1,1 +1,1 @@
-include ':SwissKnife'
+include ':SwissKnife', ':sample'
