@@ -60,7 +60,7 @@ I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his 
 
 ## Using it
 
-To use SwissKnife **you must use Groovy on your Android project** as the code generation is done b AST processing, which is a Groovy feature. You can learn how to do that using [this plugin](https://github.com/melix/groovy-android-gradle-plugin).
+To use SwissKnife **you must use Groovy on your Android project** as the code generation is done using AST processing, which is a Groovy feature. You can learn how to do that using [this plugin](https://github.com/melix/groovy-android-gradle-plugin) on the [wiki pages](./wiki/How-to-use-Groovy).
 
 Once your project App Module is configured to use Groovy you can add this library as a dependency cloning it with ``git clone`` or as a maven library on the **build.gradle** of your App Module:
 
