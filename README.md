@@ -56,7 +56,7 @@ For more info, please [read the wiki pages](./wiki). They contain explanations a
 * [@OnUIThread](https://github.com/Arasthel/SwissKnife/wiki/@OnUIThread)
 * [@OnBackground](https://github.com/Arasthel/SwissKnife/wiki/@OnBackground)
 
-I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki and testing the library.
+I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
 
 ## Using it
 
