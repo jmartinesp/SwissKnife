@@ -1,13 +1,21 @@
 package com.arasthel.swissknife.annotations
 
+import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.utils.AstNodeToScriptVisitor
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
+import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.ArgumentListExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
+import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
@@ -26,30 +34,34 @@ public class OnUIThreadTransformation implements ASTTransformation, Opcodes {
         ClassNode declaringClass = annotatedMethod.declaringClass;
 
         BlockStatement originalCode = annotatedMethod.getCode();
+        declaringClass.addMethod(createNewMethod(annotatedMethod, originalCode));
 
-        ((BlockStatement) annotatedMethod.setCode(createRunnable(originalCode)));
+        createRunnable(annotatedMethod);
 
     }
 
-    private BlockStatement createRunnable(BlockStatement originalCode) {
-        String source = "";
-        new StringWriter().with { writer ->
-            originalCode.visit new AstNodeToScriptVisitor(writer);
-            source = "$writer";
+    private MethodNode createNewMethod(MethodNode annotatedMethod, BlockStatement originalCode) {
+        return new MethodNode(annotatedMethod.name+"\$uithread", ACC_PUBLIC, ClassHelper.VOID_TYPE, annotatedMethod.parameters, null, originalCode);
+    }
+
+    private void createRunnable(MethodNode annotatedMethod) {
+        BlockStatement blockStatement = new BlockStatement();
+
+        ArgumentListExpression argumentListExpression = new ArgumentListExpression();
+        argumentListExpression.addExpression(new VariableExpression("this"));
+        argumentListExpression.addExpression(new ConstantExpression(annotatedMethod.name + "\$uithread"));
+
+        for(Parameter parameter : annotatedMethod.parameters) {
+            argumentListExpression.addExpression(new VariableExpression(parameter.name));
         }
 
-        println source
-        def statement = new AstBuilder().buildFromString(
-            """static clos = {
-                    $source
-               };
-               SwissKnife.runOnBackground(clos);
-            return;"""
-        )[0];
+        StaticMethodCallExpression staticMethodCallExpression = new StaticMethodCallExpression(ClassHelper.make(SwissKnife.class), "runOnUIThread", argumentListExpression);
 
-        println "Generated";
+        ExpressionStatement expressionStatement = new ExpressionStatement(staticMethodCallExpression);
 
-        return statement;
+        blockStatement.addStatement(expressionStatement);
+
+        annotatedMethod.setCode(blockStatement);
     }
 
 }

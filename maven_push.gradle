@@ -18,6 +18,10 @@ def getRepositoryPassword() {
     return hasProperty('nexusPassword') ? nexusPassword : ""
 }
 
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
+}
+
 afterEvaluate { project ->
     uploadArchives {
         repositories {
@@ -79,7 +83,7 @@ afterEvaluate { project ->
     task androidSourcesJar(type: Jar) {
         classifier = 'sources'
         //basename = artifact_id
-        //from android.sourceSets.main.allSource
+        from android.sourceSets.main.java.srcDirs
     }
 
     artifacts {

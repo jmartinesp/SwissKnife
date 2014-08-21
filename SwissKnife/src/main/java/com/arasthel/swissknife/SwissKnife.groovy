@@ -337,7 +337,7 @@ public class SwissKnife {
                 if (target.metaClass.respondsTo(target, methodName)) {
                     if(SwissKnife.searchMethod(target, methodName, [View.class])) {
                         return target.invokeMethod(methodName, view);
-                    } else if (SwissKnife.searchMethod(target, methodName, null)) {
+                    } else if (SwissKnife.searchMethod(target, methodName, [])) {
                         return target.invokeMethod(methodName, null);
                     } else {
                         Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
@@ -399,27 +399,35 @@ public class SwissKnife {
         })
     }
 
-    public static void runOnBackground(Closure closure) {
+    public static void runOnBackground(Object target, String methodName, Object... parameters) {
         if(Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 void run() {
-                    closure();
+                    if (target.metaClass.respondsTo(target, methodName)) {
+                        target.invokeMethod(methodName, parameters);
+                    }
                 }
             }).start();
         } else {
-            closure();
+            if (target.metaClass.respondsTo(target, methodName)) {
+                target.invokeMethod(methodName, parameters);
+            }
         }
     }
 
-    public static void runOnUIThread(Closure closure) {
+    public static void runOnUIThread(Object target, String methodName, Object... parameters) {
         if(Looper.myLooper() == Looper.getMainLooper()) {
-            closure();
+            if (target.metaClass.respondsTo(target, methodName)) {
+                target.invokeMethod(methodName, parameters);
+            }
         } else {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 void run() {
-                    closure();
+                    if (target.metaClass.respondsTo(target, methodName)) {
+                        target.invokeMethod(methodName, parameters);
+                    }
                 }
             });
         }
