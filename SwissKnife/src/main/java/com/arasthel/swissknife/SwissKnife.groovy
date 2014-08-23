@@ -18,8 +18,10 @@ import com.arasthel.swissknife.utils.AnnotationUtils
 import com.arasthel.swissknife.annotations.OnPageChanged
 import com.arasthel.swissknife.annotations.OnTextChanged
 import groovy.transform.CompileStatic
+import org.codehaus.groovy.ast.Parameter
 
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 /**
  * Created by Arasthel on 17/08/14.
@@ -27,21 +29,33 @@ import java.lang.reflect.Method
 @CompileStatic
 public class SwissKnife {
 
+    public static Handler mHandler = new Handler(Looper.getMainLooper());
+
     public static final String TAG = "SwissKnife";
 
     public static void inject(Object target) {
-        if (target.metaClass.respondsTo(target, "injectViews")) {
-            target.invokeMethod("injectViews", null);
-        } else {
+        Method method = null;
+        try {
+            method = target.class.getMethod("injectViews", Object.class);
+            Log.d("METHOD", method.toGenericString());
+        } catch (NoSuchMethodException e) {
             Log.e(TAG, "Could not inject class " + target.class.name);
+            return;
+        } finally {
+            method?.invoke(target, target);
         }
     }
 
     public static void inject(Object target, View view) {
-        if (target.metaClass.respondsTo(target, "injectViews")) {
-            target.invokeMethod("injectViews", [view].toArray());
-        } else {
+        Method method = null;
+        try {
+            method = target.class.getMethod("injectViews", Object.class);
+            Log.d("METHOD", method.toGenericString());
+        } catch (NoSuchMethodException e) {
             Log.e(TAG, "Could not inject class " + target.class.name);
+            return;
+        } finally {
+            method?.invoke(target, view);
         }
     }
 
@@ -49,18 +63,15 @@ public class SwissKnife {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             void onClick(View view) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if(SwissKnife.searchMethod(target, methodName, [View.class])) {
-                        target.invokeMethod(methodName, view);
-                    } else if(SwissKnife.searchMethod(target, methodName, [])) {
-                        target.invokeMethod(methodName, null);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public void onClick(View v)\n" +
-                                "\tb) public void onClick()");
-                    }
+                Method method = null;
+                if((method = SwissKnife.searchMethod(target, methodName, [View.class])) != null) {
+                    method.invoke(target, view);
+                } else if((method = SwissKnife.searchMethod(target, methodName, [])) != null) {
+                    method.invoke(target);
                 } else {
-                    SwissKnife.printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public void onClick(View v)\n" +
+                            "\tb) public void onClick()");
                 }
             }
         });
@@ -70,63 +81,54 @@ public class SwissKnife {
         v.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if (SwissKnife.searchMethod(target, methodName, [int, AdapterView.class])) {
-                        target.invokeMethod(methodName, [i, adapterView].toArray());
-                    } else if (SwissKnife.searchMethod(target, methodName, [int, AdapterView.class, View.class])) {
-                        target.invokeMethod(methodName, [i, adapterView, view].toArray());
-                    } else if (SwissKnife.searchMethod(target, methodName, [int])) {
-                        target.invokeMethod(methodName, i);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public void onItemClick(int position, AdapterView list)\n" +
-                                "\tb) public void onItemClick(int position, AdapterView list, View clickedView)\n" +
-                                "\tc) public void onItemClick(int position)");
-                    }
+                Method method = null;
+                if ((method = SwissKnife.searchMethod(target, methodName, [int, AdapterView.class])) != null) {
+                    method.invoke(target, [i, adapterView].toArray());
+                } else if ((method = SwissKnife.searchMethod(target, methodName, [int, AdapterView.class, View.class])) != null) {
+                    method.invoke(target, [i, adapterView, view].toArray());
+                } else if ((method = SwissKnife.searchMethod(target, methodName, [int])) != null) {
+                    method.invoke(target, i);
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public void onItemClick(int position, AdapterView list)\n" +
+                            "\tb) public void onItemClick(int position, AdapterView list, View clickedView)\n" +
+                            "\tc) public void onItemClick(int position)");
                 }
             }
         });
     }
 
     public static void setOnItemSelected(AbsListView v, Object target, String methodName, String methodStr) {
-        OnItemSelected.Method method = OnItemSelected.Method.valueOf(methodStr);
+        OnItemSelected.Method methodEnum = OnItemSelected.Method.valueOf(methodStr);
         v.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(OnItemSelected.Method.ITEM_SELECTED == methodStr) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [int, AdapterView.class])) {
-                            target.invokeMethod(methodName, [i, adapterView].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [int, AdapterView.class, View.class])) {
-                            target.invokeMethod(methodName, [i, adapterView, view].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [int])) {
-                            target.invokeMethod(methodName, i);
-                        } else {
-                            Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                    "\ta) public void onItemSelected(int position, AdapterView list)\n" +
-                                    "\tb) public void onItemSelected(int position, AdapterView list, View clickedView)\n" +
-                                    "\tc) public void onItemSelected(int position)");
-                        }
+                if(OnItemSelected.Method.ITEM_SELECTED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [int, AdapterView.class])) != null) {
+                        method.invoke(target, [i, adapterView].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [int, AdapterView.class, View.class]))!= null) {
+                        method.invoke(target, [i, adapterView, view].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [int]))!= null) {
+                        method.invoke(target, i);
                     } else {
-                        printMethodNotFound(methodName, target.class.name);
+                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                                "\ta) public void onItemSelected(int position, AdapterView list)\n" +
+                                "\tb) public void onItemSelected(int position, AdapterView list, View clickedView)\n" +
+                                "\tc) public void onItemSelected(int position)");
                     }
                 }
             }
 
             @Override
             void onNothingSelected(AdapterView<?> adapterView) {
-                if(OnItemSelected.Method.NOTHING_SELECTED == methodStr) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [AdapterView.class])) {
-                            target.invokeMethod(methodName, [adapterView].toArray());
-                        } else {
-                            Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                    "\ta) public void onNothingSelected(AdapterView list)");
-                        }
+                if(OnItemSelected.Method.NOTHING_SELECTED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [AdapterView.class]))!= null) {
+                        method.invoke(target, [adapterView].toArray());
                     } else {
-                        printMethodNotFound(methodName, target.class.name);
+                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                                "\ta) public void onNothingSelected(AdapterView list)");
                     }
                 }
             }
@@ -134,56 +136,48 @@ public class SwissKnife {
     }
 
     public static void setOnPageChanged(ViewPager v, Object target, String methodName, String methodStr) {
-        OnPageChanged.Method method = OnPageChanged.Method.valueOf(methodStr);
+        OnPageChanged.Method methodEnum = OnPageChanged.Method.valueOf(methodStr);
         v.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
             @Override
             void onPageScrolled(int position, float offset, int offsetInPixels) {
-                if(method == OnPageChanged.Method.PAGE_SCROLLED) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [int])) {
-                            target.invokeMethod(methodName, [position].toArray());
-                        } else if(SwissKnife.searchMethod(target, methodName, [int, float, int])) {
-                            target.invokeMethod(methodName, [position, offset, offsetInPixels].toArray());
-                        } else {
-                            Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                    "\ta) public void onPageScrolled(int position)\n" +
-                                    "\tb) public void onPageScrolled(int position, float offset, int pixelOffset)");
-                        }
+                if(OnPageChanged.Method.PAGE_SCROLLED == methodEnum) {
+                    Method method = null
+                    if ((method = SwissKnife.searchMethod(target, methodName, [int]))!= null) {
+                        method.invoke(target, [position].toArray());
+                    } else if((method = SwissKnife.searchMethod(target, methodName, [int, float, int]))!= null) {
+                        method.invoke(target, [position, offset, offsetInPixels].toArray());
                     } else {
-                        printMethodNotFound(methodName, target.class.name);
+                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                                "\ta) public void onPageScrolled(int position)\n" +
+                                "\tb) public void onPageScrolled(int position, float offset, int pixelOffset)");
                     }
                 }
             }
 
             @Override
             void onPageSelected(int position) {
-                if(method == OnPageChanged.Method.PAGE_SELECTED) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [int])) {
-                            target.invokeMethod(methodName, [position].toArray());
-                        } else {
-                            Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                    "\ta) public void onPageSelected(int position)");
-                        }
+                if(OnPageChanged.Method.PAGE_SELECTED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [int]))!= null) {
+                        method.invoke(target, [position].toArray());
                     } else {
-                        printMethodNotFound(methodName, target.class.name);
+                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                                "\ta) public void onPageSelected(int position)");
                     }
                 }
             }
 
             @Override
             void onPageScrollStateChanged(int state) {
-                if(method == OnPageChanged.Method.PAGE_SCROLL_STATE_CHANGED) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [int])) {
-                            target.invokeMethod(methodName, [state].toArray());
-                        }
+                if(OnPageChanged.Method.PAGE_SCROLL_STATE_CHANGED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [int]))!= null) {
+                        method.invoke(target, [state].toArray());
                     } else {
                         Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
                                 "\ta) public void onPageScrollStateChanged(int state)");
                     }
-                } else {
-                    printMethodNotFound(methodName, target.class.name);
                 }
             }
         });
@@ -193,71 +187,63 @@ public class SwissKnife {
 
 
     public static void setOnTextChanged(TextView v, Object target, String methodName, String methodStr) {
-        OnTextChanged.Method method = OnTextChanged.Method.valueOf(methodStr);
+        OnTextChanged.Method methodEnum = OnTextChanged.Method.valueOf(methodStr);
         v.addTextChangedListener(new TextWatcher() {
+
             @Override
             void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                if(method == OnTextChanged.Method.BEFORE_TEXT_CHANGED) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [CharSequence.class])) {
-                            target.invokeMethod(methodName, [charSequence].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [TextView.class, CharSequence.class])) {
-                            target.invokeMethod(methodName, [v, charSequence].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [CharSequence.class, int, int, int])) {
-                            target.invokeMethod(methodName, [charSequence, start, count, after].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [TextView.class, CharSequence.class, int, int, int])) {
-                            target.invokeMethod(methodName, [v, charSequence, start, count, after].toArray());
-                        } else {
-                            Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                    "\ta) public void beforeTextChanged(CharSequence sequence)\n" +
-                                    "\tb) public void beforeTextChanged(TextView textView, CharSequence sequence)\n" +
-                                    "\tc) public void beforeTextChanged(CharSequence sequence, int start, int count, int after)\n" +
-                                    "\td) public void beforeTextChanged(TextView textView, CharSequence sequence, int start, int count, int after)");
-                        }
+                if(OnTextChanged.Method.BEFORE_TEXT_CHANGED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [CharSequence.class]))!= null) {
+                        method.invoke(target, [charSequence].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [TextView.class, CharSequence.class]))!= null) {
+                        method.invoke(target, [v, charSequence].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [CharSequence.class, int, int, int]))!= null) {
+                        method.invoke(target, [charSequence, start, count, after].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [TextView.class, CharSequence.class, int, int, int]))!= null) {
+                        method.invoke(target, [v, charSequence, start, count, after].toArray());
+                    } else {
+                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                                "\ta) public void beforeTextChanged(CharSequence sequence)\n" +
+                                "\tb) public void beforeTextChanged(TextView textView, CharSequence sequence)\n" +
+                                "\tc) public void beforeTextChanged(CharSequence sequence, int start, int count, int after)\n" +
+                                "\td) public void beforeTextChanged(TextView textView, CharSequence sequence, int start, int count, int after)");
                     }
-                } else {
-                    printMethodNotFound(methodName, target.class.name);
                 }
             }
 
             @Override
             void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if(method == OnTextChanged.Method.ON_TEXT_CHANGED) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [CharSequence.class])) {
-                            target.invokeMethod(methodName, [charSequence].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [View.class, CharSequence.class])) {
-                            target.invokeMethod(methodName, [v, charSequence].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [CharSequence.class, int, int, int])) {
-                            target.invokeMethod(methodName, [charSequence, start, before, count].toArray());
-                        } else if (SwissKnife.searchMethod(target, methodName, [View.class, CharSequence.class, int, int, int])) {
-                            target.invokeMethod(methodName, [v, charSequence, start, before, count].toArray());
-                        } else {
-                            Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                    "\ta) public void onTextChanged(CharSequence sequence)\n" +
-                                    "\tb) public void onTextChanged(TextView textView, CharSequence sequence)\n" +
-                                    "\tc) public void onTextChanged(CharSequence sequence, int start, int before, int count)\n" +
-                                    "\td) public void onTextChanged(TextView textView, CharSequence sequence, int start, int before, int count)");
-                        }
+                if(OnTextChanged.Method.ON_TEXT_CHANGED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [CharSequence.class]))!= null) {
+                        method.invoke(target, [charSequence].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [View.class, CharSequence.class]))!= null) {
+                        method.invoke(target, [v, charSequence].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [CharSequence.class, int, int, int]))!= null) {
+                        method.invoke(target, [charSequence, start, before, count].toArray());
+                    } else if ((method = SwissKnife.searchMethod(target, methodName, [View.class, CharSequence.class, int, int, int]))!= null) {
+                        method.invoke(target, [v, charSequence, start, before, count].toArray());
+                    } else {
+                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                                "\ta) public void onTextChanged(CharSequence sequence)\n" +
+                                "\tb) public void onTextChanged(TextView textView, CharSequence sequence)\n" +
+                                "\tc) public void onTextChanged(CharSequence sequence, int start, int before, int count)\n" +
+                                "\td) public void onTextChanged(TextView textView, CharSequence sequence, int start, int before, int count)");
                     }
-                } else {
-                    printMethodNotFound(methodName, target.class.name);
                 }
             }
 
             @Override
             void afterTextChanged(Editable editable) {
-                if(method == OnTextChanged.Method.ON_TEXT_CHANGED) {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        if (SwissKnife.searchMethod(target, methodName, [Editable.class])) {
-                            target.invokeMethod(methodName, [editable].toArray());
-                        }
+                if(OnTextChanged.Method.ON_TEXT_CHANGED == methodEnum) {
+                    Method method = null;
+                    if ((method = SwissKnife.searchMethod(target, methodName, [Editable.class]))!= null) {
+                        method.invoke(target, [editable].toArray());
                     } else {
                         Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
                                 "\ta) public void afterTextChanged(Editable editable)");
                     }
-                } else {
-                    printMethodNotFound(methodName, target.class.name);
                 }
             }
         });
@@ -267,18 +253,15 @@ public class SwissKnife {
         v.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if (SwissKnife.searchMethod(target, methodName, [CompoundButton.class, boolean.class])) {
-                        target.invokeMethod(methodName, [compoundButton, b].toArray());
-                    } else if(SwissKnife.searchMethod(target, methodName, [boolean.class])) {
-                        target.invokeMethod(methodName, b);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public void onChecked(CompoundButton button, boolean checked)\n" +
-                                "\tb) public void onChecked(boolean checked)");
-                    }
+                Method method = null;
+                if ((method = SwissKnife.searchMethod(target, methodName, [CompoundButton.class, boolean.class]))!= null) {
+                    method.invoke(target, [compoundButton, b].toArray());
+                } else if((method = SwissKnife.searchMethod(target, methodName, [boolean.class]))!= null) {
+                    method.invoke(target, b);
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public void onChecked(CompoundButton button, boolean checked)\n" +
+                            "\tb) public void onChecked(boolean checked)");
                 }
             }
         });
@@ -290,18 +273,15 @@ public class SwissKnife {
         v.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             void onFocusChange(View view, boolean b) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if (SwissKnife.searchMethod(target, methodName, [View, boolean.class])) {
-                        target.invokeMethod(methodName, [view, b].toArray());
-                    } else if (SwissKnife.searchMethod(target, methodName, [boolean.class])) {
-                        target.invokeMethod(methodName, b);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public void onFocusChanged(View view, boolean hasFocus)\n" +
-                                "\tb) public void onFocusChanged(boolean hasFocus)");
-                    }
+                Method method = null;
+                if ((method = SwissKnife.searchMethod(target, methodName, [View, boolean.class]))!= null) {
+                    method.invoke(target, [view, b].toArray());
+                } else if ((method = SwissKnife.searchMethod(target, methodName, [boolean.class]))!= null) {
+                    method.invoke(target, b);
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public void onFocusChanged(View view, boolean hasFocus)\n" +
+                            "\tb) public void onFocusChanged(boolean hasFocus)");
                 }
             }
         });
@@ -311,18 +291,15 @@ public class SwissKnife {
         v.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if (SwissKnife.searchMethod(target, methodName, [TextView.class, KeyEvent.class])) {
-                        return target.invokeMethod(methodName, [textView, keyEvent].toArray());
-                    } else if(SwissKnife.searchMethod(target, methodName, [KeyEvent.class])) {
-                        return target.invokeMethod(methodName, keyEvent);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public boolean onEditorAction(TextView textview, KeyEvent event)\n" +
-                                "\tb) public boolean onEditorAction(KeyEvent event)");
-                    }
+                Method method = null;
+                if ((method = SwissKnife.searchMethod(target, methodName, [TextView.class, KeyEvent.class]))!= null) {
+                    return method.invoke(target, [textView, keyEvent].toArray());
+                } else if((method = SwissKnife.searchMethod(target, methodName, [KeyEvent.class]))!= null) {
+                    return method.invoke(target, keyEvent);
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public boolean onEditorAction(TextView textview, KeyEvent event)\n" +
+                            "\tb) public boolean onEditorAction(KeyEvent event)");
                 }
                 return false;
             }
@@ -334,18 +311,15 @@ public class SwissKnife {
 
             @Override
             boolean onLongClick(View view) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if(SwissKnife.searchMethod(target, methodName, [View.class])) {
-                        return target.invokeMethod(methodName, view);
-                    } else if (SwissKnife.searchMethod(target, methodName, [])) {
-                        return target.invokeMethod(methodName, null);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public boolean onLongClick(View view)\n" +
-                                "\tb) public boolean onLongClick()");
-                    }
+                Method method = null;
+                if((method = SwissKnife.searchMethod(target, methodName, [View.class]))!= null) {
+                    return method.invoke(target, view);
+                } else if ((method = SwissKnife.searchMethod(target, methodName, null))!= null) {
+                    return method.invoke(target, null);
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public boolean onLongClick(View view)\n" +
+                            "\tb) public boolean onLongClick()");
                 }
                 return false
             }
@@ -356,21 +330,18 @@ public class SwissKnife {
         v.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if (SwissKnife.searchMethod(target, methodName, [int, AdapterView.class])) {
-                        return target.invokeMethod(methodName, [i, adapterView].toArray());
-                    } else if (SwissKnife.searchMethod(target, methodName, [int, AdapterView.class, View.class])) {
-                        return target.invokeMethod(methodName, [i, adapterView, view].toArray());
-                    } else if (SwissKnife.searchMethod(target, methodName, [int])) {
-                        return target.invokeMethod(methodName, i);
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public boolean onItemLongClick(int position, AdapterView list)\n" +
-                                "\tb) public boolean onItemLongClick(int position, AdapterView list, View clickedView)\n" +
-                                "\tc) public boolean onItemLongClick(int position)");
-                    }
+                Method method = null;
+                if ((method = SwissKnife.searchMethod(target, methodName, [int, AdapterView.class]))!= null) {
+                    return method.invoke(target, [i, adapterView].toArray());
+                } else if ((method = SwissKnife.searchMethod(target, methodName, [int, AdapterView.class, View.class]))!= null) {
+                    return method.invoke(target, [i, adapterView, view].toArray());
+                } else if ((method = SwissKnife.searchMethod(target, methodName, [int]))!= null) {
+                    return method.invoke(target, i);
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public boolean onItemLongClick(int position, AdapterView list)\n" +
+                            "\tb) public boolean onItemLongClick(int position, AdapterView list, View clickedView)\n" +
+                            "\tc) public boolean onItemLongClick(int position)");
                 }
                 return false;
             }
@@ -381,82 +352,75 @@ public class SwissKnife {
         v.setOnTouchListener(new View.OnTouchListener() {
             @Override
             boolean onTouch(View view, MotionEvent motionEvent) {
-                if (target.metaClass.respondsTo(target, methodName)) {
-                    if (SwissKnife.searchMethod(target, methodName, [MotionEvent.class])) {
-                        return target.invokeMethod(methodName, [motionEvent].toArray());
-                    } else if (SwissKnife.searchMethod(target, methodName, [View.class, MotionEvent.class])) {
-                        return target.invokeMethod(methodName, [view, motionEvent].toArray());
-                    } else {
-                        Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
-                                "\ta) public boolean onTouch(MotionEvent event)\n" +
-                                "\tb) public boolean onTouch(View view, MotionEvent event)");
-                    }
+                Method method = null;
+                if ((method = SwissKnife.searchMethod(target, methodName, [MotionEvent.class]))!= null) {
+                    return method.invoke(target, [motionEvent].toArray());
+                } else if ((method = SwissKnife.searchMethod(target, methodName, [View.class, MotionEvent.class]))!= null) {
+                    return method.invoke(target, [view, motionEvent].toArray());
                 } else {
-                    printMethodNotFound(methodName, target.class.name);
+                    Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
+                            "\ta) public boolean onTouch(MotionEvent event)\n" +
+                            "\tb) public boolean onTouch(View view, MotionEvent event)");
                 }
                 return false;
             }
-        })
+        });
     }
 
     public static void runOnBackground(Object target, String methodName, Object... parameters) {
-        if(Looper.myLooper() == Looper.getMainLooper()) {
-            new Thread(new Runnable() {
-                @Override
-                void run() {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        target.invokeMethod(methodName, parameters);
+        Method method = null;
+        List<Class> parameterClasses = new ArrayList<Class>();
+        for(Object o : parameters) {
+            parameterClasses << o.class;
+        }
+        if ((method = SwissKnife.searchMethod(target, methodName, parameterClasses)) != null) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                new Thread(new Runnable() {
+                    @Override
+                    void run() {
+                        method.invoke(target, parameters);
                     }
-                }
-            }).start();
-        } else {
-            if (target.metaClass.respondsTo(target, methodName)) {
-                target.invokeMethod(methodName, parameters);
+                }).start();
+            } else {
+                method.invoke(target, parameters);
             }
         }
     }
 
     public static void runOnUIThread(Object target, String methodName, Object... parameters) {
-        if(Looper.myLooper() == Looper.getMainLooper()) {
-            if (target.metaClass.respondsTo(target, methodName)) {
-                target.invokeMethod(methodName, parameters);
-            }
-        } else {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                void run() {
-                    if (target.metaClass.respondsTo(target, methodName)) {
-                        target.invokeMethod(methodName, parameters);
-                    }
-                }
-            });
+        Method method = null;
+        List<Class> parameterClasses = new ArrayList<Class>();
+        for(Object o : parameters) {
+            parameterClasses << o.class;
         }
-    }
-
-
-    public static boolean searchMethod(Object currentObject, String name, List<Class> parameters) {
-        for(Method method in currentObject.class.getMethods()) {
-            if(name.equals(method.getName())) {
-                Class[] parameterClasses = method.getParameterTypes();
-                if(parameters.size() != parameterClasses.size()) {
-                    return false;
-                }
-                if(parameters.size() == 0 && parameterClasses.size() == 0) {
-                    return true;
-                }
-
-                for(i in 0..parameterClasses.size()-1) {
-                    if(!AnnotationUtils.isSubtype((Class) parameters[i], (Class) parameterClasses[i])) {
-                        return false;
+        if ((method = SwissKnife.searchMethod(target, methodName, parameterClasses)) != null) {
+            if(Looper.myLooper() == Looper.getMainLooper()) {
+                method.invoke(target, parameters);
+            } else {
+                mHandler.post(new Runnable() {
+                    @Override
+                    void run() {
+                        method.invoke(target, parameters);
                     }
-                }
-                return true;
+                });
             }
         }
-        return false;
     }
 
-    private static void printMethodNotFound(String methodName, String className) {
-        Log.e(TAG, "Could not find method " + methodName + " in "+ className);
+
+    public static Method searchMethod(Object currentObject, String name, List<Class> originalParameters) {
+        Class[] parameters = new Class[originalParameters.size()];
+        originalParameters.toArray(parameters);
+
+        Method method = null;
+
+        try {
+            method = currentObject.class.getMethod(name, parameters);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+
+        return method;
     }
+
 }

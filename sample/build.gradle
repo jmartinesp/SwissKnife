@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId "com.dexafree.sample"
-        minSdkVersion 17
+        minSdkVersion 14
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
@@ -39,6 +39,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.arasthel:swissknife:1.0.0'
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-1:grooid'
+    compile project(':SwissKnife')
+    compile 'org.codehaus.groovy:groovy:2.4.0-beta-2:grooid'
 }

@@ -12,7 +12,9 @@ import com.arasthel.swissknife.annotations.InjectView
 import com.arasthel.swissknife.annotations.OnBackground
 import com.arasthel.swissknife.annotations.OnClick
 import com.arasthel.swissknife.annotations.OnUIThread
+import groovy.transform.CompileStatic
 
+@CompileStatic
 public class BackgroundActivity extends Activity {
 
     private Context mContext;
