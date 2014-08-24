@@ -2,7 +2,6 @@ package com.arasthel.swissknife.annotations
 
 import android.view.View
 import com.arasthel.swissknife.utils.AnnotationUtils
-import com.arasthel.swissknife.utils.Finder
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
@@ -12,6 +11,7 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+
 /**
  * Created by Arasthel on 16/08/14.
  */
@@ -30,7 +30,7 @@ public class InjectViewTransformation implements ASTTransformation, Opcodes {
             throw new Exception("Annotated field must extend View class. Type: $annotatedFieldClass.name");
         }
 
-        MethodNode injectMethod = AnnotationUtils.createInjectViewsMethod(declaringClass);
+        MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
 
         String id = null;
 
@@ -51,21 +51,9 @@ public class InjectViewTransformation implements ASTTransformation, Opcodes {
 
     private Statement createInjectStatement(FieldNode field, String id) {
 
-        def statement =
+        BlockStatement statement =
                 new AstBuilder().buildFromSpec {
                     block {
-                        expression {
-                            binary {
-                                variable "v"
-                                token "="
-                                staticMethodCall(Finder.class, "findView") {
-                                    argumentList {
-                                        variable "this"
-                                        constant id
-                                    }
-                                }
-                            }
-                        }
                         expression {
                             binary {
                                 variable field.name
@@ -75,6 +63,8 @@ public class InjectViewTransformation implements ASTTransformation, Opcodes {
                         }
                     }
                 }[0];
+
+        statement.statements.add(0, AnnotationUtils.createInjectExpression(id));
 
         return statement;
 

@@ -35,11 +35,11 @@ public class SwissKnife {
 
     public static void inject(Object target) {
         Method method = null;
+        Method[] methods = null;
         try {
-            method = target.class.getMethod("injectViews", Object.class);
-            Log.d("METHOD", method.toGenericString());
+            method = SwissKnife.searchMethod(target, "injectViews", [Object.class]);
         } catch (NoSuchMethodException e) {
-            Log.e(TAG, "Could not inject class " + target.class.name);
+            Log.e(TAG, e.getMessage());
             return;
         } finally {
             method?.invoke(target, target);
@@ -49,8 +49,7 @@ public class SwissKnife {
     public static void inject(Object target, View view) {
         Method method = null;
         try {
-            method = target.class.getMethod("injectViews", Object.class);
-            Log.d("METHOD", method.toGenericString());
+            method = SwissKnife.searchMethod(target, "injectViews", [Object.class]);
         } catch (NoSuchMethodException e) {
             Log.e(TAG, "Could not inject class " + target.class.name);
             return;

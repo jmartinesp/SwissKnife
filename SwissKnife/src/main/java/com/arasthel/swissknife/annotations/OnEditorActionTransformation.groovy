@@ -1,10 +1,8 @@
 package com.arasthel.swissknife.annotations
 
-import android.view.View
 import android.widget.TextView
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.utils.AnnotationUtils
-import com.arasthel.swissknife.utils.Finder
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
@@ -31,7 +29,7 @@ public class OnEditorActionTransformation implements ASTTransformation, Opcodes 
         AnnotationNode annotation = astNodes[0];
         ClassNode declaringClass = annotatedMethod.declaringClass;
 
-        MethodNode injectMethod = AnnotationUtils.createInjectViewsMethod(declaringClass);
+        MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
 
         def ids = [];
 
@@ -64,21 +62,9 @@ public class OnEditorActionTransformation implements ASTTransformation, Opcodes 
 
     private Statement createInjectStatement(String id, MethodNode method) {
 
-        def statement =
+        BlockStatement statement =
                 new AstBuilder().buildFromSpec {
                     block {
-                        expression {
-                            binary {
-                                variable "v"
-                                token "="
-                                staticMethodCall(Finder.class, "findView") {
-                                    argumentList {
-                                        variable "this"
-                                        constant id
-                                    }
-                                }
-                            }
-                        }
                         expression {
                             staticMethodCall(SwissKnife.class, "setOnEditorAction") {
                                 argumentList {
@@ -92,6 +78,8 @@ public class OnEditorActionTransformation implements ASTTransformation, Opcodes 
                         }
                     }
                 }[0];
+
+        statement.statements.add(0, AnnotationUtils.createInjectExpression(id));
 
         return statement;
 

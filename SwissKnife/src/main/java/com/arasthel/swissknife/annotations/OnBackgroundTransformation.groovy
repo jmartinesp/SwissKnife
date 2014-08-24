@@ -1,15 +1,8 @@
 package com.arasthel.swissknife.annotations
 
 import com.arasthel.swissknife.SwissKnife
-import com.arasthel.swissknife.utils.AstNodeToScriptVisitor
 import groovyjarjarasm.asm.Opcodes
-import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.AnnotationNode
-import org.codehaus.groovy.ast.ClassHelper
-import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.Parameter
-import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression

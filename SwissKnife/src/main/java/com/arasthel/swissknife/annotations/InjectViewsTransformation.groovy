@@ -25,7 +25,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
         AnnotationNode annotation = astNodes[0];
         ClassNode declaringClass = annotatedField.declaringClass;
 
-        MethodNode injectMethod = AnnotationUtils.createInjectViewsMethod(declaringClass);
+        MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
 
         def ids = [];
 
@@ -82,7 +82,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
                                 token "<<"
                                 staticMethodCall(Finder.class, "findView") {
                                     argumentList {
-                                        variable "this"
+                                        variable "view"
                                         constant id
                                     }
                                 }
