@@ -313,8 +313,8 @@ public class SwissKnife {
                 Method method = null;
                 if((method = SwissKnife.searchMethod(target, methodName, [View.class]))!= null) {
                     return method.invoke(target, view);
-                } else if ((method = SwissKnife.searchMethod(target, methodName, null))!= null) {
-                    return method.invoke(target, null);
+                } else if ((method = SwissKnife.searchMethod(target, methodName, []))!= null) {
+                    return method.invoke(target, [].toArray());
                 } else {
                     Log.e(TAG, "Could not use annotated method. Method should be like:\n" +
                             "\ta) public boolean onLongClick(View view)\n" +
