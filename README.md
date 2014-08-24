@@ -58,6 +58,8 @@ For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKni
 
 I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
 
+You can find a **CHANGELOG** [here](./CHANGELOG.md).
+
 ## Using it
 
 To use SwissKnife **you must use Groovy on your Android project** as the code generation is done using AST processing, which is a Groovy feature. You can learn how to do that using [this plugin](https://github.com/melix/groovy-android-gradle-plugin) on the [wiki pages](https://github.com/Arasthel/SwissKnife/wiki/How-to-use-Groovy).
@@ -67,7 +69,7 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile 'com.arasthel:swissknife:1.0.1'
+    compile 'com.arasthel:swissknife:1.0.2'
     ...
 }
 
