@@ -31,8 +31,8 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
 
         Class fieldClass = annotatedField.getType().getTypeClass();
 
-        if(!AnnotationUtils.isSubtype(fieldClass, AbstractList.class)) {
-            throw new Exception("The annotated field must extends AbstractList. Type: $fieldClass.name");
+        if(!AnnotationUtils.isSubtype(fieldClass, List.class)) {
+            throw new Exception("The annotated field must extend List. Type: $fieldClass.name");
         }
 
         if(annotation.members.size() > 0) {
