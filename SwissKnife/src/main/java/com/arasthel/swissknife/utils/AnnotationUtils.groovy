@@ -1,12 +1,19 @@
 package com.arasthel.swissknife.utils
 
+import android.os.Bundle
+import android.os.Parcelable
+import android.util.SparseArray
 import android.view.View
+import groovy.transform.Field
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import groovyjarjarasm.asm.Opcodes
+import groovyjarjarasm.asm.commons.Method
 import org.codehaus.groovy.ast.AnnotationNode;
 import org.codehaus.groovy.ast.ClassHelper
-import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.GenericsType;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.builder.AstBuilder
@@ -20,7 +27,9 @@ import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.syntax.Token
-import org.codehaus.groovy.syntax.Types;
+import org.codehaus.groovy.syntax.Types
+
+import java.lang.reflect.ParameterizedType;
 
 /**
  * Created by Arasthel on 17/08/14.
@@ -100,4 +109,5 @@ public class AnnotationUtils {
         }
         return true;
     }
+
 }

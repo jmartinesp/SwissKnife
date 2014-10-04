@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.widget.ImageView
 import com.arasthel.swissknife.SwissKnife
@@ -12,12 +13,30 @@ import com.arasthel.swissknife.annotations.InjectView
 import com.arasthel.swissknife.annotations.OnBackground
 import com.arasthel.swissknife.annotations.OnClick
 import com.arasthel.swissknife.annotations.OnUIThread
+import com.arasthel.swissknife.annotations.SaveInstance
 import groovy.transform.CompileStatic
 
 @CompileStatic
 public class BackgroundActivity extends Activity {
 
     private Context mContext;
+
+    @SaveInstance
+    public ArrayList<Cosa> cosasda
+
+    @SaveInstance
+    public int miEntero
+
+    @SaveInstance
+    public String miString
+
+    @SaveInstance
+    public float miDouble
+
+    @SaveInstance
+    public long[] miLongArray
+
+
 
     @InjectView(R.id.image_view) ImageView image
 
@@ -49,5 +68,15 @@ public class BackgroundActivity extends Activity {
         setContentView(R.layout.activity_background)
 
         SwissKnife.inject(this)
+    }
+
+    public int suma(int a, int b){
+        return a+b
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle holaJorge){
+        super.onSaveInstanceState(holaJorge)
     }
 }
