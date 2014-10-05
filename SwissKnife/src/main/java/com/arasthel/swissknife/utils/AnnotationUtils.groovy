@@ -200,6 +200,16 @@ public class AnnotationUtils {
             declaringClass.addMethod(saveStateMethod)
         }
 
+
+        def typechecked = false
+
+        saveStateMethod.annotations.each {
+            if(it.getClassNode().name == "groovy.transform.TypeChecked") typechecked = true
+        }
+
+        if(!typechecked) addTypeCheckedAnnotation(saveStateMethod)
+
+
         saveStateMethod
 
     }
@@ -212,8 +222,17 @@ public class AnnotationUtils {
             restoreStateMethod = createRestoreStateMethod()
             declaringClass.addMethod(restoreStateMethod)
         }
-
         restoreStateMethod
     }
+
+    private static addTypeCheckedAnnotation(MethodNode saveStateMethod){
+        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
+        annotationNode.addMember("value", new PropertyExpression(
+                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
+                new ConstantExpression(TypeCheckingMode.SKIP)));
+
+        saveStateMethod.addAnnotation(annotationNode)
+    }
+
 
 }

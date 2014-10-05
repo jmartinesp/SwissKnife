@@ -2,10 +2,15 @@ package com.arasthel.swissknife.annotations
 
 import android.os.Bundle
 import com.arasthel.swissknife.utils.AnnotationUtils
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import groovyjarjarasm.asm.Opcodes
 import groovyjarjarasm.asm.commons.Method
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.ClassExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.Statement
@@ -59,7 +64,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         statementsList.add(insertStatement)
 
 
-        println(onSaveInstanceState.getCode())
+        //println(onSaveInstanceState.getCode())
 
 
 
@@ -88,8 +93,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                 }
             }
         }[0]
-
-        statement
 
     }
 
