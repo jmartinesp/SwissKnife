@@ -210,7 +210,8 @@ public class AnnotationUtils {
     }
 
     public static MethodNode getSaveStateMethod(ClassNode declaringClass){
-        MethodNode saveStateMethod = declaringClass.getDeclaredMethod("onSaveInstanceState")
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "savedState")]
+        MethodNode saveStateMethod = declaringClass.getMethod("onSaveInstanceState", parameters)
         if(saveStateMethod == null){
             saveStateMethod = createSaveStateMethod()
             declaringClass.addMethod(saveStateMethod)

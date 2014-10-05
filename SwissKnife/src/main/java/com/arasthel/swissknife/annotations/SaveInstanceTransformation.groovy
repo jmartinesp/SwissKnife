@@ -47,17 +47,21 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         def overrides = doesClassOverrideOnSave(declaringClass)
 
-        MethodNode onSaveInstanceState
+        MethodNode onSaveInstanceState = AnnotationUtils.getSaveStateMethod(declaringClass)
 
-        if(overrides){
+        /*if(overrides){
 
             def methodList = declaringClass.getDeclaredMethods("onSaveInstanceState")
+            methodList.each {
+                onSaveInstanceState = it
+            }
 
-            onSaveInstanceState = methodList.get(0)
+            if(onSaveInstanceState == null) println("OJO")
+
 
         } else {
             onSaveInstanceState = AnnotationUtils.getSaveStateMethod(declaringClass)
-        }
+        }*/
 
         String bundleName = onSaveInstanceState.parameters[0].name
 
@@ -70,10 +74,8 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
 
 
+
         MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
-
-
-
 
         Statement statement = createRestoreStatement(annotatedField, id)
 

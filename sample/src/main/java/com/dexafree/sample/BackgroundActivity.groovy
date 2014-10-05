@@ -21,21 +21,8 @@ public class BackgroundActivity extends Activity {
 
     private Context mContext;
 
-    @SaveInstance("MICOSA")
-    public ArrayList<Cosa> cosasda
-
-    @SaveInstance
-    public int miEntero
-
     @SaveInstance
     public String miString
-
-    @SaveInstance
-    public float miDouble
-
-    @SaveInstance
-    public long[] miLongArray
-
 
 
     @InjectView(R.id.image_view) ImageView image
@@ -66,8 +53,20 @@ public class BackgroundActivity extends Activity {
         super.onCreate(savedInstanceState)
         mContext = this;
         setContentView(R.layout.activity_background)
+        SwissKnife.restoreState(this, savedInstanceState)
+        if(savedInstanceState == null){
+            Log.d("SIS", "WAS NULL")
+            miString = "OLA KE ASE"
+        }
+
+        Log.d("MISTRING", miString)
 
         SwissKnife.inject(this)
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState)
     }
 
 }
