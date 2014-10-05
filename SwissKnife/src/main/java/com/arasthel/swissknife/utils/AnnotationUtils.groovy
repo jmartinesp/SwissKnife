@@ -102,27 +102,7 @@ public class AnnotationUtils {
         }[0];
     }
 
-    public static ExpressionStatement createSaveStateExpression(String bundleName, String bundleMethod, String id, String annotatedFieldName){
 
-        String method = "put$bundleMethod"
-
-
-        ExpressionStatement statement = new AstBuilder().buildFromSpec {
-            expression {
-                methodCall {
-                    variable bundleName
-                    constant method
-                    argumentList {
-                        constant id
-                        constant annotatedFieldName
-                    }
-                }
-            }
-        }[0]
-
-        statement
-
-    }
 
     private static MethodNode createRestoreStateMethod(){
 
@@ -170,7 +150,7 @@ public class AnnotationUtils {
                             variable "super"
                             constant "onSaveInstanceState"
                             argumentList {
-                                constant "savedState"
+                                variable "savedState"
                             }
                         }
                     }
@@ -214,7 +194,7 @@ public class AnnotationUtils {
 
     public static MethodNode getSaveStateMethod(ClassNode declaringClass){
         Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "outState")]
-        MethodNode saveStateMethod = declaringClass.getMethod("onSaveInstanceState", parameters)
+        MethodNode saveStateMethod = declaringClass.getDeclaredMethod("onSaveInstanceState", parameters)
         if(saveStateMethod == null){
             saveStateMethod = createSaveStateMethod()
             declaringClass.addMethod(saveStateMethod)

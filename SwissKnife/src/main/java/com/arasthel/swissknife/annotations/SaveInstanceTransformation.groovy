@@ -7,6 +7,7 @@ import groovyjarjarasm.asm.commons.Method
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
@@ -45,37 +46,21 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         }
 
 
-        def overrides = doesClassOverrideOnSave(declaringClass)
-
         MethodNode onSaveInstanceState = AnnotationUtils.getSaveStateMethod(declaringClass)
-
-        /*if(overrides){
-
-            def methodList = declaringClass.getDeclaredMethods("onSaveInstanceState")
-            methodList.each {
-                onSaveInstanceState = it
-            }
-
-            if(onSaveInstanceState == null) println("OJO")
-
-
-        } else {
-            onSaveInstanceState = AnnotationUtils.getSaveStateMethod(declaringClass)
-        }*/
 
         String bundleName = onSaveInstanceState.parameters[0].name
 
         String bundleMethod = getBundleMethod(annotatedField)
 
-        Statement insertStatement = AnnotationUtils.createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName)
-
-        BlockStatement stat = (BlockStatement)onSaveInstanceState.getCode()
+        Statement insertStatement = createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName)
 
 
-        List<Statement> statementsList = stat.getStatements()
+        List<Statement> statementsList = ((BlockStatement)onSaveInstanceState.getCode()).getStatements()
         statementsList.add(insertStatement)
 
+
         println(onSaveInstanceState.getCode())
+
 
 
         MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
@@ -85,6 +70,29 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         List<Statement> statementList = ((BlockStatement) restoreMethod.getCode()).getStatements();
         statementList.add(statement)
     }
+
+    private Statement createSaveStateExpression(String bundleName, String bundleMethod, String id, String annotatedFieldName){
+
+        String method = "put$bundleMethod"
+
+
+        ExpressionStatement statement = new AstBuilder().buildFromSpec {
+            expression {
+                methodCall {
+                    variable bundleName
+                    constant method
+                    argumentList {
+                        constant id
+                        variable annotatedFieldName
+                    }
+                }
+            }
+        }[0]
+
+        statement
+
+    }
+
 
     private Statement createRestoreStatement(FieldNode annotatedField, String id) {
 
@@ -212,7 +220,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         }
 
 
-        if(method == "int") method = "Integer"
+        if(method == "int") method = "Int"
 
         if(Character.isLowerCase(method.charAt(0))){
             char first = Character.toUpperCase(method.charAt(0))
@@ -320,5 +328,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         implementsInterface
 
     }
+
 
 }

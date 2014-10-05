@@ -24,6 +24,9 @@ public class BackgroundActivity extends Activity {
     @SaveInstance
     public String miString
 
+    @SaveInstance
+    public int miInt
+
 
     @InjectView(R.id.image_view) ImageView image
 
@@ -54,16 +57,27 @@ public class BackgroundActivity extends Activity {
         mContext = this;
         setContentView(R.layout.activity_background)
         miString = "BEFORE"
+        miInt = -150
         SwissKnife.restoreState(this, savedInstanceState)
         if(savedInstanceState == null){
             Log.d("SIS", "WAS NULL")
             miString = "OLA KE ASE"
+            miInt = 5
         }
 
         Log.d("MISTRING", miString)
+        Log.d("MIINT", "$miInt")
 
         SwissKnife.inject(this)
     }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState)
+        Log.d("CODIGO", "GENERADO")
+    }
+
 
 
 
