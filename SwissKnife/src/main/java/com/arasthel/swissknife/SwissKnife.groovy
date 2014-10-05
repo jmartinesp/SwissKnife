@@ -428,7 +428,6 @@ public class SwissKnife {
         if(state != null){
 
             Method method = null;
-            Method[] methods = null;
             try {
                 method = SwissKnife.searchMethod(target, "restoreSavedState", [Bundle.class]);
             } catch (NoSuchMethodException e) {

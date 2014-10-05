@@ -106,7 +106,8 @@ public class AnnotationUtils {
 
         String method = "put$bundleMethod"
 
-        return new AstBuilder().buildFromSpec {
+
+        ExpressionStatement statement = new AstBuilder().buildFromSpec {
             expression {
                 methodCall {
                     variable bundleName
@@ -118,6 +119,8 @@ public class AnnotationUtils {
                 }
             }
         }[0]
+
+        statement
 
     }
 
@@ -210,7 +213,7 @@ public class AnnotationUtils {
     }
 
     public static MethodNode getSaveStateMethod(ClassNode declaringClass){
-        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "savedState")]
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "outState")]
         MethodNode saveStateMethod = declaringClass.getMethod("onSaveInstanceState", parameters)
         if(saveStateMethod == null){
             saveStateMethod = createSaveStateMethod()

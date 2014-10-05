@@ -69,10 +69,13 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         Statement insertStatement = AnnotationUtils.createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName)
 
-        List<Statement> statementsList = ((BlockStatement) onSaveInstanceState.getCode()).getStatements()
+        BlockStatement stat = (BlockStatement)onSaveInstanceState.getCode()
+
+
+        List<Statement> statementsList = stat.getStatements()
         statementsList.add(insertStatement)
 
-
+        println(onSaveInstanceState.getCode())
 
 
         MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)

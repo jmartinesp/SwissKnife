@@ -53,6 +53,7 @@ public class BackgroundActivity extends Activity {
         super.onCreate(savedInstanceState)
         mContext = this;
         setContentView(R.layout.activity_background)
+        miString = "BEFORE"
         SwissKnife.restoreState(this, savedInstanceState)
         if(savedInstanceState == null){
             Log.d("SIS", "WAS NULL")
@@ -64,9 +65,6 @@ public class BackgroundActivity extends Activity {
         SwissKnife.inject(this)
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState)
-    }
+
 
 }
