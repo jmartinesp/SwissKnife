@@ -36,24 +36,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             throw new Exception("Annotated field must be able to be written to a Bundle object. Field: $annotatedFieldName .Type: $annotatedFieldClass.name");
         }
 
-
-        def overrides = doesClassOverrideOnSave(declaringClass)
-
-        if(overrides){
-
-            def methodList = declaringClass.getDeclaredMethods("onSaveInstanceState")
-
-            MethodNode onSaveInstanceState = methodList.get(0)
-
-            //TODO: IMPLEMENT SAVE STATE
-        } else {
-
-        }
-
-
-
-        MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
-
         String id = null
 
         if(annotation.members.size() > 0){
@@ -61,6 +43,36 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         } else {
             id = "SWISSKNIFE_$annotatedFieldName"
         }
+
+
+        def overrides = doesClassOverrideOnSave(declaringClass)
+
+        MethodNode onSaveInstanceState
+
+        if(overrides){
+
+            def methodList = declaringClass.getDeclaredMethods("onSaveInstanceState")
+
+            onSaveInstanceState = methodList.get(0)
+
+        } else {
+            onSaveInstanceState = AnnotationUtils.getSaveStateMethod(declaringClass)
+        }
+
+        String bundleName = onSaveInstanceState.parameters[0].name
+
+        String bundleMethod = getBundleMethod(annotatedField)
+
+        Statement insertStatement = AnnotationUtils.createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName)
+
+        List<Statement> statementsList = ((BlockStatement) onSaveInstanceState.getCode()).getStatements()
+        statementsList.add(insertStatement)
+
+
+
+        MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
+
+
 
 
         Statement statement = createRestoreStatement(annotatedField, id)
@@ -207,12 +219,9 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             method = splits[splits.length-1]
         }
 
-        println(method)
-
         method
 
     }
-
 
     private boolean doesClassOverrideOnSave(ClassNode declaringClass){
 

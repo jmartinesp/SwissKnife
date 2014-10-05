@@ -70,13 +70,4 @@ public class BackgroundActivity extends Activity {
         SwissKnife.inject(this)
     }
 
-    public int suma(int a, int b){
-        return a+b
-    }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle holaJorge){
-        super.onSaveInstanceState(holaJorge)
-    }
 }

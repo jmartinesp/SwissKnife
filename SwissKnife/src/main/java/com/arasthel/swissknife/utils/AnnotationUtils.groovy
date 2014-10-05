@@ -102,6 +102,25 @@ public class AnnotationUtils {
         }[0];
     }
 
+    public static ExpressionStatement createSaveStateExpression(String bundleName, String bundleMethod, String id, String annotatedFieldName){
+
+        String method = "put$bundleMethod"
+
+        return new AstBuilder().buildFromSpec {
+            expression {
+                methodCall {
+                    variable bundleName
+                    constant method
+                    argumentList {
+                        constant id
+                        constant annotatedFieldName
+                    }
+                }
+            }
+        }[0]
+
+    }
+
     private static MethodNode createRestoreStateMethod(){
 
         BlockStatement blockStatement = new BlockStatement()
@@ -135,6 +154,50 @@ public class AnnotationUtils {
         return node;
     }
 
+    private static MethodNode createSaveStateMethod(){
+
+        BlockStatement blockStatement = new BlockStatement()
+
+        Parameter[] parameters =  [new Parameter(ClassHelper.make(Bundle.class), "savedState")];
+
+        ExpressionStatement expressionStatement =
+                new AstBuilder().buildFromSpec {
+                    expression{
+                        methodCall {
+                            variable "super"
+                            constant "onSaveInstanceState"
+                            argumentList {
+                                constant "savedState"
+                            }
+                        }
+                    }
+                }[0]
+
+        blockStatement.addStatement(expressionStatement)
+
+        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
+        annotationNode.addMember("value", new PropertyExpression(
+                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
+                new ConstantExpression(TypeCheckingMode.SKIP)));
+
+
+        AnnotationNode overrideAnnotation = new AnnotationNode(ClassHelper.make(Override.class))
+
+        MethodNode node = new MethodNode("onSaveInstanceState",
+                Opcodes.ACC_PUBLIC,
+                ClassHelper.VOID_TYPE,
+                parameters,
+                null,
+                blockStatement);
+
+
+        node.addAnnotation(annotationNode);
+        node.addAnnotation(overrideAnnotation)
+
+        return node;
+
+    }
+
 
     public static boolean isSubtype(Class original, Class compared) {
         while(original.name != compared.name) {
@@ -144,6 +207,17 @@ public class AnnotationUtils {
             }
         }
         return true;
+    }
+
+    public static MethodNode getSaveStateMethod(ClassNode declaringClass){
+        MethodNode saveStateMethod = declaringClass.getDeclaredMethod("onSaveInstanceState")
+        if(saveStateMethod == null){
+            saveStateMethod = createSaveStateMethod()
+            declaringClass.addMethod(saveStateMethod)
+        }
+
+        saveStateMethod
+
     }
 
     public static MethodNode getRestoreStateMethod(ClassNode declaringClass) {
