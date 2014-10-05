@@ -13,5 +13,5 @@ import java.lang.annotation.Target
 @Target(ElementType.FIELD)
 @GroovyASTTransformationClass(["com.arasthel.swissknife.annotations.SaveInstanceTransformation"])
 public @interface SaveInstance {
-    //String[] value();
+    String value() default "";
 }

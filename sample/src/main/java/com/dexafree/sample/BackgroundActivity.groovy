@@ -21,7 +21,7 @@ public class BackgroundActivity extends Activity {
 
     private Context mContext;
 
-    @SaveInstance
+    @SaveInstance("MICOSA")
     public ArrayList<Cosa> cosasda
 
     @SaveInstance

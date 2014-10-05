@@ -19,12 +19,14 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
 public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
+    private ClassNode declaringClass
+
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
         AnnotationNode annotation = astNodes[0];
         FieldNode annotatedField = astNodes[1];
 
-        ClassNode declaringClass = annotatedField.declaringClass
+        declaringClass = annotatedField.declaringClass
 
         Class annotatedFieldClass = annotatedField.getType().getTypeClass()
 
@@ -39,73 +41,200 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         if(overrides){
 
-            //def methodList = declaringClass.getMethods("onSaveInstanceState")
-            def methodList = declaringClass.getMethods("suma")
-            println("***")
-            methodList.each {
-                println(it.parameters)
-            }
+            def methodList = declaringClass.getDeclaredMethods("onSaveInstanceState")
+
+            MethodNode onSaveInstanceState = methodList.get(0)
+
+            //TODO: IMPLEMENT SAVE STATE
         }
 
 
 
+        MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
 
+        String id = null
 
-
-
-
-
-
-
-
-        MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
-
-        String id = null;
-
-        if(annotation.members.size() > 0) {
-            id = annotation.members.value.property.getValue();
+        if(annotation.members.size() > 0){
+            id = annotation.members.value.text
+        } else {
+            id = "SWISSKNIFE_"+annotatedFieldName
         }
 
-        if(id == null) {
-            id = annotatedField.name;
-        }
+        println(id)
 
-        Statement statement = createInjectStatement(annotatedField, id);
 
-        List<Statement> statementList = ((BlockStatement) injectMethod.getCode()).getStatements();
-        statementList.add(statement);
+        Statement statement = createRestoreStatement(annotatedField, id)
+
+
+        List<Statement> statementList = ((BlockStatement) restoreMethod.getCode()).getStatements();
+
+        statementList.add(statement)
+
 
     }
 
-    private Statement createInjectStatement(FieldNode field, String id) {
+    private Statement createRestoreStatement(FieldNode annotatedField, String id) {
 
+        String bundleMethod = getBundleMethod(annotatedField)
+        String assignation = "savedState.get"+bundleMethod+"(\"$id\")"
+
+        println("ASSIGNATION: $assignation")
+
+        String code = "$annotatedField.name = savedState.get$bundleMethod(\"$id\")"
+
+        /*BlockStatement statement =
+                new AstBuilder().buildFromSpec {
+                    block {
+                        expression {
+                            binary {
+                                variable annotatedField.name
+                                token "="
+                                variable "savedState.get"+bundleMethod+"($id)"
+                            }
+                        }
+                    }
+                }[0];*/
+
+        println(code)
+
+        println("ANTES")
         BlockStatement statement =
                 new AstBuilder().buildFromSpec {
                     block {
                         expression {
                             binary {
-                                variable field.name
+                                variable annotatedField.name
                                 token "="
-                                variable "v"
+                                methodCall {
+                                    variable "savedState"
+                                    method "get$bundleMethod"
+                                    parameters id
+                                }
                             }
                         }
                     }
-                }[0];
+                }
+        println("DESPUES")
+        //statement.statements.add(0, AnnotationUtils.createInjectExpression(id))
 
-        statement.statements.add(0, AnnotationUtils.createInjectExpression(id));
-
-        return statement;
+        statement
 
     }
 
+    private String getBundleMethod(FieldNode annotatedField){
+
+        String method = null
+
+        Class annotatedFieldClass = annotatedField.getType().getTypeClass()
+
+        Class[] classes = [String.class, int.class, int[].class, byte.class, char.class, double.class,
+                           boolean.class, float.class, long.class, short.class, CharSequence.class,
+                           Bundle.class]
 
 
+        classes.each {
+            if (it == annotatedFieldClass && method == null) method = it.name
+        }
 
 
+        if(method == null){
+
+            ArrayList dummyAL = new ArrayList()
+
+            if(annotatedFieldClass.isInstance(dummyAL)) method = "ArrayList"
+
+            if(method == "ArrayList"){
+                GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
+
+                generics.each {
+                    ClassNode genericClassNode = it.type
+
+                    Class genericClass = genericClassNode.typeClass
+
+                    if(method == "ArrayList"){
+
+                        if(doesClassImplementInterface(genericClass, "android.os.Parcelable")) {
+
+                            method = "Parcelable" + method
+
+                        } else {
+
+                            switch(genericClass.name){
+                                case Integer.class.name:
+                                    method = Integer.class.name+method
+                                    break
+
+                                case Boolean.class.name:
+                                    method = Boolean.class.name+method
+                                    break
+
+                                case Byte.class.name:
+                                    method = Byte.class.name+method
+                                    break
+
+                                case Character.class.name:
+                                    method = Character.class.name+method
+                                    break
+
+                                case CharSequence.class.name:
+                                    method = CharSequence.class.name+method
+                                    break
+
+                                case Double.class.name:
+                                    method = Double.class.name+method
+                                    break
+
+                                case Float.class.name:
+                                    method = Float.class.name+method
+                                    break
+
+                                case Long.class.name:
+                                    method = Long.class.name+method
+                                    break
+
+                                case String.class.name:
+                                    method = String.class.name+method
+                                    break
+
+                                case Short.class.name:
+                                    method = Short.class.name+method
+                                    break
+
+                                default:
+                                    break
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(method == null){
+          if(doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
+              method = "Parcelable"
+          else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable"))
+              method = "Serializable"
+
+        }
 
 
+        if(method == "int") method = "Integer"
 
+        if(Character.isLowerCase(method.charAt(0))){
+            char first = Character.toUpperCase(method.charAt(0))
+            method = "$first"+method.substring(1)
+        }
 
+        if(method.contains(".")){
+            String[] splits = method.split("\\.")
+            method = splits[splits.length-1]
+        }
+
+        println(method)
+
+        method
+
+    }
 
 
     private boolean doesClassOverrideOnSave(ClassNode declaringClass){
@@ -121,7 +250,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         overrides
 
     }
-
 
     private boolean canImplementSaveState(ClassNode declaringClass, FieldNode annotatedField){
 
@@ -155,10 +283,9 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
                     Class genericClass = genericClassNode.typeClass
 
-                    if(!canImplement){
-                        canImplement = doesClassImplementInterface(genericClass, "android.os.Parcelable") ||
-                                doesClassImplementInterface(genericClass, "java.io.Serializable")
-                    }
+                    // Here we don't check Serializable because Bundle does not support putSerializableArrayList
+                    if(!canImplement) canImplement = doesClassImplementInterface(genericClass, "android.os.Parcelable")
+
 
 
                     if(!canImplement){

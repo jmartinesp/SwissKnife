@@ -9,6 +9,7 @@ import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import groovyjarjarasm.asm.Opcodes
 import groovyjarjarasm.asm.commons.Method
+import org.apache.http.MethodNotSupportedException
 import org.codehaus.groovy.ast.AnnotationNode;
 import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.ClassNode
@@ -22,6 +23,7 @@ import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.DeclarationExpression
 import org.codehaus.groovy.ast.expr.Expression
+import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
@@ -100,6 +102,40 @@ public class AnnotationUtils {
         }[0];
     }
 
+    private static MethodNode createRestoreStateMethod(){
+
+        BlockStatement blockStatement = new BlockStatement()
+
+        Parameter[] parameters =  [new Parameter(ClassHelper.make(Bundle.class), "savedState")];
+
+        int tokenType = Types.EQUAL;
+
+        ExpressionStatement expressionStatement = new ExpressionStatement(
+                new DeclarationExpression(
+                        new VariableExpression("o", ClassHelper.make(Object.class)),
+                        new Token(tokenType, "=", -1, -1),
+                        new ConstantExpression(null)));
+
+        blockStatement.addStatement(expressionStatement)
+
+        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
+        annotationNode.addMember("value", new PropertyExpression(
+                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
+                new ConstantExpression(TypeCheckingMode.SKIP)));
+
+        MethodNode node = new MethodNode("restoreState",
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+                ClassHelper.VOID_TYPE,
+                parameters,
+                null,
+                blockStatement);
+
+        node.addAnnotation(annotationNode);
+
+        return node;
+    }
+
+
     public static boolean isSubtype(Class original, Class compared) {
         while(original.name != compared.name) {
             original = original.getSuperclass();
@@ -108,6 +144,18 @@ public class AnnotationUtils {
             }
         }
         return true;
+    }
+
+    public static MethodNode getRestoreStateMethod(ClassNode declaringClass) {
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "savedState")]
+
+        MethodNode restoreStateMethod = declaringClass.getMethod("restoreSavedState", parameters)
+        if (restoreStateMethod == null) {
+            restoreStateMethod = createRestoreStateMethod()
+            declaringClass.addMethod(restoreStateMethod)
+        }
+
+        restoreStateMethod
     }
 
 }
