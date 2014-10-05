@@ -46,6 +46,8 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             MethodNode onSaveInstanceState = methodList.get(0)
 
             //TODO: IMPLEMENT SAVE STATE
+        } else {
+
         }
 
 
@@ -57,47 +59,22 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         if(annotation.members.size() > 0){
             id = annotation.members.value.text
         } else {
-            id = "SWISSKNIFE_"+annotatedFieldName
+            id = "SWISSKNIFE_$annotatedFieldName"
         }
-
-        println(id)
 
 
         Statement statement = createRestoreStatement(annotatedField, id)
 
-
         List<Statement> statementList = ((BlockStatement) restoreMethod.getCode()).getStatements();
-
         statementList.add(statement)
-
-
     }
 
     private Statement createRestoreStatement(FieldNode annotatedField, String id) {
 
         String bundleMethod = getBundleMethod(annotatedField)
-        String assignation = "savedState.get"+bundleMethod+"(\"$id\")"
 
-        println("ASSIGNATION: $assignation")
+        String getBundleMethod = "get$bundleMethod"
 
-        String code = "$annotatedField.name = savedState.get$bundleMethod(\"$id\")"
-
-        /*BlockStatement statement =
-                new AstBuilder().buildFromSpec {
-                    block {
-                        expression {
-                            binary {
-                                variable annotatedField.name
-                                token "="
-                                variable "savedState.get"+bundleMethod+"($id)"
-                            }
-                        }
-                    }
-                }[0];*/
-
-        println(code)
-
-        println("ANTES")
         BlockStatement statement =
                 new AstBuilder().buildFromSpec {
                     block {
@@ -107,15 +84,15 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                                 token "="
                                 methodCall {
                                     variable "savedState"
-                                    method "get$bundleMethod"
-                                    parameters id
+                                    constant getBundleMethod
+                                    argumentList {
+                                        constant id
+                                    }
                                 }
                             }
                         }
                     }
-                }
-        println("DESPUES")
-        //statement.statements.add(0, AnnotationUtils.createInjectExpression(id))
+                }[0]
 
         statement
 

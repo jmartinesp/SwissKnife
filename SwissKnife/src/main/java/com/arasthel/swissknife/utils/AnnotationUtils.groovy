@@ -123,7 +123,7 @@ public class AnnotationUtils {
                 new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
                 new ConstantExpression(TypeCheckingMode.SKIP)));
 
-        MethodNode node = new MethodNode("restoreState",
+        MethodNode node = new MethodNode("restoreSavedState",
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
                 ClassHelper.VOID_TYPE,
                 parameters,
