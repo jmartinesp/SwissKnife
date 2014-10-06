@@ -4,7 +4,7 @@ package com.dexafree.sample;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Cosa implements Parcelable {
+public class Person implements Parcelable {
 
     private String name;
     private int age;
@@ -37,21 +37,26 @@ public class Cosa implements Parcelable {
         dest.writeInt(this.age);
     }
 
-    public Cosa() {
+    public Person() {
     }
 
-    private Cosa(Parcel in) {
+    public Person(String name, int age){
+        this.name = name;
+        this.age = age;
+    }
+
+    private Person(Parcel in) {
         this.name = in.readString();
         this.age = in.readInt();
     }
 
-    public static final Parcelable.Creator<Cosa> CREATOR = new Parcelable.Creator<Cosa>() {
-        public Cosa createFromParcel(Parcel source) {
-            return new Cosa(source);
+    public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
+        public Person createFromParcel(Parcel source) {
+            return new Person(source);
         }
 
-        public Cosa[] newArray(int size) {
-            return new Cosa[size];
+        public Person[] newArray(int size) {
+            return new Person[size];
         }
     };
 }

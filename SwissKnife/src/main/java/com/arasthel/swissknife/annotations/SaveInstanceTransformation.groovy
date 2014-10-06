@@ -219,8 +219,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         String method = null
 
-
-
         Class annotatedFieldClass = annotatedField.getType().getTypeClass()
 
         def isArray = annotatedField.getType().isArray()
@@ -314,10 +312,10 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         if(method == null){
 
-          if(doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
-              method = "Parcelable"
-          else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable") && !isArray)
-              method = "Serializable"
+            if(doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
+                method = "Parcelable"
+            else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable") && !isArray)
+                method = "Serializable"
 
         }
 
@@ -345,17 +343,36 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             }
         }
 
-        if(method == null && isArray){
+        //if(method == null && isArray){
+        if(isArray){
+
             String type = annotatedField.getType()
-            type = type.substring(0, type.length()-2)
-            if(type == "int")type = "Integer"
-            if (Character.isLowerCase(type.charAt(0))) {
 
-                char first = Character.toUpperCase(type.charAt(0))
+            if(type.contains("String[]")){
+                method = "StringArray"
+            } else {
 
-                type = "$first" + type.substring(1)
+                Class arrayTypeClass = annotatedField.originType.typeClass.componentType
+
+                if(doesClassImplementInterface(arrayTypeClass, "android.os.Parcelable")){
+                    type = "Parcelable"
+                } else {
+
+                    type = type.substring(0, type.length()-2)
+
+                    if (Character.isLowerCase(type.charAt(0))) {
+
+                        char first = Character.toUpperCase(type.charAt(0))
+
+                        type = "$first" + type.substring(1)
+                    }
+                }
+
+
+                method = type+"Array"
+
             }
-            method = type+"Array"
+
         }
 
         println(method)

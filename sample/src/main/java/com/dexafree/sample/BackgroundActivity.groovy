@@ -5,11 +5,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.annotations.InjectView
 import com.arasthel.swissknife.annotations.OnBackground
@@ -24,13 +22,13 @@ public class BackgroundActivity extends Activity {
     private Context mContext;
 
     @SaveInstance("MYSTRING")
-    public String miString
+    public String myString
 
     @SaveInstance
-    public int[] miInt
+    public int myInt
 
     @SaveInstance
-    public boolean[] miBool
+    public ArrayList<Person> myPersons
 
 
     @InjectView(R.id.edit_text)
@@ -66,22 +64,30 @@ public class BackgroundActivity extends Activity {
         super.onCreate(savedInstanceState)
         mContext = this;
         setContentView(R.layout.activity_background)
-        miString = "BEFORE"
+
+
+        myString = "BEFORE"
+        myPersons = new ArrayList<Person>()
+
         SwissKnife.inject(this)
-        miInt = [-150, -151]
-        miBool = [false, true]
         SwissKnife.restoreState(this, savedInstanceState)
+
         if(savedInstanceState == null){
             Log.d("SIS", "WAS NULL")
-            miString = "OLA KE ASE"
-            miInt = [5, 10]
-            miBool = [true, true]
+
+            myPersons.add(new Person("MyName", 55))
+            myInt = 150
+            myString = "I WILL BE SAVED"
         }
-        int primerInt = miInt[1]
-        boolean primero = miBool[1]
-        Log.d("MISTRING", miString)
-        Log.d("MIINT", "$primerInt")
-        Log.d("MIBOOL", "$primero")
+
+        Person p = myPersons.get(0)
+
+        assert p.name == "MyName"
+        assert p.age == 55
+
+        assert myInt == 150
+
+        assert myString == "I WILL BE SAVED"
 
     }
 
