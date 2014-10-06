@@ -11,11 +11,15 @@ With **SwissKnife** you can:
 * Inject views dynamically on *any Object* as long a you have a View to find them. No more ``findViewById`` and **you don't have to extend any classes**.
 * Add callback methods to several actions using ``@OnClick``, ``@OnItemClick``, etc.
 * Execute methods in the UI Thread or a background one using ``@OnUIThread`` and ``@OnBackground``.
+* Make your variables persistent across state changes **without messing with** `onSaveInstanceState`
 
 You can see an example here:
 
 ```groovy
 class MyActivity extends Activity {
+
+  @SaveInstance
+  public String myString;
 
   @OnClick(R.id.button)
   public void onButtonClicked(Button button) {
@@ -34,6 +38,9 @@ class MyActivity extends Activity {
         setContentView(R.layout.activity_main);
         // This must be called for injection of views and callbacks to take place
         SwissKnife.inject(this);
+
+        // This must be called for saved state restoring
+        SwissKnife.restoreState(this, savedInstanceState);
     }
 }
 ```
@@ -55,6 +62,7 @@ For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKni
 * [@OnEditorAction](https://github.com/Arasthel/SwissKnife/wiki/@OnEditorAction)
 * [@OnUIThread](https://github.com/Arasthel/SwissKnife/wiki/@OnUIThread)
 * [@OnBackground](https://github.com/Arasthel/SwissKnife/wiki/@OnBackground)
+* [@SaveInstance](https://github.com/Arasthel/SwissKnife/wiki/@SaveInstance)
 
 I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
 
