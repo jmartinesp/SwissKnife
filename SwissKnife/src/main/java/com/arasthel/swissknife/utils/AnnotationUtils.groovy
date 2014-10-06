@@ -1,15 +1,10 @@
 package com.arasthel.swissknife.utils
 
 import android.os.Bundle
-import android.os.Parcelable
-import android.util.SparseArray
 import android.view.View
-import groovy.transform.Field
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import groovyjarjarasm.asm.Opcodes
-import groovyjarjarasm.asm.commons.Method
-import org.apache.http.MethodNotSupportedException
 import org.codehaus.groovy.ast.AnnotationNode;
 import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.ClassNode
@@ -18,20 +13,15 @@ import org.codehaus.groovy.ast.GenericsType;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.BinaryExpression
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.DeclarationExpression
-import org.codehaus.groovy.ast.expr.Expression
-import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.syntax.Types
-
-import java.lang.reflect.ParameterizedType;
 
 /**
  * Created by Arasthel on 17/08/14.
@@ -232,6 +222,87 @@ public class AnnotationUtils {
                 new ConstantExpression(TypeCheckingMode.SKIP)));
 
         saveStateMethod.addAnnotation(annotationNode)
+    }
+
+    public static boolean canImplementSaveState(ClassNode declaringClass, FieldNode annotatedField){
+
+        def canImplement = false
+
+        Class[] classes = [String.class, int.class, byte.class, char.class, double.class, boolean.class,
+                           float.class, long.class, short.class, Integer.class, CharSequence.class,
+                           Bundle.class]
+
+
+        Class original = annotatedField.getType().getTypeClass();
+
+        classes.each {
+            if (it == original) canImplement = true
+        }
+
+
+        if(!canImplement){
+
+            def containsGenerics = false
+
+            ArrayList dummyAL = new ArrayList()
+
+            if(original.isInstance(dummyAL)) containsGenerics = true
+
+            if(containsGenerics){
+                GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
+
+                generics.each {
+                    ClassNode genericClassNode = it.type
+
+                    Class genericClass = genericClassNode.typeClass
+
+                    // Here we don't check Serializable because Bundle does not support putSerializableArrayList
+                    if(!canImplement) canImplement = doesClassImplementInterface(genericClass, "android.os.Parcelable")
+
+
+
+                    if(!canImplement){
+
+                        switch(genericClass.name){
+
+                            case [Integer.class.name, Boolean.class.name, Byte.class.name,
+                                  Character.class.name, CharSequence.class.name, Double.class.name,
+                                  Float.class.name, Long.class.name, String.class.name,
+                                  Short.class.name]:
+                                canImplement = true
+                                break
+                            default:
+                                canImplement = false
+                                break
+
+                        }
+                    }
+                }
+            }
+
+        }
+
+        if(!canImplement) canImplement = doesClassImplementInterface(original, "android.os.Parcelable") ||
+                doesClassImplementInterface(original, "java.io.Serializable")
+
+        if(!canImplement) canImplement = AnnotationUtils.isSubtype(original, View.class)
+
+        canImplement
+
+    }
+
+    public static boolean doesClassImplementInterface(Class original, String desiredInterface){
+
+        def interfaces = original.getInterfaces()
+
+        def implementsInterface = false
+
+        interfaces.each {
+            if(it.getName().equalsIgnoreCase(desiredInterface)) implementsInterface = true
+        }
+
+        implementsInterface
+
     }
 
 

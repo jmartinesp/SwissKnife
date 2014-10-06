@@ -3,15 +3,9 @@ package com.arasthel.swissknife.annotations
 import android.os.Bundle
 import android.view.View
 import com.arasthel.swissknife.utils.AnnotationUtils
-import groovy.transform.TypeChecked
-import groovy.transform.TypeCheckingMode
 import groovyjarjarasm.asm.Opcodes
-import groovyjarjarasm.asm.commons.Method
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.ClassExpression
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.Statement
@@ -39,10 +33,22 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         String annotatedFieldName = annotatedField.name
 
-        if(!canImplementSaveState(declaringClass, annotatedField)){
+        /*
+         * First of all, we must check that the annotated field is able to be written to a Bundle object
+         * If it's not, we throw an Exception showing the field and its type
+         */
+        if(!AnnotationUtils.canImplementSaveState(declaringClass, annotatedField)){
             throw new Exception("Annotated field must be able to be written to a Bundle object. Field: $annotatedFieldName .Type: $annotatedFieldClass.name");
         }
 
+        def isView = AnnotationUtils.isSubtype(annotatedFieldClass, View.class)
+
+        /*
+         * Here we check if the user has passed any specific name to the SaveInstance annotation
+         * If he has, the size will be 1, so we recover the passed String
+         * Else, in order to avoid possible collisions with his own defined saveInstanceState defined
+         * constants, we will add the "SWISSKNIFE_" prefix, and name the variable after the annotated field
+         */
         String id = null
 
         if(annotation.members.size() > 0){
@@ -52,13 +58,33 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         }
 
 
+        /*
+         * ****************************************
+         * * BEGIN OF ONSAVEINSTANCESTATE SECTION *
+         * ****************************************
+         */
+
+        /*
+         * We get the onSaveInstanceState method
+         * If it hasn't been explicitly declared at the class, we must first generate one
+         * If it has already been declared at the class, we get it in order to make further modifications
+         */
         MethodNode onSaveInstanceState = AnnotationUtils.getSaveStateMethod(declaringClass)
 
+        /*
+         * Here we recover the name of the variable which is passed to the onSaveInstanceState method
+         * and get its name, in order to generate the statements accordingly
+         */
         String bundleName = onSaveInstanceState.parameters[0].name
+
 
         Statement insertStatement = null;
 
-        if(AnnotationUtils.isSubtype(annotatedFieldClass, View.class)) {
+        /*
+         * Depending on the annotated method's class, we must get the correct statement in order
+         * to add it to the onSaveInstanceState method
+         */
+        if(isView) {
             insertStatement = createViewSaveStateExpression(bundleName, id, annotatedFieldName);
         } else {
             String bundleMethod = getBundleMethod(annotatedField)
@@ -66,24 +92,55 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             insertStatement = createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName);
         }
 
+        /*
+         * After getting the correct method, we add it to the class
+         */
         List<Statement> statementsList = ((BlockStatement)onSaveInstanceState.getCode()).getStatements()
         statementsList.add(insertStatement)
 
 
+        /*
+         * **************************************
+         * * END OF ONSAVEINSTANCESTATE SECTION *
+         * **************************************
+         */
+
+        /*
+         * *********************************
+         * * BEGIN OF RESTORESTATE SECTION *
+         * *********************************
+         */
+
+        /*
+         * We get the restoreState method
+         * If it hasn't been created on a previous iteration, we must first generate one
+         * If it has already been declared at the class, we get it in order to make further modifications
+         */
         MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
 
         Statement statement = null;
 
-        if(AnnotationUtils.isSubtype(annotatedFieldClass, View.class)) {
+        /*
+         * Depending on the annotated method's class, we must get the correct statement in order
+         * to add it to the onSaveInstanceState method
+         */
+        if(isView) {
             statement = createViewRestoreStatement(annotatedField, id);
         } else {
             statement = createRestoreStatement(annotatedField, id);
         }
 
+        /*
+         * After getting the correct method, we add it to the class
+         */
         List<Statement> statementList = ((BlockStatement) restoreMethod.getCode()).getStatements();
         statementList.add(statement)
     }
 
+
+    /*
+     * Creates the Statement which will be used for saving a variable's content in the onSaveInstanceState method
+     */
     private Statement createSaveStateExpression(String bundleName, String bundleMethod, String id, String annotatedFieldName){
 
         String method = "put$bundleMethod"
@@ -102,8 +159,14 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             }
         }[0]
 
+        statement
+
     }
 
+
+    /*
+     * Creates the Statement which will be used for saving a View state in the onSaveInstanceState method
+     */
     private Statement createViewSaveStateExpression(String bundleName, String id, String annotatedFieldName){
 
         String method = "onSaveInstanceState"
@@ -145,6 +208,10 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
     }
 
+
+    /*
+     * Creates the Statement which will be used for restoring a View state in the restoreState method
+     */
     private Statement createViewRestoreStatement(FieldNode annotatedField, String id) {
 
         BlockStatement statement = new AstBuilder().buildFromSpec {
@@ -186,6 +253,9 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
     }
 
 
+    /*
+     * Creates the Statement which will be used for restoring a variable's content in the restoreState method
+     */
     private Statement createRestoreStatement(FieldNode annotatedField, String id) {
 
         String bundleMethod = getBundleMethod(annotatedField)
@@ -215,19 +285,99 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
     }
 
+    /*
+     * Returns the corresponding method in order to add the content to the Bundle
+     *
+     * Example:
+     * String -> StringArray
+     * boolean[] -> BooleanArray
+     * Parcelable -> Parcelable
+     * Parcelable[] -> ParcelableArray
+     * ArrayList<? extends Parcelable> -> ParcelableArrayList
+     */
     private String getBundleMethod(FieldNode annotatedField){
 
         String method = null
 
-        Class annotatedFieldClass = annotatedField.getType().getTypeClass()
-
+        /*
+         * We must first check if the annotated field is an array, in order to react accordingly
+         */
         def isArray = annotatedField.getType().isArray()
 
 
+        if(isArray){
+            method = processArray(annotatedField)
+        } else {
+            method = processCommonVariable(annotatedField)
+        }
+
+        method
+
+    }
+
+
+    /*
+     * Returns the Bundle method for a variable declared as an array
+     */
+    private String processArray(FieldNode annotatedField){
+
+        String method
+        String type = annotatedField.getType()
+
+        /*
+         * As String is a special case (it's not primitive type), we first check if it's that case
+         */
+        if(type.contains("String[]")){
+            method = "String"
+        } else {
+
+            /*
+             * If it's not a String, then we will check if it's a Parcelable object, so we get the
+             * array's Type Class and check if it implements Parcelable
+             */
+            Class arrayTypeClass = annotatedField.originType.typeClass.componentType
+
+            if(AnnotationUtils.doesClassImplementInterface(arrayTypeClass, "android.os.Parcelable")){
+                type = "Parcelable"
+            } else {
+
+                /*
+                 * If the current variable is neither a String[] or a Parcelable, we get the Type
+                 * and simply capitalize the first character, because it will be a primitive Type
+                 */
+                type = type.substring(0, type.length()-2)
+
+                if (Character.isLowerCase(type.charAt(0))) {
+
+                    char first = Character.toUpperCase(type.charAt(0))
+
+                    type = "$first" + type.substring(1)
+                }
+            }
+        }
+
+        /*
+         * As the variable is an array, we must append the "Array" suffix
+         */
+        method = type+"Array"
+
+        method
+    }
+
+
+    /*
+     * Returns the Bundle method for a variable that has not been declared as an array
+     */
+    private String processCommonVariable(FieldNode annotatedField){
+
+        String method
+
+        Class annotatedFieldClass = annotatedField.getType().getTypeClass()
 
         Class[] classes = [String.class, int.class, byte.class, char.class, double.class,
                            boolean.class, float.class, long.class, short.class, CharSequence.class,
                            Bundle.class]
+
 
 
 
@@ -253,7 +403,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
                     if(method == "ArrayList"){
 
-                        if(doesClassImplementInterface(genericClass, "android.os.Parcelable")) {
+                        if(AnnotationUtils.doesClassImplementInterface(genericClass, "android.os.Parcelable")) {
 
                             method = "Parcelable" + method
 
@@ -312,7 +462,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         if(method == null){
 
-            if(doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
+            if(AnnotationUtils.doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
                 method = "Parcelable"
             else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable") && !isArray)
                 method = "Serializable"
@@ -343,136 +493,12 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             }
         }
 
-        //if(method == null && isArray){
-        if(isArray){
-
-            String type = annotatedField.getType()
-
-            if(type.contains("String[]")){
-                method = "StringArray"
-            } else {
-
-                Class arrayTypeClass = annotatedField.originType.typeClass.componentType
-
-                if(doesClassImplementInterface(arrayTypeClass, "android.os.Parcelable")){
-                    type = "Parcelable"
-                } else {
-
-                    type = type.substring(0, type.length()-2)
-
-                    if (Character.isLowerCase(type.charAt(0))) {
-
-                        char first = Character.toUpperCase(type.charAt(0))
-
-                        type = "$first" + type.substring(1)
-                    }
-                }
 
 
-                method = type+"Array"
-
-            }
-
-        }
 
         println(method)
 
         method
-
-    }
-
-    private boolean doesClassOverrideOnSave(ClassNode declaringClass){
-
-        def methods = declaringClass.methods
-
-        def overrides = false
-
-        methods.each{
-            if(!overrides) overrides = it.name.equalsIgnoreCase("onSaveInstanceState")
-        }
-
-        overrides
-
-    }
-
-    private boolean canImplementSaveState(ClassNode declaringClass, FieldNode annotatedField){
-
-        def canImplement = false
-
-        Class[] classes = [String.class, int.class, byte.class, char.class, double.class, boolean.class,
-                           float.class, long.class, short.class, Integer.class, CharSequence.class,
-                           Bundle.class]
-
-
-        Class original = annotatedField.getType().getTypeClass();
-
-        classes.each {
-            if (it == original) canImplement = true
-        }
-
-
-        if(!canImplement){
-
-            def containsGenerics = false
-
-            ArrayList dummyAL = new ArrayList()
-
-            if(original.isInstance(dummyAL)) containsGenerics = true
-
-            if(containsGenerics){
-                GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
-
-                generics.each {
-                    ClassNode genericClassNode = it.type
-
-                    Class genericClass = genericClassNode.typeClass
-
-                    // Here we don't check Serializable because Bundle does not support putSerializableArrayList
-                    if(!canImplement) canImplement = doesClassImplementInterface(genericClass, "android.os.Parcelable")
-
-
-
-                    if(!canImplement){
-
-                        switch(genericClass.name){
-
-                            case [Integer.class.name, Boolean.class.name, Byte.class.name,
-                                  Character.class.name, CharSequence.class.name, Double.class.name,
-                                  Float.class.name, Long.class.name, String.class.name,
-                                  Short.class.name]:
-                                canImplement = true
-                                break
-                            default:
-                                canImplement = false
-                                break
-
-                        }
-                    }
-                }
-            }
-
-        }
-
-        if(!canImplement) canImplement = doesClassImplementInterface(original, "android.os.Parcelable") ||
-                doesClassImplementInterface(original, "java.io.Serializable")
-
-        if(!canImplement) canImplement = AnnotationUtils.isSubtype(original, View.class)
-
-        canImplement
-
-    }
-
-    private boolean doesClassImplementInterface(Class original, String desiredInterface){
-
-        def interfaces = original.getInterfaces()
-
-        def implementsInterface = false
-
-        interfaces.each {
-            if(it.getName().equalsIgnoreCase(desiredInterface)) implementsInterface = true
-        }
-
-        implementsInterface
 
     }
 
