@@ -219,11 +219,18 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         String method = null
 
+
+
         Class annotatedFieldClass = annotatedField.getType().getTypeClass()
 
-        Class[] classes = [String.class, int.class, int[].class, byte.class, char.class, double.class,
+        def isArray = annotatedField.getType().isArray()
+
+
+
+        Class[] classes = [String.class, int.class, byte.class, char.class, double.class,
                            boolean.class, float.class, long.class, short.class, CharSequence.class,
                            Bundle.class]
+
 
 
         classes.each {
@@ -239,6 +246,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
             if(method == "ArrayList"){
                 GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
+
 
                 generics.each {
                     ClassNode genericClassNode = it.type
@@ -303,26 +311,54 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             }
         }
 
+
         if(method == null){
+
           if(doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
               method = "Parcelable"
-          else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable"))
+          else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable") && !isArray)
               method = "Serializable"
 
         }
 
 
-        if(method == "int") method = "Int"
+        if(method != null) {
 
-        if(Character.isLowerCase(method.charAt(0))){
-            char first = Character.toUpperCase(method.charAt(0))
-            method = "$first"+method.substring(1)
+            if (Character.isLowerCase(method.charAt(0))) {
+                char first = Character.toUpperCase(method.charAt(0))
+                method = "$first" + method.substring(1)
+            }
+
+
+            if (method.contains(".")) {
+                String[] splits = method.split("\\.")
+                method = splits[splits.length - 1]
+            }
+
+
+            if (isArray && method != "Parcelable" && method != "Serializable") {
+                if (method == "Int") {
+
+                    method = "Integer"
+                }
+                method = method + "Array"
+            }
         }
 
-        if(method.contains(".")){
-            String[] splits = method.split("\\.")
-            method = splits[splits.length-1]
+        if(method == null && isArray){
+            String type = annotatedField.getType()
+            type = type.substring(0, type.length()-2)
+            if(type == "int")type = "Integer"
+            if (Character.isLowerCase(type.charAt(0))) {
+
+                char first = Character.toUpperCase(type.charAt(0))
+
+                type = "$first" + type.substring(1)
+            }
+            method = type+"Array"
         }
+
+        println(method)
 
         method
 

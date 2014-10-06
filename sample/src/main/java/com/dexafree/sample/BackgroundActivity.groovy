@@ -23,11 +23,15 @@ public class BackgroundActivity extends Activity {
 
     private Context mContext;
 
-    @SaveInstance
+    @SaveInstance("MYSTRING")
     public String miString
 
     @SaveInstance
-    public int miInt
+    public int[] miInt
+
+    @SaveInstance
+    public boolean[] miBool
+
 
     @InjectView(R.id.edit_text)
     @SaveInstance
@@ -63,17 +67,21 @@ public class BackgroundActivity extends Activity {
         mContext = this;
         setContentView(R.layout.activity_background)
         miString = "BEFORE"
-        miInt = -150
         SwissKnife.inject(this)
+        miInt = [-150, -151]
+        miBool = [false, true]
         SwissKnife.restoreState(this, savedInstanceState)
         if(savedInstanceState == null){
             Log.d("SIS", "WAS NULL")
             miString = "OLA KE ASE"
-            miInt = 5
+            miInt = [5, 10]
+            miBool = [true, true]
         }
-
+        int primerInt = miInt[1]
+        boolean primero = miBool[1]
         Log.d("MISTRING", miString)
-        Log.d("MIINT", "$miInt")
+        Log.d("MIINT", "$primerInt")
+        Log.d("MIBOOL", "$primero")
 
     }
 
