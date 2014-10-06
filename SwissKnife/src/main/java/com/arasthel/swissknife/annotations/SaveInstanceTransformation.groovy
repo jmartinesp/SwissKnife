@@ -380,96 +380,53 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
 
 
-
+        /*
+         * First we check if the variable is one of the Class objects declared at classes
+         */
         classes.each {
             if (it == annotatedFieldClass && method == null) method = it.name
         }
 
 
+        /*
+         * If the variable's class was not in the declared Classs objects, it might be an ArrayList,
+         * a Parcelable or a Serializable
+         */
         if(method == null){
 
+            // We create a dummy ArrayList in order to check if is instance of the variable's class
             ArrayList dummyAL = new ArrayList()
 
             if(annotatedFieldClass.isInstance(dummyAL)) method = "ArrayList"
 
+            /*
+             * If the variable is an ArrayList, we start processing it in order to get it's Generic Type
+             * If the generic wasn't a valid one, method would be null again
+             */
             if(method == "ArrayList"){
-                GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
-
-
-                generics.each {
-                    ClassNode genericClassNode = it.type
-
-                    Class genericClass = genericClassNode.typeClass
-
-                    if(method == "ArrayList"){
-
-                        if(AnnotationUtils.doesClassImplementInterface(genericClass, "android.os.Parcelable")) {
-
-                            method = "Parcelable" + method
-
-                        } else {
-
-                            switch(genericClass.name){
-                                case Integer.class.name:
-                                    method = Integer.class.name+method
-                                    break
-
-                                case Boolean.class.name:
-                                    method = Boolean.class.name+method
-                                    break
-
-                                case Byte.class.name:
-                                    method = Byte.class.name+method
-                                    break
-
-                                case Character.class.name:
-                                    method = Character.class.name+method
-                                    break
-
-                                case CharSequence.class.name:
-                                    method = CharSequence.class.name+method
-                                    break
-
-                                case Double.class.name:
-                                    method = Double.class.name+method
-                                    break
-
-                                case Float.class.name:
-                                    method = Float.class.name+method
-                                    break
-
-                                case Long.class.name:
-                                    method = Long.class.name+method
-                                    break
-
-                                case String.class.name:
-                                    method = String.class.name+method
-                                    break
-
-                                case Short.class.name:
-                                    method = Short.class.name+method
-                                    break
-
-                                default:
-                                    break
-                            }
-                        }
-                    }
-                }
+                method = getGenericFromArrayList(annotatedField)
             }
         }
 
 
+        /*
+         * If the object was not one of the declared classes or a valid ArrayList, it might be a
+         * Parcelable object or a Serializable one
+         */
         if(method == null){
 
             if(AnnotationUtils.doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
                 method = "Parcelable"
-            else if (doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable") && !isArray)
+            else if (AnnotationUtils.doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable"))
                 method = "Serializable"
 
         }
 
 
+        /*
+         * If a valid type has been found, we must check that the first character is uppercase, in order
+         * to add later the "put/get" prefix
+         */
         if(method != null) {
 
             if (Character.isLowerCase(method.charAt(0))) {
@@ -478,28 +435,117 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             }
 
 
+            /*
+             * If the Type name contains '.', we'll only need the last part
+             */
             if (method.contains(".")) {
                 String[] splits = method.split("\\.")
                 method = splits[splits.length - 1]
             }
 
+        }
 
-            if (isArray && method != "Parcelable" && method != "Serializable") {
-                if (method == "Int") {
 
-                    method = "Integer"
+        //Uncomment for debug
+        //println(method)
+
+        method
+
+    }
+
+
+    /*
+     * Given an annotated ArrayList, this function returns a String which contains:
+     * ArrayList-generic + "ArrayList"
+     */
+    private String getGenericFromArrayList(FieldNode annotatedField){
+
+        String generic = "ArrayList"
+
+
+        /*
+         * First we retrieve the Generics Types found inside the ArrayList and iterate through them
+         */
+        GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
+
+
+        generics.each {
+
+            ClassNode genericClassNode = it.type
+
+            Class genericClass = genericClassNode.typeClass
+
+            // As we will modify the 'generic' variable, this ensures that it only will be modified once
+            if(generic == "ArrayList"){
+
+                /*
+                 * If the Generic implements the Parcelable interface, the method will be ParcelableArrayList
+                 */
+                if(AnnotationUtils.doesClassImplementInterface(genericClass, "android.os.Parcelable")) {
+
+                    generic = "Parcelable" + generic
+
+                } else {
+
+                    /*
+                     * If the Generic is not a Parcelable, it must be one of the following classes
+                     * in order to be able to be written to a Bundle object
+                     */
+                    switch(genericClass.name){
+                        case Integer.class.name:
+                            generic = Integer.class.name+generic
+                            break
+
+                        case Boolean.class.name:
+                            generic = Boolean.class.name+generic
+                            break
+
+                        case Byte.class.name:
+                            generic = Byte.class.name+generic
+                            break
+
+                        case Character.class.name:
+                            generic = Character.class.name+generic
+                            break
+
+                        case CharSequence.class.name:
+                            generic = CharSequence.class.name+generic
+                            break
+
+                        case Double.class.name:
+                            generic = Double.class.name+generic
+                            break
+
+                        case Float.class.name:
+                            generic = Float.class.name+generic
+                            break
+
+                        case Long.class.name:
+                            generic = Long.class.name+generic
+                            break
+
+                        case String.class.name:
+                            generic = String.class.name+generic
+                            break
+
+                        case Short.class.name:
+                            generic = Short.class.name+generic
+                            break
+
+                        default:
+                            break
+                    }
                 }
-                method = method + "Array"
             }
         }
 
 
+        /*
+         * If a valid generic Type has not been found, we will set the variable again to null
+         */
+        if(generic == "ArrayList") generic = null
 
-
-        println(method)
-
-        method
-
+        generic
     }
 
 
