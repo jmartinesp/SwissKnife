@@ -2,6 +2,7 @@ package com.arasthel.swissknife.annotations
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import com.arasthel.swissknife.utils.AnnotationUtils
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
@@ -85,7 +86,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
          * to add it to the onSaveInstanceState method
          */
         if(isView) {
-            insertStatement = createViewSaveStateExpression(bundleName, id, annotatedFieldName);
+            insertStatement = createViewSaveStateExpression(bundleName, id, annotatedField);
         } else {
             String bundleMethod = getBundleMethod(annotatedField)
 
@@ -167,9 +168,26 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
     /*
      * Creates the Statement which will be used for saving a View state in the onSaveInstanceState method
      */
-    private Statement createViewSaveStateExpression(String bundleName, String id, String annotatedFieldName){
+    private Statement createViewSaveStateExpression(String bundleName, String id, FieldNode annotatedField){
 
         String method = "onSaveInstanceState"
+
+        Statement freezeTextStatement = null;
+
+        // If view extends TextView is needed to set "freezesText" to true
+        if(AnnotationUtils.isSubtype(annotatedField.getType().getTypeClass(), TextView.class)) {
+            freezeTextStatement = new AstBuilder().buildFromSpec {
+                expression {
+                    methodCall {
+                        variable annotatedField.name
+                        constant "setFreezesText"
+                        argumentList {
+                            constant true
+                        }
+                    }
+                }
+            }[0];
+        }
 
         BlockStatement statement = new AstBuilder().buildFromSpec {
             block {
@@ -185,7 +203,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                         variable id
                         token "="
                         methodCall {
-                            variable annotatedFieldName
+                            variable annotatedField.name
                             constant method
                             argumentList {}
                         }
@@ -203,6 +221,10 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                 }
             }
         }[0]
+
+        if(freezeTextStatement) {
+            statement.getStatements().add(0, freezeTextStatement)
+        }
 
         statement
 

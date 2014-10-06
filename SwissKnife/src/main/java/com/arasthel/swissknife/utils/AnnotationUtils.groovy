@@ -224,6 +224,7 @@ public class AnnotationUtils {
         saveStateMethod.addAnnotation(annotationNode)
     }
 
+
     public static boolean canImplementSaveState(ClassNode declaringClass, FieldNode annotatedField){
 
         def canImplement = false
@@ -285,7 +286,7 @@ public class AnnotationUtils {
         if(!canImplement) canImplement = doesClassImplementInterface(original, "android.os.Parcelable") ||
                 doesClassImplementInterface(original, "java.io.Serializable")
 
-        if(!canImplement) canImplement = AnnotationUtils.isSubtype(original, View.class)
+        if(!canImplement) canImplement = isSubtype(original, View.class)
 
         canImplement
 
