@@ -1,6 +1,7 @@
 package com.arasthel.swissknife.annotations
 
 import android.os.Bundle
+import android.view.View
 import com.arasthel.swissknife.utils.AnnotationUtils
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
@@ -55,22 +56,29 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         String bundleName = onSaveInstanceState.parameters[0].name
 
-        String bundleMethod = getBundleMethod(annotatedField)
+        Statement insertStatement = null;
 
-        Statement insertStatement = createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName)
+        if(AnnotationUtils.isSubtype(annotatedFieldClass, View.class)) {
+            insertStatement = createViewSaveStateExpression(bundleName, id, annotatedFieldName);
+        } else {
+            String bundleMethod = getBundleMethod(annotatedField)
 
+            insertStatement = createSaveStateExpression(bundleName, bundleMethod, id, annotatedFieldName);
+        }
 
         List<Statement> statementsList = ((BlockStatement)onSaveInstanceState.getCode()).getStatements()
         statementsList.add(insertStatement)
 
 
-        //println(onSaveInstanceState.getCode())
-
-
-
         MethodNode restoreMethod = AnnotationUtils.getRestoreStateMethod(declaringClass)
 
-        Statement statement = createRestoreStatement(annotatedField, id)
+        Statement statement = null;
+
+        if(AnnotationUtils.isSubtype(annotatedFieldClass, View.class)) {
+            statement = createViewRestoreStatement(annotatedField, id);
+        } else {
+            statement = createRestoreStatement(annotatedField, id);
+        }
 
         List<Statement> statementList = ((BlockStatement) restoreMethod.getCode()).getStatements();
         statementList.add(statement)
@@ -93,6 +101,87 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                 }
             }
         }[0]
+
+    }
+
+    private Statement createViewSaveStateExpression(String bundleName, String id, String annotatedFieldName){
+
+        String method = "onSaveInstanceState"
+
+        BlockStatement statement = new AstBuilder().buildFromSpec {
+            block {
+                expression {
+                    declaration {
+                        variable id
+                        token "="
+                        constant null
+                    }
+                }
+                expression {
+                    binary {
+                        variable id
+                        token "="
+                        methodCall {
+                            variable annotatedFieldName
+                            constant method
+                            argumentList {}
+                        }
+                    }
+                }
+                expression {
+                    methodCall {
+                        variable bundleName
+                        constant "putParcelable"
+                        argumentList {
+                            constant id
+                            variable id
+                        }
+                    }
+                }
+            }
+        }[0]
+
+        statement
+
+    }
+
+    private Statement createViewRestoreStatement(FieldNode annotatedField, String id) {
+
+        BlockStatement statement = new AstBuilder().buildFromSpec {
+            block {
+                expression {
+                    declaration {
+                        variable id
+                        token "="
+                        constant null
+                    }
+                }
+                expression {
+                    binary {
+                        variable id
+                        token "="
+                        methodCall {
+                            variable "savedState"
+                            constant "getParcelable"
+                            argumentList {
+                                constant id
+                            }
+                        }
+                    }
+                }
+                expression {
+                    methodCall {
+                        variable annotatedField.name
+                        constant "onRestoreInstanceState"
+                        argumentList {
+                            variable id
+                        }
+                    }
+                }
+            }
+        }[0]
+
+        statement
 
     }
 
@@ -313,6 +402,8 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         if(!canImplement) canImplement = doesClassImplementInterface(original, "android.os.Parcelable") ||
                 doesClassImplementInterface(original, "java.io.Serializable")
+
+        if(!canImplement) canImplement = AnnotationUtils.isSubtype(original, View.class)
 
         canImplement
 

@@ -7,7 +7,9 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.annotations.InjectView
 import com.arasthel.swissknife.annotations.OnBackground
@@ -26,6 +28,10 @@ public class BackgroundActivity extends Activity {
 
     @SaveInstance
     public int miInt
+
+    @InjectView(R.id.edit_text)
+    @SaveInstance
+    public EditText textView;
 
 
     @InjectView(R.id.image_view) ImageView image
@@ -58,6 +64,7 @@ public class BackgroundActivity extends Activity {
         setContentView(R.layout.activity_background)
         miString = "BEFORE"
         miInt = -150
+        SwissKnife.inject(this)
         SwissKnife.restoreState(this, savedInstanceState)
         if(savedInstanceState == null){
             Log.d("SIS", "WAS NULL")
@@ -68,14 +75,12 @@ public class BackgroundActivity extends Activity {
         Log.d("MISTRING", miString)
         Log.d("MIINT", "$miInt")
 
-        SwissKnife.inject(this)
     }
 
 
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState)
-        Log.d("CODIGO", "GENERADO")
     }
 
 
