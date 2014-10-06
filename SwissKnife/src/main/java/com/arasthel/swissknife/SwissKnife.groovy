@@ -1,5 +1,6 @@
 package com.arasthel.swissknife
 
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.v4.view.ViewPager
@@ -421,5 +422,25 @@ public class SwissKnife {
 
         return method;
     }
+
+    public static void restoreState(Object target, Bundle state) {
+
+        if(state != null){
+
+            Method method = null;
+            try {
+                method = SwissKnife.searchMethod(target, "restoreSavedState", [Bundle.class]);
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, e.getMessage());
+                return;
+            } finally {
+                method?.invoke(target, state);
+            }
+
+        }
+
+
+    }
+
 
 }

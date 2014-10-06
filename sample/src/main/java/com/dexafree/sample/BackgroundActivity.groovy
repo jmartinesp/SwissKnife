@@ -6,18 +6,35 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
 import android.widget.ImageView
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.annotations.InjectView
 import com.arasthel.swissknife.annotations.OnBackground
 import com.arasthel.swissknife.annotations.OnClick
 import com.arasthel.swissknife.annotations.OnUIThread
+import com.arasthel.swissknife.annotations.SaveInstance
 import groovy.transform.CompileStatic
 
 @CompileStatic
 public class BackgroundActivity extends Activity {
 
     private Context mContext;
+
+    @SaveInstance("MYSTRING")
+    public String myString
+
+    @SaveInstance
+    public int myInt
+
+    @SaveInstance
+    public ArrayList<Person> myPersons
+
+
+    @InjectView(R.id.edit_text)
+    @SaveInstance
+    public EditText textView;
+
 
     @InjectView(R.id.image_view) ImageView image
 
@@ -48,6 +65,39 @@ public class BackgroundActivity extends Activity {
         mContext = this;
         setContentView(R.layout.activity_background)
 
+
+        myString = "BEFORE"
+        myPersons = new ArrayList<Person>()
+
         SwissKnife.inject(this)
+        SwissKnife.restoreState(this, savedInstanceState)
+
+        if(savedInstanceState == null){
+            Log.d("SIS", "WAS NULL")
+
+            myPersons.add(new Person("MyName", 55))
+            myInt = 150
+            myString = "I WILL BE SAVED"
+        }
+
+        Person p = myPersons.get(0)
+
+        assert p.name == "MyName"
+        assert p.age == 55
+
+        assert myInt == 150
+
+        assert myString == "I WILL BE SAVED"
+
     }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState)
+    }
+
+
+
+
 }
