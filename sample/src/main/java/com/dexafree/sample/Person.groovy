@@ -2,7 +2,9 @@ package com.dexafree.sample;
 
 
 import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcelable
+import groovy.transform.CompileStatic;
+
 
 public class Person implements Parcelable {
 
@@ -45,9 +47,9 @@ public class Person implements Parcelable {
         this.age = age;
     }
 
-    private Person(Parcel in) {
-        this.name = in.readString();
-        this.age = in.readInt();
+    private Person(Parcel parcel) {
+        this.name = parcel.readString();
+        this.age = parcel.readInt();
     }
 
     public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {

@@ -172,6 +172,16 @@ public class AnnotationUtils {
     }
 
 
+    public static boolean isSubtype(ClassNode original, Class compared) {
+        while(original.name != compared.name) {
+            original = original.getSuperclass();
+            if(original == Object || original == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isSubtype(Class original, Class compared) {
         while(original.name != compared.name) {
             original = original.getSuperclass();
@@ -234,12 +244,13 @@ public class AnnotationUtils {
                            Bundle.class]
 
 
-        Class original = annotatedField.getType().getTypeClass();
+
+        ClassNode originalClassNode = annotatedField.getType()
+
 
         classes.each {
-            if (it == original) canImplement = true
+            if (it.name == originalClassNode.name) canImplement = true
         }
-
 
         if(!canImplement){
 
@@ -247,24 +258,21 @@ public class AnnotationUtils {
 
             ArrayList dummyAL = new ArrayList()
 
-            if(original.isInstance(dummyAL)) containsGenerics = true
+            if(originalClassNode.name == dummyAL.class.name) containsGenerics = true
 
             if(containsGenerics){
                 GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
 
                 generics.each {
+
                     ClassNode genericClassNode = it.type
 
-                    Class genericClass = genericClassNode.typeClass
-
                     // Here we don't check Serializable because Bundle does not support putSerializableArrayList
-                    if(!canImplement) canImplement = doesClassImplementInterface(genericClass, "android.os.Parcelable")
-
-
+                    if(!canImplement) canImplement = doesClassImplementInterface(genericClassNode, "android.os.Parcelable")
 
                     if(!canImplement){
 
-                        switch(genericClass.name){
+                        switch(genericClassNode.name){
 
                             case [Integer.class.name, Boolean.class.name, Byte.class.name,
                                   Character.class.name, CharSequence.class.name, Double.class.name,
@@ -283,16 +291,28 @@ public class AnnotationUtils {
 
         }
 
-        if(!canImplement) canImplement = doesClassImplementInterface(original, "android.os.Parcelable") ||
-                doesClassImplementInterface(original, "java.io.Serializable")
-
-        if(!canImplement) canImplement = isSubtype(original, View.class)
+        if(!canImplement) canImplement = doesClassImplementInterface(originalClassNode, "android.os.Parcelable") ||
+                doesClassImplementInterface(originalClassNode, "java.io.Serializable")
 
         canImplement
 
     }
 
     public static boolean doesClassImplementInterface(Class original, String desiredInterface){
+
+        def interfaces = original.getInterfaces()
+
+        def implementsInterface = false
+
+        interfaces.each {
+            if(it.getName().equalsIgnoreCase(desiredInterface)) implementsInterface = true
+        }
+
+        implementsInterface
+
+    }
+
+    public static boolean doesClassImplementInterface(ClassNode original, String desiredInterface){
 
         def interfaces = original.getInterfaces()
 

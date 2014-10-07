@@ -22,6 +22,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
     private ClassNode declaringClass
+    private static ClassNode VIEW_TYPE = ClassHelper.make(View.class)
 
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
@@ -30,19 +31,22 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         declaringClass = annotatedField.declaringClass
 
-        Class annotatedFieldClass = annotatedField.getType().getTypeClass()
+        ClassNode annotatedFieldClassNode = annotatedField.getType()
 
         String annotatedFieldName = annotatedField.name
 
+        boolean isView = annotatedFieldClassNode.isDerivedFrom(VIEW_TYPE)
+
+
         /*
-         * First of all, we must check that the annotated field is able to be written to a Bundle object
+         * First of all, we must check that the annotated field is a View, and if it's not,
+         * it must be able to be written to a Bundle object
          * If it's not, we throw an Exception showing the field and its type
          */
-        if(!AnnotationUtils.canImplementSaveState(declaringClass, annotatedField)){
-            throw new Exception("Annotated field must be able to be written to a Bundle object. Field: $annotatedFieldName .Type: $annotatedFieldClass.name");
+        if(!isView && !AnnotationUtils.canImplementSaveState(declaringClass, annotatedField)){
+            throw new Exception("Annotated field must be able to be written to a Bundle object. Field: $annotatedFieldName .Type: $annotatedFieldClassNode.name");
         }
 
-        def isView = AnnotationUtils.isSubtype(annotatedFieldClass, View.class)
 
         /*
          * Here we check if the user has passed any specific name to the SaveInstance annotation
@@ -77,7 +81,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
          * and get its name, in order to generate the statements accordingly
          */
         String bundleName = onSaveInstanceState.parameters[0].name
-
 
         Statement insertStatement = null;
 
@@ -394,7 +397,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         String method
 
-        Class annotatedFieldClass = annotatedField.getType().getTypeClass()
+        ClassNode annotatedFieldClassNode = annotatedField.getType()
 
         Class[] classes = [String.class, int.class, byte.class, char.class, double.class,
                            boolean.class, float.class, long.class, short.class, CharSequence.class,
@@ -406,7 +409,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
          * First we check if the variable is one of the Class objects declared at classes
          */
         classes.each {
-            if (it == annotatedFieldClass && method == null) method = it.name
+            if (it.name == annotatedFieldClassNode.name && method == null) method = it.name
         }
 
 
@@ -419,7 +422,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             // We create a dummy ArrayList in order to check if is instance of the variable's class
             ArrayList dummyAL = new ArrayList()
 
-            if(annotatedFieldClass.isInstance(dummyAL)) method = "ArrayList"
+            if(annotatedFieldClassNode.name == dummyAL.class.name) method = "ArrayList"
 
             /*
              * If the variable is an ArrayList, we start processing it in order to get it's Generic Type
@@ -437,9 +440,9 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
          */
         if(method == null){
 
-            if(AnnotationUtils.doesClassImplementInterface(annotatedFieldClass, "android.os.Parcelable"))
+            if(AnnotationUtils.doesClassImplementInterface(annotatedFieldClassNode, "android.os.Parcelable"))
                 method = "Parcelable"
-            else if (AnnotationUtils.doesClassImplementInterface(annotatedFieldClass, "java.io.Serializable"))
+            else if (AnnotationUtils.doesClassImplementInterface(annotatedFieldClassNode, "java.io.Serializable"))
                 method = "Serializable"
 
         }
@@ -495,7 +498,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
             ClassNode genericClassNode = it.type
 
-            Class genericClass = genericClassNode.typeClass
 
             // As we will modify the 'generic' variable, this ensures that it only will be modified once
             if(generic == "ArrayList"){
@@ -503,7 +505,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                 /*
                  * If the Generic implements the Parcelable interface, the method will be ParcelableArrayList
                  */
-                if(AnnotationUtils.doesClassImplementInterface(genericClass, "android.os.Parcelable")) {
+                if(AnnotationUtils.doesClassImplementInterface(genericClassNode, "android.os.Parcelable")) {
 
                     generic = "Parcelable" + generic
 
@@ -513,7 +515,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
                      * If the Generic is not a Parcelable, it must be one of the following classes
                      * in order to be able to be written to a Bundle object
                      */
-                    switch(genericClass.name){
+                    switch(genericClassNode.name){
                         case Integer.class.name:
                             generic = Integer.class.name+generic
                             break
