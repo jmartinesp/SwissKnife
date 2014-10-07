@@ -22,7 +22,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
     private ClassNode declaringClass
-    private static ClassNode VIEW_TYPE = ClassHelper.make(View.class)
 
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
@@ -35,7 +34,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         String annotatedFieldName = annotatedField.name
 
-        boolean isView = annotatedFieldClassNode.isDerivedFrom(VIEW_TYPE)
+        boolean isView = AnnotationUtils.isSubtype(annotatedFieldClassNode, View.class)
 
 
         /*
@@ -178,7 +177,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
         Statement freezeTextStatement = null;
 
         // If view extends TextView is needed to set "freezesText" to true
-        if(AnnotationUtils.isSubtype(annotatedField.getType().getTypeClass(), TextView.class)) {
+        if(AnnotationUtils.isSubtype(annotatedField.getType(), TextView.class)) {
             freezeTextStatement = new AstBuilder().buildFromSpec {
                 expression {
                     methodCall {

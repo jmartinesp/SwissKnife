@@ -173,23 +173,8 @@ public class AnnotationUtils {
 
 
     public static boolean isSubtype(ClassNode original, Class compared) {
-        while(original.name != compared.name) {
-            original = original.getSuperclass();
-            if(original == Object || original == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isSubtype(Class original, Class compared) {
-        while(original.name != compared.name) {
-            original = original.getSuperclass();
-            if(original == Object || original == null) {
-                return false;
-            }
-        }
-        return true;
+        ClassNode comparedClassNode = ClassHelper.make(compared);
+        return original.isDerivedFrom(comparedClassNode);
     }
 
     public static MethodNode getSaveStateMethod(ClassNode declaringClass){
@@ -326,19 +311,6 @@ public class AnnotationUtils {
 
     }
 
-    public static boolean doesClassImplementInterface(Class original, String desiredInterface){
-
-        def interfaces = original.getInterfaces()
-
-        def implementsInterface = false
-
-        interfaces.each {
-            if(it.getName().equalsIgnoreCase(desiredInterface)) implementsInterface = true
-        }
-
-        implementsInterface
-
-    }
 
     public static boolean doesClassImplementInterface(ClassNode original, String desiredInterface){
 

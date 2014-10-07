@@ -29,7 +29,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
 
         def ids = [];
 
-        Class fieldClass = annotatedField.getType().getTypeClass();
+        Class fieldClass = annotatedField.getType();
 
         if(!AnnotationUtils.isSubtype(fieldClass, List.class)) {
             throw new Exception("The annotated field must extend List. Type: $fieldClass.name");

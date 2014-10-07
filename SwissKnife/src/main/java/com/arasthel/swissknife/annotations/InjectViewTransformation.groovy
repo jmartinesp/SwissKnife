@@ -24,10 +24,8 @@ public class InjectViewTransformation implements ASTTransformation, Opcodes {
         AnnotationNode annotation = astNodes[0];
         ClassNode declaringClass = annotatedField.declaringClass;
 
-        Class annotatedFieldClass = annotatedField.getType().getTypeClass();
-
-        if(!AnnotationUtils.isSubtype(annotatedFieldClass, View.class)) {
-            throw new Exception("Annotated field must extend View class. Type: $annotatedFieldClass.name");
+        if(!AnnotationUtils.isSubtype(annotatedField.getType(), View.class)) {
+            throw new Exception("Annotated field must extend View class. Type: $annotatedField.type.name");
         }
 
         MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
