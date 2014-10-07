@@ -22,7 +22,19 @@ public class BackgroundActivity extends Activity {
     private Context mContext;
 
     @SaveInstance
-    public ArrayList<Person> myPersons
+    public Person[] myPersons
+
+    @SaveInstance
+    public Person aPerson
+
+    @SaveInstance
+    public ArrayList<Person> aParcelableList
+
+    @SaveInstance
+    public String myString
+
+    @SaveInstance
+    public int myInt
 
 
     @InjectView(R.id.edit_text)
@@ -65,13 +77,29 @@ public class BackgroundActivity extends Activity {
         if(savedInstanceState == null){
             Log.d("SIS", "WAS NULL")
 
-            myPersons = new ArrayList<Person>()
-            myPersons.add(new Person("MyName", 55))
+            myPersons = new Person[1]
+            aParcelableList = new ArrayList<Person>()
+            aPerson = new Person("MyName", 55)
+            myInt = 150
+            myString = "I am a String"
+
+            myPersons[0] = aPerson
+            aParcelableList.add(aPerson)
+
         }
 
 
-        assert myPersons.get(0).name== "MyName"
-        assert myPersons.get(0).age == 55
+        assert myPersons[0].name== "MyName"
+        assert myPersons[0].age == 55
+
+        assert aPerson.name == "MyName"
+        assert aPerson.age == 55
+
+        assert aParcelableList.get(0).name == "MyName"
+        assert aParcelableList.get(0).age == 55
+
+        assert myInt == 150
+        assert myString == "I am a String"
     }
 
 

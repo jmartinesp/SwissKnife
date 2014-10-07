@@ -360,7 +360,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
              * If it's not a String, then we will check if it's a Parcelable object, so we get the
              * array's Type Class and check if it implements Parcelable
              */
-            Class arrayTypeClass = annotatedField.originType.typeClass.componentType
+            ClassNode arrayTypeClass = annotatedField.originType.componentType
 
             if(AnnotationUtils.doesClassImplementInterface(arrayTypeClass, "android.os.Parcelable")){
                 type = "Parcelable"

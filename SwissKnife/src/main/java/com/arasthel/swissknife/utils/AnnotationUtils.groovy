@@ -247,10 +247,38 @@ public class AnnotationUtils {
 
         ClassNode originalClassNode = annotatedField.getType()
 
+        boolean isArray = originalClassNode.isArray()
 
         classes.each {
             if (it.name == originalClassNode.name) canImplement = true
         }
+
+
+
+        if(isArray){
+            String type = originalClassNode.name
+            if(type.contains("String[]")){
+                canImplement = true
+            } else {
+
+                /*
+                 * If it's not a String, then we will check if it's a Parcelable object, so we get the
+                 * array's Type Class and check if it implements Parcelable
+                 */
+                ClassNode arrayTypeClass = annotatedField.originType.componentType
+
+                if(doesClassImplementInterface(arrayTypeClass, "android.os.Parcelable")){
+                    canImplement = true
+                } else {
+
+                    classes.each {
+                        if (it.name == arrayTypeClass.name) canImplement = true
+                    }
+
+                }
+            }
+        }
+
 
         if(!canImplement){
 
