@@ -1,0 +1,59 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.champeau.gradle.groovy-android'
+
+android {
+    compileSdkVersion 14
+    buildToolsVersion "20.0.0"
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        checkAllWarnings false
+    }
+    defaultConfig {
+        applicationId "me.champeau.speakertime"
+        minSdkVersion 14
+        targetSdkVersion 14
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice.txt'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+
+    dexOptions {
+        javaMaxHeapSize "2g"
+    }
+
+    //enforceUniquePackageName=false
+}
+
+repositories {
+    maven {
+        url 'https://repo.spring.io/libs-snapshot'
+    }
+    jcenter()
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':SwissKnife')
+    compile 'org.codehaus.groovy:groovy:2.4.0-beta-3:grooid'
+    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:appcompat-v7:20.0.0'
+}

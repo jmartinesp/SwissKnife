@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:gravity="center"
+              tools:context=".PresentationActivity" android:weightSum="1">
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:id="@+id/userList" android:layout_weight="0.98"/>
+
+    <Button
+            android:text="Next Activity"
+            android:id="@+id/next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -1,14 +1,3 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
-        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.0'
-    }
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'me.champeau.gradle.groovy-android'
 
@@ -42,7 +31,11 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-3:grooid'
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:21.0.0'
+    compile('org.springframework.android:spring-android-rest-template:1.0.1.RELEASE')
+    compile('org.codehaus.groovy:groovy-json:2.4.0-beta-3') {
+        transitive = false
+    }
 }
 
 // Script to upload plugin to Maven
