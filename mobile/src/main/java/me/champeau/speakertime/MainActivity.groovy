@@ -39,20 +39,17 @@ class MainActivity extends Activity {
             usrJson += userJson
         }
 
-        double[] doubles = new double[3]
+        double[] doubles = [1.2, 2.4]
 
-        SparseArray<Parcelable> strings = new SparseArray<>()
-        strings.append(1, new User())
+        SparseArray<Parcelable> sparse = new SparseArray<>()
+        sparse.append(1, new User())
 
-        Map args = ["adios" : false, "hola" : strings, "doubles": doubles]
+        Bundle bundle = new Bundle()
+        bundle.putFromMap(["boolean" : true,
+                           "sparsearray" : sparse,
+                           "doubles": doubles])
 
-        long inicio = System.currentTimeMillis()
-        Bundle bundle = Bundle.fromMap(args)
-        long end = System.currentTimeMillis()
-
-        Log.d("DOUBLES", "${bundle.getSparseParcelableArray("hola")}")
-
-        Log.d("TIME", "${end - inicio}ms")
+        boolean ok = bundle.getBoolean("boolean")
     }
 
     @Override

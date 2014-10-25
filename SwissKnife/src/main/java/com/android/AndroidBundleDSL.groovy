@@ -12,6 +12,11 @@ public class AndroidBundleDSL {
 
     static Bundle fromMap(Object c, Map<String, ?> argsMap) {
         Bundle bundle = new Bundle()
+        bundle = putFromMap(bundle, argsMap)
+        return bundle
+    }
+
+    static Bundle putFromMap(Bundle bundle, Map<String, ?> argsMap) {
         for (Map.Entry entry in argsMap.entrySet()) {
             String key = entry.key
             Object value = entry.value

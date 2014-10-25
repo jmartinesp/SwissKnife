@@ -1,0 +1,3 @@
+moduleName=android-dsl
+moduleVersion=1.0
+extensionClasses=com.android.AndroidDSL,com.android.AndroidEventDSL,com.android.AndroidBundleDSL
