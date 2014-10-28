@@ -18,7 +18,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
  * Created by Arasthel on 16/08/14.
  */
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
-public class OnBackgroundTransformation implements ASTTransformation, Opcodes {
+public class OnUIThreadTransformation implements ASTTransformation, Opcodes {
 
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
@@ -30,10 +30,11 @@ public class OnBackgroundTransformation implements ASTTransformation, Opcodes {
         declaringClass.addMethod(createNewMethod(annotatedMethod, originalCode));
 
         createRunnable(annotatedMethod);
+
     }
 
     private MethodNode createNewMethod(MethodNode annotatedMethod, BlockStatement originalCode) {
-        return new MethodNode(annotatedMethod.name+"\$background", ACC_PUBLIC, ClassHelper.VOID_TYPE, annotatedMethod.parameters, null, originalCode);
+        return new MethodNode(annotatedMethod.name+"\$uithread", annotatedMethod.getModifiers(), ClassHelper.VOID_TYPE, annotatedMethod.parameters, null, originalCode);
     }
 
     private void createRunnable(MethodNode annotatedMethod) {
@@ -41,13 +42,13 @@ public class OnBackgroundTransformation implements ASTTransformation, Opcodes {
 
         ArgumentListExpression argumentListExpression = new ArgumentListExpression();
         argumentListExpression.addExpression(new VariableExpression("this"));
-        argumentListExpression.addExpression(new ConstantExpression(annotatedMethod.name + "\$background"));
+        argumentListExpression.addExpression(new ConstantExpression(annotatedMethod.name + "\$uithread"));
 
         for(Parameter parameter : annotatedMethod.parameters) {
             argumentListExpression.addExpression(new VariableExpression(parameter.name));
         }
 
-        StaticMethodCallExpression staticMethodCallExpression = new StaticMethodCallExpression(ClassHelper.make(SwissKnife.class), "runOnBackground", argumentListExpression);
+        StaticMethodCallExpression staticMethodCallExpression = new StaticMethodCallExpression(ClassHelper.make(SwissKnife.class), "runOnUIThread", argumentListExpression);
 
         ExpressionStatement expressionStatement = new ExpressionStatement(staticMethodCallExpression);
 
@@ -57,4 +58,3 @@ public class OnBackgroundTransformation implements ASTTransformation, Opcodes {
     }
 
 }
-

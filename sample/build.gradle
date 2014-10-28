@@ -1,25 +1,14 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
-        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.0'
-    }
-}
-
 apply plugin: 'com.android.application'
 apply plugin: 'me.champeau.gradle.groovy-android'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.dexafree.sample"
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -29,16 +18,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    packagingOptions {
-        // workaround for http://stackoverflow.com/questions/20673625/android-gradle-plugin-0-7-0-duplicate-files-during-packaging-of-apk
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/groovy-release-info.properties'
-    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':SwissKnife')
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-2:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.0-beta-3:grooid'
 }

@@ -36,7 +36,6 @@ public class SwissKnife {
 
     public static void inject(Object target) {
         Method method = null;
-        Method[] methods = null;
         try {
             method = SwissKnife.searchMethod(target, "injectViews", [Object.class]);
         } catch (NoSuchMethodException e) {
@@ -414,10 +413,40 @@ public class SwissKnife {
 
         Method method = null;
 
-        try {
-            method = currentObject.class.getMethod(name, parameters);
-        } catch (NoSuchMethodException e) {
-            return null;
+        // We use a set so methods can't appear twice in here
+        Set<Method> methods = new HashSet<>()
+        if(currentObject instanceof Class) {
+            methods.addAll(currentObject.getMethods())
+            // Search for private methods, too
+            methods.addAll(currentObject.getDeclaredMethods())
+        } else {
+            methods.addAll(currentObject.class.getMethods())
+            // Search for private methods, too
+            methods.addAll(currentObject.class.getDeclaredMethods())
+        }
+
+        // As getMethod(...) doesn't search for a compatible but an exact match, we have to search manually
+        for(Method m : methods) {
+            if(m.getName() == name) {
+                if(m.getParameterTypes().length == parameters.length) {
+                    boolean found = true
+                    for(int i = 0; i < m.getParameterTypes().length; i++) {
+                        Class parameter = m.getParameterTypes()[i]
+                        if(!parameter.isAssignableFrom(parameters[i])) {
+                            found = false
+                        }
+                    }
+                    if(found == true) {
+                        method = m
+                        break
+                    }
+                }
+            }
+        }
+
+        // If method is private (shouldn't be), we make it accessible
+        if(!method.isAccessible()) {
+            method.setAccessible(true)
         }
 
         return method;

@@ -45,6 +45,13 @@ class MyActivity extends Activity {
 }
 ```
 
+## Colaborators
+
+I'd really want to thank:
+
+* [Dexafree](https://github.com/dexafree) for adding `@SaveInstance` annotation and helping with the testing.
+* [Eugene Kamenev](https://github.com/eugene-kamenev) for adding DSL functionality to *android-dsl* branch.
+
 ## Documentation
 
 For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKnife/wiki). They contain explanations about how to use the library and the available annotations:
@@ -77,7 +84,7 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile 'com.arasthel:swissknife:1.1.0'
+    compile 'com.arasthel:swissknife:1.1.1'
     ...
 }
 
