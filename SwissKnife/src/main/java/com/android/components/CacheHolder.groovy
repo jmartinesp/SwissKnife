@@ -1,6 +1,5 @@
 package com.android.components
 
-import android.widget.SeekBar
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -8,7 +7,6 @@ class CacheHolder<K, V> {
     final Map<K, V> elements = new LinkedHashMap<K, V>()
 
     synchronized V findOrCreate(K key, Closure<V> closure = null) {
-        SeekBar.OnSeekBarChangeListener
         if (elements.containsKey(key)) {
             return elements[key]
         } else {
