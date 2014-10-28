@@ -1,36 +1,59 @@
-package com.android
+package com.arasthel.swissknife.dsl
 
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.util.SparseArray
 import groovy.transform.CompileStatic
-import org.springframework.util.TypeUtils
 
+/**
+ * DSL methods for Android Bundle
+ * @author Jorge Martín Espinosa
+ * @author Eugene Kamenev
+ */
 @CompileStatic
 public class AndroidBundleDSL {
 
+    /**
+     * Create Bundle from Map
+     * @param argsMap
+     * @return
+     */
+    static Bundle asBundle(Map<String, ?> argsMap) {
+        fromMap(null, argsMap)
+    }
+
+    /**
+     * Create Bundle from Map
+     * @param c
+     * @param argsMap
+     * @return
+     */
     static Bundle fromMap(Object c, Map<String, ?> argsMap) {
         Bundle bundle = new Bundle()
         bundle = putFromMap(bundle, argsMap)
         return bundle
     }
 
+    /**
+     * Fill bundle from map
+     * @param bundle
+     * @param argsMap
+     * @return
+     */
     static Bundle putFromMap(Bundle bundle, Map<String, ?> argsMap) {
         for (Map.Entry entry in argsMap.entrySet()) {
             String key = entry.key
             Object value = entry.value
-
             if (value.class.isArray()) {
                 def type = value.class.componentType
-                if(type.isPrimitive()) {
+                if (type.isPrimitive()) {
                     fromPrimitive(bundle, key, value, true, type)
                 } else {
                     fromObject(bundle, key, value, true, type)
                 }
             } else if (value.class.isAssignableFrom(ArrayList)) {
                 fromList(bundle, key, value)
-            } else if(value.class.isAssignableFrom(SparseArray)) {
+            } else if (value.class.isAssignableFrom(SparseArray)) {
                 fromList(bundle, key, value)
             } else {
                 // For some reason, primitives when passed as a single variable are treated as objects
@@ -40,9 +63,18 @@ public class AndroidBundleDSL {
         return bundle
     }
 
+    /**
+     * Casting and setting value to Bundle
+     * @param bundle
+     * @param key
+     * @param value
+     * @param asArray
+     * @param valueClass
+     * @return
+     */
     private static Bundle fromObject(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
-        if(valueClass.isAssignableFrom(Parcelable.class)) {
-            if(asArray) {
+        if (valueClass.isAssignableFrom(Parcelable)) {
+            if (asArray) {
                 bundle.putParcelableArray(key, (Parcelable[]) value)
             } else {
                 bundle.putParcelable(key, (Parcelable) value)
@@ -50,13 +82,13 @@ public class AndroidBundleDSL {
             return bundle
         }
 
-        if(valueClass.isAssignableFrom(Serializable.class)) {
+        if (valueClass.isAssignableFrom(Serializable)) {
             bundle.putSerializable(key, (Serializable) value)
             return bundle
         }
 
-        if(valueClass.isAssignableFrom(String.class)) {
-            if(asArray) {
+        if (valueClass.isAssignableFrom(String)) {
+            if (asArray) {
                 bundle.putStringArray(key, (String[]) value)
             } else {
                 bundle.putString(key, (String) value)
@@ -64,8 +96,8 @@ public class AndroidBundleDSL {
             return bundle
         }
 
-        if(valueClass.isAssignableFrom(CharSequence.class)) {
-            if(asArray) {
+        if (valueClass.isAssignableFrom(CharSequence)) {
+            if (asArray) {
                 bundle.putCharSequenceArray(key, (CharSequence[]) value)
             } else {
                 bundle.putCharSequence(key, (CharSequence) value)
@@ -73,12 +105,12 @@ public class AndroidBundleDSL {
             return bundle
         }
 
-        if(valueClass.isAssignableFrom(Bundle.class)) {
+        if (valueClass.isAssignableFrom(Bundle)) {
             bundle.putBundle(key, (Bundle) value)
             return bundle
         }
 
-        if (valueClass.isAssignableFrom(Integer.class)) {
+        if (valueClass.isAssignableFrom(Integer)) {
             if (asArray) {
                 bundle.putIntArray(key, (int[]) value)
             } else {
@@ -86,7 +118,7 @@ public class AndroidBundleDSL {
             }
             return bundle
         }
-        if (valueClass.isAssignableFrom(Byte.class)) {
+        if (valueClass.isAssignableFrom(Byte)) {
             if (asArray) {
                 bundle.putByteArray(key, (byte[]) value)
             } else {
@@ -94,7 +126,7 @@ public class AndroidBundleDSL {
             }
             return bundle
         }
-        if (valueClass.isAssignableFrom(Character.class)) {
+        if (valueClass.isAssignableFrom(Character)) {
             if (asArray) {
                 bundle.putCharArray(key, (char[]) value)
             } else {
@@ -102,7 +134,7 @@ public class AndroidBundleDSL {
             }
             return bundle
         }
-        if (valueClass.isAssignableFrom(Long.class)) {
+        if (valueClass.isAssignableFrom(Long)) {
             if (asArray) {
                 bundle.putLongArray(key, (long[]) value)
             } else {
@@ -110,7 +142,7 @@ public class AndroidBundleDSL {
             }
             return bundle
         }
-        if (valueClass.isAssignableFrom(Boolean.class)) {
+        if (valueClass.isAssignableFrom(Boolean)) {
             if (asArray) {
                 bundle.putBooleanArray(key, (boolean[]) value)
             } else {
@@ -118,7 +150,7 @@ public class AndroidBundleDSL {
             }
             return bundle
         }
-        if (valueClass.isAssignableFrom(Short.class)) {
+        if (valueClass.isAssignableFrom(Short)) {
             if (asArray) {
                 bundle.putShortArray(key, (short[]) value)
             } else {
@@ -126,7 +158,7 @@ public class AndroidBundleDSL {
             }
             return bundle
         }
-        if (valueClass.isAssignableFrom(Double.class)) {
+        if (valueClass.isAssignableFrom(Double)) {
             if (asArray) {
                 bundle.putDoubleArray(key, (double[]) value)
             } else {
@@ -138,6 +170,15 @@ public class AndroidBundleDSL {
         return bundle
     }
 
+    /**
+     * Casting primitive value and setting it to Bundle
+     * @param bundle
+     * @param key
+     * @param value
+     * @param asArray
+     * @param valueClass
+     * @return
+     */
     private static Bundle fromPrimitive(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
 
         if (valueClass.isAssignableFrom(int)) {
@@ -200,6 +241,13 @@ public class AndroidBundleDSL {
         return bundle
     }
 
+    /**
+     * Casting android collection objects and setting value to Bundle
+     * @param bundle
+     * @param key
+     * @param value
+     * @return
+     */
     private static Bundle fromList(Bundle bundle, String key, Object value) {
         // Ugly hack to find generic type with no performance loss
         try {
