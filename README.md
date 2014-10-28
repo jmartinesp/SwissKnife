@@ -1,4 +1,4 @@
-SwissKnife
+SwissKnife [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.arasthel/swissknife/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.arasthel/swissknife)
 ==========
 
 
