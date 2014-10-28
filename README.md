@@ -45,12 +45,12 @@ class MyActivity extends Activity {
 }
 ```
 
-## Colaborators
+## Collaborators
 
 I'd really want to thank:
 
 * [Dexafree](https://github.com/dexafree) for adding `@SaveInstance` annotation and helping with the testing.
-* [Eugene Kamenev](https://github.com/eugene-kamenev) for adding DSL functionality to *android-dsl* branch.
+* [Eugene Kamenev](https://github.com/eugene-kamenev) for adding DSL functionality to *[android-dsl](https://github.com/Arasthel/SwissKnife/tree/android-dsl)* branch.
 
 ## Documentation
 
