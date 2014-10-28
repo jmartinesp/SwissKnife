@@ -1,4 +1,4 @@
-package com.android
+package com.arasthel.swissknife.dsl
 
 import android.app.Activity
 import android.app.Fragment

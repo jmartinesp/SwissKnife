@@ -1,3 +1,3 @@
 moduleName=android-dsl
 moduleVersion=1.0
-extensionClasses=com.android.AndroidDSL,com.android.AndroidEventDSL,com.android.AndroidBundleDSL
+extensionClasses=com.arasthel.swissknife.dsl.AndroidDSL,com.arasthel.swissknife.dsl.AndroidEventDSL,com.arasthel.swissknife.dsl.AndroidBundleDSL

@@ -4,8 +4,8 @@ import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.android.AndroidDSL
-import com.android.AndroidEventDSL
+import com.arasthel.swissknife.dsl.AndroidDSL
+import com.arasthel.swissknife.dsl.AndroidEventDSL
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import groovy.transform.stc.ClosureParams
