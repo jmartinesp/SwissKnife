@@ -445,7 +445,7 @@ public class SwissKnife {
         }
 
         // If method is private (shouldn't be), we make it accessible
-        if(!method.isAccessible()) {
+        if(method && !method.isAccessible()) {
             method.setAccessible(true)
         }
 
