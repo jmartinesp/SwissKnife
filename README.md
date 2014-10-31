@@ -84,10 +84,19 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile 'com.arasthel:swissknife:1.1.2'
+    compile 'com.arasthel:swissknife:1.1.3'
     ...
 }
+```
 
+If you want *SwissKnife* to update automatically, you could just type:
+
+```groovy
+dependencies {
+    ...
+    compile 'com.arasthel:swissknife:+'
+    ...
+}
 ```
 
 Also, [there is an IntelliJ IDEA plugin](https://github.com/Arasthel/SwissKnife/wiki/SwissKnife-IDEA-Plugin) *compatible with Android Studio* that lets you auto-generate the annotations and compatible method declarations.

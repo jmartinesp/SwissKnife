@@ -1,6 +1,7 @@
 # Changelog:
 
 ### Versions:
+* **1.1.3** - Fixed minor bug where methods with primitive parameters weren't found on method search.
 * **1.1.2** - Fixed BIG bug when SwissKnife couldn't find the method.
 * **1.1.1** - @OnBackground and @OnUIThread now can be used with static methods. Solved several method search problems, too.
 * **1.1.0** - New @SaveInstance annotation to automatically save and restore variables on configuration changes.

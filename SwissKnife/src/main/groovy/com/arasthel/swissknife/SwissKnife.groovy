@@ -19,7 +19,10 @@ import com.arasthel.swissknife.utils.AnnotationUtils
 import com.arasthel.swissknife.annotations.OnPageChanged
 import com.arasthel.swissknife.annotations.OnTextChanged
 import groovy.transform.CompileStatic
+import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.Parameter
+import org.codehaus.groovy.runtime.wrappers.GroovyObjectWrapper
+import org.codehaus.groovy.runtime.wrappers.Wrapper
 
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -432,6 +435,11 @@ public class SwissKnife {
                     boolean found = true
                     for(int i = 0; i < m.getParameterTypes().length; i++) {
                         Class parameter = m.getParameterTypes()[i]
+
+                        // If parameter is a primitive, we have to get its wrapper class so we can check for inheritance
+                        if(parameter.isPrimitive()) {
+                            parameter = getWrapperForPrimitive(parameter)
+                        }
                         if(!parameter.isAssignableFrom(parameters[i])) {
                             found = false
                         }
@@ -452,6 +460,10 @@ public class SwissKnife {
         return method;
     }
 
+    private static Class getWrapperForPrimitive(Class primitive) {
+        return ClassHelper.getWrapper(ClassHelper.make(primitive)).getTypeClass();
+    }
+
     public static void restoreState(Object target, Bundle state) {
 
         if(state != null){
@@ -470,6 +482,4 @@ public class SwissKnife {
 
 
     }
-
-
 }
