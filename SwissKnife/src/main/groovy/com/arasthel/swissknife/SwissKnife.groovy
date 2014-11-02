@@ -437,7 +437,7 @@ public class SwissKnife {
                         Class parameter = m.getParameterTypes()[i]
 
                         // If parameter is a primitive, we have to get its wrapper class so we can check for inheritance
-                        if(parameter.isPrimitive()) {
+                        if(parameter.isPrimitive() && !parameters[i].isPrimitive()) {
                             parameter = getWrapperForPrimitive(parameter)
                         }
                         if(!parameter.isAssignableFrom(parameters[i])) {
