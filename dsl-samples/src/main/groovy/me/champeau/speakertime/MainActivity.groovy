@@ -23,11 +23,11 @@ class MainActivity extends Activity {
     final CacheHolder imagesHolder = new CacheHolder()
 
     static String userJson = """{"name":"Gomer","phone":"77034445522",
-                                  "avatar":"http://localhost/2.jpg"},
+                                  "avatar":"http://www.codejobs.biz/www/lib/files/images/b312953ac30ff5d.png"},
                                  {"name":"Simpson","phone":"78882223334",
-                                 "avatar":"http://localhost/1.jpg"},
+                                 "avatar":"http://groovy.codehaus.org/images/groovy-logo-medium.png"},
                                  {"name":"Sara","phone":"770422233344",
-                                 "avatar":"http://localhost/no-image-"},"""
+                                 "avatar":"https://raw.githubusercontent.com/Arasthel/SwissKnife/master/SwissKnife.png"},"""
     @ViewById(R.id.next_button)
     Button nextButton
 
@@ -37,6 +37,29 @@ class MainActivity extends Activity {
         def usrJson = ''
         10.times {
             usrJson += userJson
+        }
+        usrJson = (String) "[${usrJson[0..-2]}]"
+        def userList = usrJson.jsonAsList(User)
+        userList.asListView(this, R.id.userList, R.layout.user_row_layout) { user ->
+            image(R.id.icon).async { image, task ->
+                task.after { bitmap ->
+                    if (bitmap) {
+                        image.imageBitmap = (Bitmap) bitmap
+                    } else {
+                        image.imageDrawable = resources.getDrawable(R.drawable.broken_heart)
+                    }
+                }
+                task.error { e ->
+                    image.imageDrawable = resources.getDrawable(R.drawable.broken_heart)
+                    showToast("Loading image error: ${e?.message}")
+                }
+                this.imagesHolder.findOrCreate(user.avatar) { user.avatar.asImage() }
+            }
+            text(R.id.userName).setText user.name
+            text(R.id.userTelephone).setText user.phone
+        }
+        nextButton.onClick {
+            startActivity new Intent(applicationContext, UserFormActivity)
         }
 
         double[] doubles = [1.2, 2.4]
