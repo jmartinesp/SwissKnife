@@ -1,3 +1,42 @@
+import com.android.build.gradle.tasks.MergeResources
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.13.0'
+        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
+    }
+}
+
+allprojects {
+    apply plugin: 'idea'
+    repositories {
+        jcenter()
+    }
+
+}
+
+gradle.taskGraph.whenReady {
+    allprojects {
+        tasks.withType(GroovyCompile) { task ->
+            logger.lifecycle("Task $task")
+            task.groovyOptions.forkOptions.jvmArgs=['-noverify']
+        }
+        tasks.withType(MergeResources) { task ->
+            task.process9Patch = false
+        }
+    }
+}
+
+tasks.whenTaskAdded {
+    if (it.name.contains('lint') || it.name.contains('Lint')){
+        it.enabled = false
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'me.champeau.gradle.groovy-android'
 
@@ -52,7 +91,7 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':SwissKnife')
+    compile project(':androidapp:SwissKnife')
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-3:grooid'
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.android.support:appcompat-v7:20.0.0'
