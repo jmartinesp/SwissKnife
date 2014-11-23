@@ -8,6 +8,7 @@ import com.arasthel.swissknife.utils.AnnotationUtils
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
@@ -34,42 +35,52 @@ public class ToJsonTransformation implements ASTTransformation, Opcodes {
         MethodNode methodNode = null
 
         if(!annotatedClass.hasMethod("asSimpleJson", [new Parameter(ClassHelper.make(Closure.class), "closure")] as Parameter[])) {
-            methodNode = createAsSimpleJsonMethod(annotatedClass)
+            methodNode = createAsSimpleJsonMethod()
         } else {
             methodNode = annotatedClass.getMethod("asSimpleJson", [new Parameter(ClassHelper.make(Closure.class), "closure")] as Parameter[])
         }
 
         BlockStatement block = methodNode.getCode() as BlockStatement
 
+        if(!block) {
+            block = new BlockStatement()
+        }
+
         block.addStatement(createMapStatement())
 
+
         (annotation.members.includes as ListExpression).expressions.each {
-            String property = it.property.getValue() as String
+            String property = (it as ConstantExpression).getValue() as String
             block.addStatement(createPutExpression(property))
         }
 
         block.addStatement(createCallClosureExpression())
 
         block.addStatement(createReturnExpression())
+
+        methodNode.setCode(block)
+
+        annotatedClass.addMethod(methodNode)
     }
 
-    private MethodNode createAsSimpleJsonMethod(ClassNode classNode) {
+    private MethodNode createAsSimpleJsonMethod() {
+        ClassNode closureNode = ClassHelper.make(Closure.class)
+        ClassNode mapNode = ClassHelper.make(Map.class)
+
+        ClassNode auxMapNode = mapNode.getPlainNodeReference()
+        ClassNode auxClosureNode = closureNode.getPlainNodeReference()
         MethodNode methodNode = new MethodNode("asSimpleJson",
                 ACC_PUBLIC,
-                ClassHelper.make(Map.class),
-                [new Parameter(ClassHelper.make(Closure.class), "closure")] as Parameter[], null, null)
-
-        classNode.addMethod(methodNode)
+                auxMapNode,
+                [new Parameter(auxClosureNode, "closure")] as Parameter[], null, null)
 
         return methodNode
     }
 
-    private ExpressionStatement createReturnExpression() {
+    private Statement createReturnExpression() {
         return new AstBuilder().buildFromSpec {
-            expression {
-                returnStatement {
-                    variable "map"
-                }
+            returnStatement {
+                variable "map"
             }
         }[0]
     }
@@ -101,7 +112,7 @@ public class ToJsonTransformation implements ASTTransformation, Opcodes {
         }[0]
 
         MethodCallExpression methodCallExpression = statement.getExpression() as MethodCallExpression
-        methodCallExpression.setSafe(false)
+        methodCallExpression.setSafe(true)
 
         return statement
     }
@@ -112,8 +123,8 @@ public class ToJsonTransformation implements ASTTransformation, Opcodes {
                 declaration {
                     variable "map"
                     token "="
-                    constructorCall HashMap.class, {
-                        argumentList {}
+                    constructorCall(HashMap.class) {
+                        argumentList()
                     }
                 }
             }
