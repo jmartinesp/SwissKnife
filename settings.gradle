@@ -1,1 +1,1 @@
-include ':SwissKnife', ':dsl-samples'
+include 'SwissKnife', 'dsl-samples', 'sample'
