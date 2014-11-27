@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.champeau.speakertime" >
+          package="me.champeau.wearapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -27,7 +27,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="me.champeau.speakertime.MainActivity"
+                android:name="me.champeau.wearapp.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="me.champeau.speakertime.UserFormActivity"
+                android:name="me.champeau.wearapp.UserFormActivity"
             android:label="@string/title_activity_user_form"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>

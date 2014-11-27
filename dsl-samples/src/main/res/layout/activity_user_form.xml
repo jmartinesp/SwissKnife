@@ -8,7 +8,7 @@
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context="me.champeau.speakertime.UserFormActivity">
+              tools:context="me.champeau.wearapp.UserFormActivity">
     <com.android.components.Form
             android:id="@+id/user_form"
             android:layout_width="match_parent"

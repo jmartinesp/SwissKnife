@@ -1,4 +1,4 @@
-package me.champeau.speakertime
+package me.champeau.wearapp
 
 import android.os.Parcel
 import android.os.Parcelable

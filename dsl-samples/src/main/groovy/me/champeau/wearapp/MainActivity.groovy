@@ -1,15 +1,13 @@
-package me.champeau.speakertime
+package me.champeau.wearapp
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.util.SparseArray
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
-import android.widget.Toast
 import com.android.ast.InjectViews
 import com.android.ast.ViewById
 import com.android.components.CacheHolder

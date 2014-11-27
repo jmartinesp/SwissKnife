@@ -1,4 +1,4 @@
-package me.champeau.speakertime
+package me.champeau.wearapp
 
 import android.app.Activity
 import android.os.Bundle
