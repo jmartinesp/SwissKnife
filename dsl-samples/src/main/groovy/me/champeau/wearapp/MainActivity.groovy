@@ -56,8 +56,11 @@ class MainActivity extends Activity {
             text(R.id.userName).setText user.name
             text(R.id.userTelephone).setText user.phone
         }
+        def user = new User(name: 'name', phone: 'phone my')
+        def map = user.asDefault { Map map, User usr ->
+        }
         nextButton.onClick {
-            startActivity new Intent(applicationContext, UserFormActivity)
+            this.showToast(map.toString())
         }
 
         double[] doubles = [1.2, 2.4]

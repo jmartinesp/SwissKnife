@@ -5,13 +5,12 @@ import android.os.Parcelable
 import com.android.ast.restable.Restable
 import com.android.ast.restable.RestableEntity
 import com.android.ast.restable.RestableValidationBuilder
-import com.arasthel.swissknife.annotations.ToJson
+import com.coupledays.ast.ToJson
 import groovy.transform.ToString
 
 @RestableEntity
 @ToString
-@ToJson(value="simple",
-includes=["name", "phone"])
+@ToJson(includes = ['name', 'phone'])
 class User implements Restable, Parcelable {
     String name
     String phone
