@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.2'
+        classpath 'com.android.tools.build:gradle:0.14.2'
         classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
     }
 }
@@ -92,7 +92,7 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':androidapp:SwissKnife')
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-3:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.android.support:appcompat-v7:20.0.0'
     provided project(':ast')

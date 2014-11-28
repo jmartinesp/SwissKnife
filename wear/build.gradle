@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.1'
+        classpath 'com.android.tools.build:gradle:0.14.2'
         classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
     }
 }
@@ -57,5 +57,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.android.support:wearable:+'
     compile "com.android.support:support-v13:20.0.+"
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-3:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
 }
