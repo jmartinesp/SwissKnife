@@ -1,18 +1,18 @@
-package me.champeau.wearapp
+package com.coupledays.app
+
 import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.util.SparseArray
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import com.android.ast.InjectViews
-import com.android.ast.ViewById
 import com.android.components.CacheHolder
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
+import me.champeau.wearapp.R
 
 @CompileStatic
 @InheritConstructors
@@ -26,8 +26,6 @@ class MainActivity extends Activity {
                                  "avatar":"http://groovy.codehaus.org/images/groovy-logo-medium.png"},
                                  {"name":"Sara","phone":"770422233344",
                                  "avatar":"https://raw.githubusercontent.com/Arasthel/SwissKnife/master/SwissKnife.png"},"""
-    @ViewById(R.id.next_button)
-    Button nextButton
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,11 +55,10 @@ class MainActivity extends Activity {
             text(R.id.userTelephone).setText user.phone
         }
         def user = new User(name: 'name', phone: 'phone my')
-        def map = user.asDefault { Map map, User usr ->
-        }
-        nextButton.onClick {
-            this.showToast(map.toString())
-        }
+        def map = user.asDefault()
+        Log.i('INFO', user.validate().toString())
+        Log.i('INFO', map.toString())
+        Log.i('INFO', user.errors.toString())
 
         double[] doubles = [1.2, 2.4]
 
@@ -69,9 +66,9 @@ class MainActivity extends Activity {
         sparse.append(1, new User())
 
         Bundle bundle = new Bundle()
-        bundle.putFromMap(["boolean" : true,
-                           "sparsearray" : sparse,
-                           "doubles": doubles])
+        bundle.putFromMap(["boolean"    : true,
+                           "sparsearray": sparse,
+                           "doubles"    : doubles])
 
         boolean ok = bundle.getBoolean("boolean")
     }

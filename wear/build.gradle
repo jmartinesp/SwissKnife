@@ -47,15 +47,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
 }
 
 repositories {
-    mavenLocal()
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+    jcenter()
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.android.support:wearable:+'
-    compile "com.android.support:support-v13:20.0.+"
+    compile 'com.android.support:support-v13:20.0.+'
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
 }

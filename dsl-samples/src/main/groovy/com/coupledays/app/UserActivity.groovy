@@ -1,4 +1,4 @@
-package me.champeau.wearapp
+package com.coupledays.app
 
 import android.app.Activity
 import android.os.Bundle

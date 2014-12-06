@@ -88,7 +88,7 @@ class ViewInjectionTransformation extends AbstractASTTransformation {
             }
         }
         /*if (toBeReloaded.statements.size() > 0 || toBeSaved.statements.size() > 0) {
-            body.statements.add(position++, new IfStatement(new BooleanExpression(checkExpression), toBeSaved, toBeReloaded))
+            body.statements.add(position++, new IfStatement(new IfStatea(checkExpression), toBeSaved, toBeReloaded))
         }*/
     }
 
