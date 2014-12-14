@@ -30,25 +30,6 @@ class UserFormActivity extends Activity {
                 }
             }
         }
-        createDynamicForm(this, new User(name: 'Second User'))
-    }
-
-    @CompileStatic(TypeCheckingMode.SKIP)
-    private void createDynamicForm(Context context, User user) {
-        context.form(R.id.user_form2, user) { form ->
-            editText(R.id.user_name2).attach(user) { it.name }
-            editText(R.id.user_phone2).attach(user) { it.phone }
-            editText(R.id.user_balance2).attach(user) { it.balance }
-            form.submit(R.id.submit_button2) {
-                if (form.object.validate()) {
-                    this.showToast('Validated with success!')
-                } else {
-                    form.object.errors.each {
-                        this.showToast(it.toString())
-                    }
-                }
-            }
-        }
     }
 }
 

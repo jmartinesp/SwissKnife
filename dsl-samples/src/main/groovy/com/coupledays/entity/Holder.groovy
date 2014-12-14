@@ -1,11 +1,9 @@
 package com.coupledays.entity
 
-import com.coupledays.ast.RestableEntity
-import com.coupledays.ast.ToJson
+import com.android.ast.restable.RestableEntity
 import groovy.transform.CompileStatic
 
 @CompileStatic
-@ToJson(includes = ['id', 'phone', 'name', 'avatar'])
 @RestableEntity
 class Holder {
     Long id

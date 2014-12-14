@@ -1,7 +1,6 @@
 package com.coupledays.entity
 
-import com.coupledays.ast.RestableEntity
-import com.coupledays.ast.ToJson
+import com.android.ast.restable.RestableEntity
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -21,7 +20,7 @@ class Apartment {
         lon range: 0..52
     }
 
-    static restUrl = 'http://localhost:8080/'
+    static restUrl = 'http://127.0.0.1:8080/rest/'
 
     static fromJSON = {
         fromDefaultJson { Map map ->
@@ -53,6 +52,23 @@ class Apartment {
             }
         }
         images
+    }
+
+    static List<Apartment> getApartmentList() {
+        /*def url = "${restUrl}apartment/list"
+        RestTemplate template = new RestTemplate(true)
+        StringHttpMessageConverter converter = new StringHttpMessageConverter()
+        converter.setSupportedMediaTypes([MediaType.ALL])
+        template.getMessageConverters().add(converter)
+        ResponseEntity<String> response = template.getForEntity(url, String)
+        def jsonSlurper = new JsonSlurper()
+        def parsed = jsonSlurper.parseText(response.getBody()) as List<Map>
+        def list = parsed.collect {
+            Apartment.fromDefaultJson(it)
+        }
+        Log.i('INFO', list.toString())
+        return list*/
+        null
     }
 
     BigDecimal getLat() {

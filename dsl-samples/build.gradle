@@ -96,5 +96,5 @@ dependencies {
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
-    provided project(':ast')
+    // provided project(':ast')
 }

@@ -1,7 +1,6 @@
 package com.coupledays.entity
 
-import com.coupledays.ast.RestableEntity
-import com.coupledays.ast.ToJson
+import com.android.ast.restable.RestableEntity
 import groovy.transform.CompileStatic
 
 @CompileStatic

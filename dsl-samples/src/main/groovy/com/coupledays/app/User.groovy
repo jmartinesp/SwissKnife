@@ -3,13 +3,9 @@ package com.coupledays.app
 import android.os.Parcel
 import android.os.Parcelable
 import com.android.ast.restable.RestableEntity
-import com.coupledays.ast.ToJson
 import groovy.transform.CompileStatic
-import groovy.transform.ToString
 
 @RestableEntity
-@ToString
-@ToJson(includes = ['name', 'phone'])
 @CompileStatic
 class User implements Parcelable {
     String name
