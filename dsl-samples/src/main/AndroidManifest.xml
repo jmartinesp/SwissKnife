@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="me.champeau.wearapp">
+          package="com.coupledays.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -25,9 +25,10 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
                 android:name="com.coupledays.app.MainActivity"
+                android:uiOptions="splitActionBarWhenNarrow"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,7 +38,6 @@
         </activity>
         <activity
                 android:name="com.coupledays.app.UserFormActivity"
-            android:label="@string/title_activity_user_form"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
     </application>

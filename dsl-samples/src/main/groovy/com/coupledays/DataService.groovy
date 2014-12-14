@@ -31,17 +31,17 @@ class DataService {
         """
         def cities = jsonSlurper.parseText(citiesJson) as List
         cities.each {
-            this.cities.add(City.fromJSON(it as Map))
+            this.cities.add(City.fromDefaultJson(it as Map))
         }
         def holders = jsonSlurper.parseText(holdersJson) as List
         holders.each {
-            Holder holder = Holder.fromJSON(it as Map)
+            Holder holder = Holder.fromDefaultJson(it as Map)
             holder.setCity(this.cities[0])
             this.holders.add(holder)
         }
         def apartments = jsonSlurper.parseText(apartmentsJson) as List
         apartments.each {
-            Apartment apartment = Apartment.fromJSON(it as Map)
+            Apartment apartment = Apartment.fromDefaultJson(it as Map)
             apartment.setCity(this.cities[0])
             this.apartments.add(apartment)
         }

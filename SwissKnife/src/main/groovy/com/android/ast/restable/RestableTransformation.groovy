@@ -1,4 +1,5 @@
 package com.android.ast.restable
+
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -41,34 +42,66 @@ class RestableTransformation extends AbstractASTTransformation {
         }
         def jsons = node.fields.find { it.name == 'toJSON' }
         if (jsons) {
-            def closureExpression = jsons.getInitialExpression() as ClosureExpression
+            def closureExpression = jsons.initialExpression as ClosureExpression
             def blockStatement = closureExpression.code as BlockStatement
             createToJsonsMethods(node, blockStatement.statements)
             blockStatement.statements.clear()
             node.fields.remove(jsons)
         }
+        def fromJsons = node.fields.find { it.name == 'fromJSON' }
+        if (fromJsons) {
+            def closureExpression = fromJsons.initialExpression as ClosureExpression
+            def blockStatement = closureExpression.code as BlockStatement
+            createFromJsonMethods(node, blockStatement.statements)
+            blockStatement.statements.clear()
+            node.fields.remove(fromJsons)
+        }
         cleanNode(node)
     }
 
+    private void createFromJsonMethods(ClassNode node, List<Statement> closureStatements) {
+        closureStatements.each {
+            transformFromJsonClosureExpression(node, it as ExpressionStatement)
+        }
+    }
+
     private void cleanNode(ClassNode classNode) {
-        classNode.methods.remove(classNode.methods.find { it.name.endsWith('Constraints') })
-        classNode.methods.remove(classNode.methods.find { it.name.endsWith('toJSON') })
+        classNode.methods.remove(classNode.methods.find { it.isStatic() && it.name.endsWith('Constraints') })
+        classNode.methods.remove(classNode.methods.find { it.isStatic() && it.name.endsWith('toJSON') })
+        classNode.methods.remove(classNode.methods.find { it.isStatic() && it.name.endsWith('fromJSON') })
     }
 
     private void createToJsonsMethods(ClassNode node, List<Statement> closureStatements) {
-        println 'Entering closure'
         closureStatements.each {
             transformJsonsClosureExpression(node, it as ExpressionStatement)
         }
     }
 
+    private void transformFromJsonClosureExpression(ClassNode node, ExpressionStatement statement) {
+        try {
+            def methodCallExpression = statement.expression as MethodCallExpression
+            def emptyMethodNode = new MethodNode((methodCallExpression.method as ConstantExpression).getValue() as String, ACC_PUBLIC | ACC_STATIC, node.plainNodeReference, [new Parameter(map.plainNodeReference, 'map')] as Parameter[], null, new BlockStatement())
+            def code = emptyMethodNode.code as BlockStatement
+            node.addMethod(emptyMethodNode)
+            if (!code) {
+                code = new BlockStatement()
+            }
+            def args = methodCallExpression.arguments as ArgumentListExpression
+            args.expressions.each {
+                if (it instanceof ClosureExpression) {
+                    code.addStatement(it.code)
+                }
+            }
+            emptyMethodNode.code = code
+        } catch (Exception e) {
+            addError(e.message, statement)
+            println e.message
+        }
+    }
+
     private void transformJsonsClosureExpression(ClassNode node, ExpressionStatement expressionStatement) {
         try {
-            println 'Processing expression ' + expressionStatement
             def methodCallExpression = expressionStatement.expression as MethodCallExpression
-            //def methodNode = new MethodNode((methodCallExpression.method as ConstantExpression).getValue() as String, ACC_PUBLIC, linkedHashMap.plainNodeReference, [new Parameter(closure.plainNodeReference, 'closure')] as Parameter[], null, new BlockStatement())
-            //def code = methodNode.code as BlockStatement
-            // node.addMethod(methodNode)
             def emptyMethodNode = new MethodNode((methodCallExpression.method as ConstantExpression).getValue() as String, ACC_PUBLIC, ClassHelper.make(Map).plainNodeReference, [] as Parameter[], null, new BlockStatement())
             def code = emptyMethodNode.code as BlockStatement
             node.addMethod(emptyMethodNode)
@@ -79,22 +112,8 @@ class RestableTransformation extends AbstractASTTransformation {
             args.expressions.each {
                 if (it instanceof ClosureExpression) {
                     code.addStatement(it.code)
-                    /*List<Statement> statements = []
-                    (it.code as BlockStatement).statements.each {
-                        code.addStatement(it)
-                        def expression = (it as ExpressionStatement).expression
-                        if (expression instanceof BinaryExpression) {
-                            println 'Binary expression found: ' + it
-                        } else if (expression instanceof MapExpression) {
-                            transformMapExpression(expression as MapExpression, statements)
-                            println 'Map expression found: ' + it
-                        } else {
-                            println 'Another expression found: ' + it
-                        }
-                    }*/
                 }
             }
-            // methodNode.code = code
             emptyMethodNode.code = code
         } catch (Exception e) {
             addError(e.message, expressionStatement)

@@ -5,7 +5,6 @@ import com.coupledays.ast.ToJson
 import groovy.transform.CompileStatic
 
 @CompileStatic
-@ToJson(includes = ['id', 'rooms', 'address', 'lat', 'lon', 'images'], excludes = ['errors'])
 @RestableEntity
 class Apartment {
     Long id
@@ -17,9 +16,18 @@ class Apartment {
     City city
 
     static constraints = {
-        address pattern: ~/[a-zA-Z]+/, min: 3, max: 5
+        address pattern: ~/[a-zA-Z]+/, length: 100
         lat range: 0..72
         lon range: 0..52
+    }
+
+    static restUrl = 'http://localhost:8080/'
+
+    static fromJSON = {
+        fromDefaultJson { Map map ->
+            new Apartment(id: (Long) map.id, rooms: (int) map.rooms,
+                    address: (String) map.address, lat: (BigDecimal) map.lat, lon: (BigDecimal) map.lon)
+        }
     }
 
     static toJSON = {
@@ -28,11 +36,11 @@ class Apartment {
         }
         withHolderName {
             Map map = defaultJson()
-            map += ['holder': [name: holder.name]]
+            map += [holder: [name: holder.name]]
         }
         withHolder {
             Map map = defaultJson()
-            map += ['holder': holder.defaultJson()]
+            map += [holder: holder.defaultJson()]
         }
     }
 
@@ -48,7 +56,7 @@ class Apartment {
     }
 
     BigDecimal getLat() {
-        return lat.setScale(16)
+        lat.setScale(16)
     }
 
     void setLat(BigDecimal lat) {
@@ -56,7 +64,7 @@ class Apartment {
     }
 
     BigDecimal getLon() {
-        return lon.setScale(16)
+        lon.setScale(16)
     }
 
     void setLon(BigDecimal lon) {

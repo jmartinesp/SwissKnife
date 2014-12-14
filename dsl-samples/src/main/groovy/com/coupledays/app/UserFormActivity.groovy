@@ -7,7 +7,6 @@ import com.android.ast.InjectViews
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import groovy.transform.TypeCheckingMode
-import me.champeau.wearapp.R
 
 @InheritConstructors
 @InjectViews(R.layout.activity_user_form)

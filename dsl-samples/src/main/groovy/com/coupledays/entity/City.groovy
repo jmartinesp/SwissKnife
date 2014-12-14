@@ -5,13 +5,18 @@ import com.coupledays.ast.ToJson
 import groovy.transform.CompileStatic
 
 @CompileStatic
-@ToJson(includes = ['id', 'name'])
 @RestableEntity
 class City {
     Long id
     String name
     Set<Apartment> apartments = new HashSet<>()
     Set<Holder> holders = new HashSet<>()
+
+    static fromJSON = {
+        fromDefaultJson { Map map ->
+            new City(id: (Long) map.id, name: (String) map.name)
+        }
+    }
 
     static toJSON = {
         defaultJson {

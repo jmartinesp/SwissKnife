@@ -41,8 +41,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.champeau.gradle.groovy-android'
 
 android {
-    compileSdkVersion 14
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+
     lintOptions {
         abortOnError false
         checkReleaseBuilds false
@@ -51,13 +52,13 @@ android {
     defaultConfig {
         applicationId "me.champeau.speakertime"
         minSdkVersion 14
-        targetSdkVersion 14
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -93,7 +94,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':androidapp:SwissKnife')
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
-    compile 'com.android.support:support-v4:20.0.0'
-    compile 'com.android.support:appcompat-v7:20.0.0'
+    compile 'com.android.support:support-v4:21.+'
+    compile 'com.android.support:appcompat-v7:21.+'
     provided project(':ast')
 }

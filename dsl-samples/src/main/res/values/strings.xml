@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SpeakerTime</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_reactive">ReactiveActivity</string>
+    <string name="app_name">CoupleDays</string>
+    <string name="action_search">Search</string>
+
+    <string-array name="screen_array">
+        <item>1-комнатные</item>
+        <item>2-комнатные</item>
+        <item>3-комнатные</item>
+    </string-array>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="page">Page:</string>
+    <string name="screen_two">Screen two</string>
+    <string name="screen_three">Screen three</string>
 
 </resources>

@@ -15,6 +15,12 @@ class Holder {
     Set<Apartment> apartments = new HashSet<>()
     City city
 
+    static fromJSON = {
+        fromDefaultJson { Map map ->
+            new Holder(id: (Long) map.id, phone: (String) map.phone, name: (String) map.name, avatar: (String) map.avatar)
+        }
+    }
+
     static toJSON = {
         defaultJson {
             [id: id, phone: phone, name: name, city: city.defaultJson()]
