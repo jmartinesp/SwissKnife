@@ -15,6 +15,8 @@ build/
 # .idea/tasks.xml
 # .idea/dictionaries
 
+local.properties
+
 # Sensitive or high-churn files:
 # .idea/dataSources.ids
 # .idea/dataSources.xml
