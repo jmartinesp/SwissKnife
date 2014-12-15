@@ -38,7 +38,7 @@ class RestableTransformation extends AbstractASTTransformation {
             node.addField(fieldNode)
             createValidateMethod(node, blockStatement.statements)
             blockStatement.statements.clear()
-            node.fields.remove(constraints)
+            removeProperty(node, constraints.name)
         }
         def jsons = node.fields.find { it.name == 'toJSON' }
         if (jsons) {
@@ -46,7 +46,7 @@ class RestableTransformation extends AbstractASTTransformation {
             def blockStatement = closureExpression.code as BlockStatement
             createToJsonsMethods(node, blockStatement.statements)
             blockStatement.statements.clear()
-            node.fields.remove(jsons)
+            removeProperty(node, jsons.name)
         }
         def fromJsons = node.fields.find { it.name == 'fromJSON' }
         if (fromJsons) {
@@ -54,21 +54,15 @@ class RestableTransformation extends AbstractASTTransformation {
             def blockStatement = closureExpression.code as BlockStatement
             createFromJsonMethods(node, blockStatement.statements)
             blockStatement.statements.clear()
-            node.fields.remove(fromJsons)
+            removeProperty(node, fromJsons.name)
         }
-        cleanNode(node)
+
     }
 
     private void createFromJsonMethods(ClassNode node, List<Statement> closureStatements) {
         closureStatements.each {
             transformFromJsonClosureExpression(node, it as ExpressionStatement)
         }
-    }
-
-    private void cleanNode(ClassNode classNode) {
-        classNode.methods.remove(classNode.methods.find { it.isStatic() && it.name.endsWith('Constraints') })
-        classNode.methods.remove(classNode.methods.find { it.isStatic() && it.name.endsWith('toJSON') })
-        classNode.methods.remove(classNode.methods.find { it.isStatic() && it.name.endsWith('fromJSON') })
     }
 
     private void createToJsonsMethods(ClassNode node, List<Statement> closureStatements) {
@@ -163,5 +157,20 @@ class RestableTransformation extends AbstractASTTransformation {
 
     def stringFromConstantExpression(ConstantExpression expression) {
         expression.getValue() as String
+    }
+
+    private removeProperty(ClassNode classNode, String propertyName) {
+        for (int i = 0; i < classNode.fields.size(); i++) {
+            if (classNode.fields[i].name == propertyName) {
+                classNode.fields.remove(i)
+                break
+            }
+        }
+        for (int i = 0; i < classNode.properties.size(); i++) {
+            if (classNode.properties[i].name == propertyName) {
+                classNode.properties.remove(i)
+                break
+            }
+        }
     }
 }
