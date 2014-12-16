@@ -21,6 +21,7 @@ class RestableTransformation extends AbstractASTTransformation {
     public static ClassNode booleanNode = ClassHelper.make(boolean)
     public static ClassNode validator = ClassHelper.make(RestableValidation)
     public static ClassNode closure = ClassHelper.make(Closure)
+    public static ClassNode restServiceCaller = ClassHelper.make(RestServiceCaller)
 
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
@@ -44,7 +45,9 @@ class RestableTransformation extends AbstractASTTransformation {
         if (jsons) {
             def closureExpression = jsons.initialExpression as ClosureExpression
             def blockStatement = closureExpression.code as BlockStatement
-            createToJsonsMethods(node, blockStatement.statements)
+            blockStatement.statements.each {
+                transformJsonsClosureExpression(node, it as ExpressionStatement)
+            }
             blockStatement.statements.clear()
             removeProperty(node, jsons.name)
         }
@@ -52,22 +55,41 @@ class RestableTransformation extends AbstractASTTransformation {
         if (fromJsons) {
             def closureExpression = fromJsons.initialExpression as ClosureExpression
             def blockStatement = closureExpression.code as BlockStatement
-            createFromJsonMethods(node, blockStatement.statements)
+            blockStatement.statements.each {
+                transformFromJsonClosureExpression(node, it as ExpressionStatement)
+            }
             blockStatement.statements.clear()
             removeProperty(node, fromJsons.name)
         }
-
-    }
-
-    private void createFromJsonMethods(ClassNode node, List<Statement> closureStatements) {
-        closureStatements.each {
-            transformFromJsonClosureExpression(node, it as ExpressionStatement)
+        def restMethods = node.fields.find { it.name == 'restMethods' }
+        if (restMethods) {
+            def closureExpression = restMethods.initialExpression as ClosureExpression
+            def blockStatement = closureExpression.code as BlockStatement
+            blockStatement.statements.each {
+                createRestMethod(node, it as ExpressionStatement)
+            }
+            blockStatement.statements.clear()
+            removeProperty(node, restMethods.name)
         }
     }
 
-    private void createToJsonsMethods(ClassNode node, List<Statement> closureStatements) {
-        closureStatements.each {
-            transformJsonsClosureExpression(node, it as ExpressionStatement)
+    private void createRestMethod(ClassNode node, ExpressionStatement statement) {
+        try {
+            def methodCallExpression = statement.expression as MethodCallExpression
+            def methodName = stringFromConstantExpression(methodCallExpression.method as ConstantExpression)
+            def blockStatement = new BlockStatement()
+            def mapParams = new Parameter(map.plainNodeReference, 'params')
+            def mapExpression = methodCallExpression.arguments.find { it instanceof MapExpression } as MapExpression
+            def closureExpression = methodCallExpression.arguments.find {
+                it instanceof ClosureExpression
+            } as ClosureExpression
+            def args = new ArgumentListExpression(mapExpression, new VariableExpression(mapParams), closureExpression)
+            def restMethodCall = new StaticMethodCallExpression(restServiceCaller, 'createRestCall', args)
+            blockStatement.addStatement(new ExpressionStatement(restMethodCall))
+            def emptyMethodNode = new MethodNode(methodName as String, ACC_PUBLIC | ACC_STATIC, ClassHelper.make(Object), [mapParams] as Parameter[], null, blockStatement)
+            node.addMethod(emptyMethodNode)
+        } catch (emAll) {
+
         }
     }
 
@@ -113,14 +135,6 @@ class RestableTransformation extends AbstractASTTransformation {
             addError(e.message, expressionStatement)
             println e.message
         }
-    }
-
-    private void transformMapExpression(MapExpression expression, List<Statement> statements) {
-        // nothing here yet
-    }
-
-    private void transformBinaryExpression(BinaryExpression expression, List<Statement> statements) {
-        // nothing here yet
     }
 
     private void createValidateMethod(ClassNode node, List<Statement> closureStatements) {

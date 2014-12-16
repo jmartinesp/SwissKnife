@@ -56,7 +56,7 @@ class MainActivity extends Activity {
             text(R.id.userTelephone).setText user.phone
         }
         nextButton.onClick {
-            startActivity new Intent(applicationContext, UserFormActivity)
+            startActivity new Intent(applicationContext, MainActivityNew)
         }
 
         double[] doubles = [1.2, 2.4]

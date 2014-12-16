@@ -27,7 +27,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-                android:name="com.coupledays.app.MainActivity"
+                android:name="com.coupledays.app.MainActivityNew"
                 android:uiOptions="splitActionBarWhenNarrow"
             android:label="@string/app_name" >
             <intent-filter>
@@ -39,6 +39,9 @@
         <activity
                 android:name="com.coupledays.app.UserFormActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+                android:name="com.coupledays.app.MainActivity">
         </activity>
     </application>
 

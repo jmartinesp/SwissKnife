@@ -75,7 +75,11 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
     compile 'com.android.support:support-v4:21.0.0'
-    compile('org.springframework.android:spring-android-rest-template:1.0.1.RELEASE')
+    compile('org.springframework.android:spring-android-rest-template:1.0.1.RELEASE') {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotation'
+    }
     compile('org.codehaus.groovy:groovy-json:2.4.0-beta-4') {
         transitive = false
     }

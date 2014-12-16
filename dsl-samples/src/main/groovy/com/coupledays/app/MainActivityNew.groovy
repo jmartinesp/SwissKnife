@@ -22,7 +22,7 @@ import groovy.transform.CompileStatic
 
 
 @CompileStatic
-@InjectViews(R.layout.activity_main)
+@InjectViews(R.layout.activity_main_new)
 class MainActivityNew extends ActionBarActivity {
 
     String[] screenTitles

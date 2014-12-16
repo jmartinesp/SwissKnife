@@ -2,6 +2,7 @@ package com.coupledays.entity
 
 import com.android.ast.restable.RestableEntity
 import groovy.transform.CompileStatic
+import org.springframework.http.HttpMethod
 
 @CompileStatic
 @RestableEntity
@@ -14,18 +15,22 @@ class Apartment {
     Holder holder
     City city
 
+    List<String> images
+
     static constraints = {
-        address pattern: ~/[a-zA-Z]+/, length: 100
+        address pattern: ~/[a-zA-Z]+/, min: 3, max: 5
         lat range: 0..72
         lon range: 0..52
     }
 
-    static restUrl = 'http://127.0.0.1:8080/rest/'
+    public static final String restUrl = 'http://37.99.55.14:9000/'
 
-    static fromJSON = {
-        fromDefaultJson { Map map ->
-            new Apartment(id: (Long) map.id, rooms: (int) map.rooms,
-                    address: (String) map.address, lat: (BigDecimal) map.lat, lon: (BigDecimal) map.lon)
+    static restMethods = {
+        apartmentList(url: "${restUrl}rest/apartment/list", method: HttpMethod.GET, type: List) {
+            Apartment.fromDefaultJson((Map) it)
+        }
+        apartmentById(url: "${restUrl}rest/apartment/{id}", method: HttpMethod.GET) {
+            Apartment.fromJsonWithHolder((Map) it)
         }
     }
 
@@ -43,36 +48,19 @@ class Apartment {
         }
     }
 
-    List getImages() {
-        def dir = new File("img/apartments")
-        def images = []
-        dir.listFiles().each { File file ->
-            if (file.name.startsWith("${id}_")) {
-                images << file.canonicalFile.name
-            }
+    static fromJSON = {
+        fromDefaultJson { Map map ->
+            new Apartment(id: (Long) map.id, address: (String) map.address, rooms: (int) map.rooms, lat: (BigDecimal) map.lat, lon: (BigDecimal) map.lon, images: map.images as List)
         }
-        images
-    }
-
-    static List<Apartment> getApartmentList() {
-        /*def url = "${restUrl}apartment/list"
-        RestTemplate template = new RestTemplate(true)
-        StringHttpMessageConverter converter = new StringHttpMessageConverter()
-        converter.setSupportedMediaTypes([MediaType.ALL])
-        template.getMessageConverters().add(converter)
-        ResponseEntity<String> response = template.getForEntity(url, String)
-        def jsonSlurper = new JsonSlurper()
-        def parsed = jsonSlurper.parseText(response.getBody()) as List<Map>
-        def list = parsed.collect {
-            Apartment.fromDefaultJson(it)
+        fromJsonWithHolder { Map map ->
+            Apartment apartment = fromDefaultJson(map)
+            apartment.setHolder((Holder) Holder.fromDefaultJson((Map) map.holder))
+            apartment
         }
-        Log.i('INFO', list.toString())
-        return list*/
-        null
     }
 
     BigDecimal getLat() {
-        lat.setScale(16)
+        return lat.setScale(16)
     }
 
     void setLat(BigDecimal lat) {
@@ -80,7 +68,7 @@ class Apartment {
     }
 
     BigDecimal getLon() {
-        lon.setScale(16)
+        return lon.setScale(16)
     }
 
     void setLon(BigDecimal lon) {
