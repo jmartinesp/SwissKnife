@@ -92,7 +92,7 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':androidapp:SwissKnife')
+    compile project(':SwissKnife')
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
