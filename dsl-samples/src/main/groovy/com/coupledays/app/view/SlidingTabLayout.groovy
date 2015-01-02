@@ -31,22 +31,6 @@ import android.widget.HorizontalScrollView
 import android.widget.TextView
 import groovy.transform.CompileStatic
 
-/**
- * To be used with ViewPager to provide a tab indicator component which give constant feedback as to
- * the user's scroll progress.
- * <p>
- * To use the component, simply add it to your view hierarchy. Then in your
- * {@link android.app.Activity} or {@link android.support.v4.app.Fragment} call
- * {@link #setViewPager(android.support.v4.view.ViewPager)} providing it the ViewPager this layout is being used for.
- * <p>
- * The colors can be customized in two ways. The first and simplest is to provide an array of colors
- * via {@link #setSelectedIndicatorColors(int ...)} and {@link #setDividerColors(int ...)}. The
- * alternative is via the {@link com.coupledays.app.view.SlidingTabLayout.TabColorizer} interface which provides you complete control over
- * which color is used for any individual position.
- * <p>
- * The views used as tabs can be customized by calling {@link #setCustomTabView(int, int)},
- * providing the layout ID of your custom layout.
- */
 @CompileStatic
 public class SlidingTabLayout extends HorizontalScrollView {
 

@@ -15,7 +15,8 @@ class Holder {
 
     static fromJSON = {
         fromDefaultJson { Map map ->
-            new Holder(id: (Long) map.id, phone: (String) map.phone, name: (String) map.name, avatar: (String) map.avatar)
+            def city = (City) City.fromDefaultJson((Map) map.city)
+            new Holder(id: (Long) map.id, phone: (String) map.phone, name: (String) map.name, avatar: (String) map.avatar, city: city)
         }
     }
 

@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
     }
 }
@@ -23,7 +23,7 @@ gradle.taskGraph.whenReady {
     allprojects {
         tasks.withType(GroovyCompile) { task ->
             logger.lifecycle("Task $task")
-            task.groovyOptions.forkOptions.jvmArgs=['-noverify']
+            task.groovyOptions.forkOptions.jvmArgs = ['-noverify']
         }
         tasks.withType(MergeResources) { task ->
             task.process9Patch = false
@@ -32,7 +32,7 @@ gradle.taskGraph.whenReady {
 }
 
 tasks.whenTaskAdded {
-    if (it.name.contains('lint') || it.name.contains('Lint')){
+    if (it.name.contains('lint') || it.name.contains('Lint')) {
         it.enabled = false
     }
 }
@@ -62,7 +62,7 @@ android {
 
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

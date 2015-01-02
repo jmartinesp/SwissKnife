@@ -1,16 +1,12 @@
 package com.coupledays.app
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import com.android.ast.InjectViews
 import groovy.transform.CompileStatic
-import groovy.transform.InheritConstructors
-import groovy.transform.TypeCheckingMode
 
-@InheritConstructors
-@InjectViews(R.layout.activity_user_form)
 @CompileStatic
+@InjectViews(R.layout.activity_user_form)
 class UserFormActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

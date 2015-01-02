@@ -5,8 +5,8 @@ import android.os.Parcelable
 import com.android.ast.restable.RestableEntity
 import groovy.transform.CompileStatic
 
-@RestableEntity
 @CompileStatic
+@RestableEntity
 class User implements Parcelable {
     String name
     String phone

@@ -28,7 +28,7 @@ class GArrayAdapter<T> extends ArrayAdapter<T> {
     }
 
     /**
-     * View objects will be automatically holded in convertView.getTag()
+     * View objects will be automatically held in convertView.getTag()
      *
      * @param position
      * @param convertView

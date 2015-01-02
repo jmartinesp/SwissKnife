@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
     }
 }
@@ -23,7 +23,7 @@ gradle.taskGraph.whenReady {
     allprojects {
         tasks.withType(GroovyCompile) { task ->
             logger.lifecycle("Task $task")
-            task.groovyOptions.forkOptions.jvmArgs=['-noverify']
+            task.groovyOptions.forkOptions.jvmArgs = ['-noverify']
         }
         tasks.withType(MergeResources) { task ->
             task.process9Patch = false
@@ -32,7 +32,7 @@ gradle.taskGraph.whenReady {
 }
 
 tasks.whenTaskAdded {
-    if (it.name.contains('lint') || it.name.contains('Lint')){
+    if (it.name.contains('lint') || it.name.contains('Lint')) {
         it.enabled = false
     }
 }
@@ -42,7 +42,7 @@ apply plugin: 'me.champeau.gradle.groovy-android'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion '21.1.2'
 
     lintOptions {
         abortOnError false
@@ -71,6 +71,12 @@ android {
         exclude 'META-INF/notice.txt'
     }
 
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
@@ -84,9 +90,6 @@ android {
 }
 
 repositories {
-    maven {
-        url 'https://repo.spring.io/libs-snapshot'
-    }
     jcenter()
 }
 
@@ -94,8 +97,9 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':SwissKnife')
     compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
-    compile 'com.squareup.picasso:picasso:2.4.0'
+    compile 'com.google.maps.android:android-maps-utils:0.3+'
+    compile 'com.google.android.gms:play-services-maps:6.+'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
-    // provided project(':ast')
 }

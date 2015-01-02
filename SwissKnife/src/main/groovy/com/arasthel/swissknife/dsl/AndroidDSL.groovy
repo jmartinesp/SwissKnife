@@ -1,16 +1,18 @@
 package com.arasthel.swissknife.dsl
 
-import android.app.Activity
 import android.app.Fragment
-import android.app.FragmentTransaction
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.android.components.*
+import com.android.components.Form
+import com.android.components.GArrayAdapter
+import com.android.components.GAsyncTask
+import com.android.components.ObjectPropertyResolver
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
@@ -25,6 +27,10 @@ import groovy.transform.stc.FromString
  */
 @CompileStatic
 class AndroidDSL {
+
+    static void debug(anyObject, message, Throwable throwable = null) {
+        Log.d('SwissKnife DEBUG', message.toString(), throwable)
+    }
 
     static View view(context, int id,
                      @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) Closure closure = null) {
@@ -306,7 +312,7 @@ class AndroidDSL {
      * @return
      */
     static <T extends View> T visible(T view, boolean visible) {
-        view.setVisibility visible ? View.VISIBLE : View.INVISIBLE
+        view.setVisibility visible ? View.VISIBLE : View.GONE
         view
     }
 

@@ -6,31 +6,37 @@ import org.springframework.http.HttpMethod
 
 @CompileStatic
 @RestableEntity
-class Apartment {
+class Apartment implements Serializable {
     Long id
     Integer rooms
     String address
-    BigDecimal lat
-    BigDecimal lon
+    String lat
+    String lon
+    Integer price
     Holder holder
     City city
 
     List<String> images
 
     static constraints = {
-        address pattern: ~/[a-zA-Z]+/, min: 3, max: 5
-        lat range: 0..72
-        lon range: 0..52
+        address(pattern: ~/[a-zA-Z]+/)
     }
 
-    public static final String restUrl = 'http://37.99.55.14:9000/'
+    public static final String restUrl = 'http://test.chocolife.me:8080/springapp/'
 
     static restMethods = {
-        apartmentList(url: "${restUrl}rest/apartment/list", method: HttpMethod.GET, type: List) {
-            Apartment.fromDefaultJson((Map) it)
+        apartmentList(url: "${restUrl}rest/apartment/list/all/{offset}", method: HttpMethod.GET) { Map map ->
+            ((List<Map>) map.apartments).collect {
+                Apartment.fromJsonWithHolder(it)
+            }
         }
-        apartmentById(url: "${restUrl}rest/apartment/{id}", method: HttpMethod.GET) {
-            Apartment.fromJsonWithHolder((Map) it)
+        apartmentById(url: "${restUrl}rest/apartment/{id}", method: HttpMethod.GET) { Map map ->
+            Apartment.fromJsonWithHolder(map)
+        }
+        apartmentByRooms(url: "${restUrl}rest/apartment/list/byrooms/{rooms}/{offset}", method: HttpMethod.GET) { Map map ->
+            ((List<Map>) map.apartments).collect { Map apartment ->
+                Apartment.fromJsonWithHolder(apartment)
+            }
         }
     }
 
@@ -50,28 +56,18 @@ class Apartment {
 
     static fromJSON = {
         fromDefaultJson { Map map ->
-            new Apartment(id: (Long) map.id, address: (String) map.address, rooms: (int) map.rooms, lat: (BigDecimal) map.lat, lon: (BigDecimal) map.lon, images: map.images as List)
+            new Apartment(id: (Long) map.id,
+                    address: (String) map.address,
+                    rooms: (int) map.rooms,
+                    lat: (String) map.lat,
+                    lon: (String) map.lon,
+                    images: map.images as List,
+                    price: (int) map.price)
         }
         fromJsonWithHolder { Map map ->
             Apartment apartment = fromDefaultJson(map)
             apartment.setHolder((Holder) Holder.fromDefaultJson((Map) map.holder))
             apartment
         }
-    }
-
-    BigDecimal getLat() {
-        return lat.setScale(16)
-    }
-
-    void setLat(BigDecimal lat) {
-        this.lat = lat.setScale(16)
-    }
-
-    BigDecimal getLon() {
-        return lon.setScale(16)
-    }
-
-    void setLon(BigDecimal lon) {
-        this.lon = lon.setScale(16)
     }
 }

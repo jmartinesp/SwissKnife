@@ -2,14 +2,16 @@ package com.coupledays.app.adapters
 
 import android.content.Context
 import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.coupledays.app.R
+import com.coupledays.app.fragments.ApartmentFragment
 import com.coupledays.entity.Apartment
-import com.squareup.picasso.Picasso
+import com.nostra13.universalimageloader.core.ImageLoader
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class ApartmentImagePagerAdapter extends PagerAdapter {
 
     List<String> images = []
@@ -17,7 +19,7 @@ class ApartmentImagePagerAdapter extends PagerAdapter {
 
     ApartmentImagePagerAdapter(Context context, List<String> images) {
         this.images = images?.collect {
-            "${Apartment.restUrl}${it}"
+            "${Apartment.restUrl}${it}".toString()
         }
         if (!this.images) {
             this.images = null
@@ -27,7 +29,7 @@ class ApartmentImagePagerAdapter extends PagerAdapter {
 
     @Override
     void destroyItem(ViewGroup container, int position, Object object) {
-        ((ViewPager) container).removeView((View) object)
+        container.removeView((View) object)
     }
 
     @Override
@@ -35,7 +37,7 @@ class ApartmentImagePagerAdapter extends PagerAdapter {
         def inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)
         def view = inflater.inflate(R.layout.apartment_image_pager, container, false)
         def imageView = view.image(R.id.apartmentImageView)
-        Picasso.with(context).load(this.images?.getAt(position)).placeholder(R.drawable.ic_img_default).error(R.drawable.ic_img_default).into(imageView)
+        ImageLoader.instance.displayImage(this.images?.getAt(position), imageView, ApartmentFragment.options)
         container.addView(view)
         view
     }

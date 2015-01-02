@@ -1,11 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dip">
-    <android.support.v4.view.ViewPager
-            android:id="@+id/apartmentImageViewPager"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dip">
+
+    <ImageView
+        android:id="@+id/apartmentImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:scaleType="centerCrop"
+        android:gravity="center"
+        android:clickable="true"
+        android:src="@drawable/ic_img_default" />
+
+    <TextView
+        android:id="@+id/aparmentPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/apartmentImageView"
+        android:layout_alignBottom="@+id/apartmentImageView"
+        android:layout_alignEnd="@+id/apartmentImageView"
+        android:layout_alignRight="@+id/apartmentImageView"
+        android:background="@color/bright_foreground_material_dark"
+        android:padding="5dp"
+        android:text="Цена"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/apartmentType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/bright_foreground_material_dark"
+        android:padding="5dp"
+        android:text="Тип"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/toggleLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentRight="false"
+        android:layout_below="@+id/apartmentImageView"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/apartmentAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Address" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="210dp"/>
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="0.03"
+            android:baselineAligned="false"
+            android:gravity="bottom|center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/callHolderButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:scaleType="fitCenter"
+                    android:text="Позвонить" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/viewOnMapButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:scaleType="fitCenter"
+                    android:text="Посмотреть на карте" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>
