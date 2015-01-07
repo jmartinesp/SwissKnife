@@ -1,7 +1,11 @@
-package com.android.components
+package com.arasthel.swissknife.dsl.components
 
 import groovy.transform.CompileStatic
 
+/**
+ * Used in notation builder for dynamic code
+ * @author Eugene Kamenev eugenekamenev
+ */
 @CompileStatic
 class ObjectPropertyResolver {
 

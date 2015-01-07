@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
 /**
  * DSL methods for Android Bundle
  * @author Jorge Martín Espinosa
- * @author Eugene Kamenev
+ * @author Eugene Kamenev eugenekamenev
  */
 @CompileStatic
 public class AndroidBundleDSL {
@@ -72,7 +72,8 @@ public class AndroidBundleDSL {
      * @param valueClass
      * @return
      */
-    private static Bundle fromObject(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
+    private
+    static Bundle fromObject(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
         if (valueClass.isAssignableFrom(Parcelable)) {
             if (asArray) {
                 bundle.putParcelableArray(key, (Parcelable[]) value)
@@ -179,7 +180,8 @@ public class AndroidBundleDSL {
      * @param valueClass
      * @return
      */
-    private static Bundle fromPrimitive(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
+    private
+    static Bundle fromPrimitive(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
 
         if (valueClass.isAssignableFrom(int)) {
             if (asArray) {

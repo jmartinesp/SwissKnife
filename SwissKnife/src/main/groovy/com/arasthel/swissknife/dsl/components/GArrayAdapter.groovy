@@ -1,4 +1,4 @@
-package com.android.components
+package com.arasthel.swissknife.dsl.components
 
 import android.content.Context
 import android.util.SparseArray
@@ -11,6 +11,7 @@ import groovy.transform.CompileStatic
 /**
  * Simple array adapter
  *
+ * @author Eugene Kamenev eugenekamenev
  * @param < T >
  * @since 0.1
  */

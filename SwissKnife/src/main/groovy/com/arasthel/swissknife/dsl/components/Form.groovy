@@ -1,4 +1,4 @@
-package com.android.components
+package com.arasthel.swissknife.dsl.components
 
 import android.util.Log
 import android.view.View
@@ -11,6 +11,13 @@ import groovy.transform.InheritConstructors
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.FromString
 
+/**
+ * A Form component that attaches entity properties
+ * to view components
+ * @param < T >
+ *
+ * @author Eugene Kamenev eugenekamenev
+ */
 @CompileStatic
 @InheritConstructors
 class Form<T> extends LinearLayout {

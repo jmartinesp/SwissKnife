@@ -1,6 +1,6 @@
 package com.arasthel.swissknife.dsl
 
-import android.app.Fragment
+import android.support.v4.app.Fragment
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,10 +9,10 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.android.components.Form
-import com.android.components.GArrayAdapter
-import com.android.components.GAsyncTask
-import com.android.components.ObjectPropertyResolver
+import com.arasthel.swissknife.dsl.components.Form
+import com.arasthel.swissknife.dsl.components.GArrayAdapter
+import com.arasthel.swissknife.dsl.components.GAsyncTask
+import com.arasthel.swissknife.dsl.components.ObjectPropertyResolver
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
@@ -28,8 +28,8 @@ import groovy.transform.stc.FromString
 @CompileStatic
 class AndroidDSL {
 
-    static void debug(anyObject, message, Throwable throwable = null) {
-        Log.d('SwissKnife DEBUG', message.toString(), throwable)
+    static void log(anyObject, message, Throwable throwable = null) {
+        Log.d('DEBUG', message.toString(), throwable)
     }
 
     static View view(context, int id,
@@ -65,7 +65,7 @@ class AndroidDSL {
     }
 
     static <S, T extends Form<S>> T form(context, int id, S object,
-                                         @ClosureParams(value = FromString, options = ['com.android.components.Form<S>', 'com.android.components.Form<S>,S']) @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) Closure closure) {
+                                         @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) Closure closure) {
         def form = (T) build(context, id)
         form.build(object, closure)
         form
@@ -143,8 +143,8 @@ class AndroidDSL {
         }
         def viewGroup = (ViewGroup) view
         List<View> views = []
-        viewGroup.childCount.times {
-            def v = viewGroup.getChildAt(it)
+        viewGroup.childCount.times { int child ->
+            def v = viewGroup.getChildAt(child)
             views << v
             views += nested ? getChildren(v) : [v]
         }
@@ -198,7 +198,7 @@ class AndroidDSL {
      * @return
      */
     static <T, S> S async(S context,
-                          @ClosureParams(value = FromString, options = ['S', 'S,com.android.components.GAsyncTask']) Closure<T> task) {
+                          @ClosureParams(value = FromString, options = ['S', 'S,com.arasthel.swissknife.dsl.components.GAsyncTask']) Closure<T> task) {
         new GAsyncTask<T>(task).execute(context)
         context
     }

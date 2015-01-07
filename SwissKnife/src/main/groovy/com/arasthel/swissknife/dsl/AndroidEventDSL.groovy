@@ -7,6 +7,11 @@ import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.FromString
 
+/**
+ * DSL methods for attaching events to components
+ *
+ * @author Eugene Kamenev eugenekamenev
+ */
 @CompileStatic
 class AndroidEventDSL {
 

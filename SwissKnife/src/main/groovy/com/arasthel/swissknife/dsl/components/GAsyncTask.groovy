@@ -1,4 +1,4 @@
-package com.android.components
+package com.arasthel.swissknife.dsl.components
 
 import android.os.AsyncTask
 import groovy.transform.CompileStatic

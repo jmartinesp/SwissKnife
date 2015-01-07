@@ -1,7 +1,14 @@
-package com.android.components
+package com.arasthel.swissknife.dsl.components
 
 import groovy.transform.CompileStatic
 
+/**
+ * Simple cache holder based on Map of any elements
+ * @param < K >
+ * @param < V >
+ *
+ * @author Eugene Kamenev eugenekamenev
+ */
 @CompileStatic
 class CacheHolder<K, V> {
     final Map<K, V> elements = new LinkedHashMap<K, V>()
