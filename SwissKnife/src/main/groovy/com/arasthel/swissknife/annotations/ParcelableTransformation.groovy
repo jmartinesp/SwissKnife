@@ -3,6 +3,7 @@ package com.arasthel.swissknife.annotations
 import android.os.Bundle
 import android.os.Parcel
 import android.util.SparseArray
+import groovy.transform.CompileStatic
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -12,6 +13,7 @@ import org.codehaus.groovy.ast.stmt.ReturnStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
+import org.codehaus.groovy.syntax.ASTHelper
 import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.transform.ASTTransformation
@@ -23,6 +25,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
  * @author Jorge Martín Espinosa
  */
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
+@CompileStatic
 public class ParcelableTransformation implements ASTTransformation, Opcodes {
 
     // Classes that can be written in Parcel
@@ -35,12 +38,12 @@ public class ParcelableTransformation implements ASTTransformation, Opcodes {
             Bundle, List, Map, android.os.Parcelable, SparseArray
     ]
 
-    def excludedFields = []
+    List excludedFields = []
 
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
-        AnnotationNode annotation = astNodes[0];
-        ClassNode annotatedClass = astNodes[1];
+        AnnotationNode annotation = (AnnotationNode) astNodes[0];
+        ClassNode annotatedClass = (ClassNode) astNodes[1];
 
         readExcludedFields(annotation, annotatedClass)
 
@@ -77,7 +80,7 @@ public class ParcelableTransformation implements ASTTransformation, Opcodes {
                 String fieldName = ((it as ExpressionStatement).expression as VariableExpression).accessedVariable.name
                 FieldNode excluded = annotatedClass.getField(fieldName)
                 if (excluded) {
-                    excludedFields << excluded
+                    excludedFields.add(excluded)
                 }
             }
         }
@@ -184,7 +187,7 @@ public class ParcelableTransformation implements ASTTransformation, Opcodes {
             statement.addStatement(
                     new ExpressionStatement(
                             new MethodCallExpression(
-                                    new VariableExpression("parcel", ClassHelper.make(Parcel)),
+                                    new VariableExpression("dest", ClassHelper.make(Parcel)),
                                     "write$methodPostfix",
                                     argumentListExpression
                             )
@@ -299,33 +302,31 @@ public class ParcelableTransformation implements ASTTransformation, Opcodes {
         return implementedClassName
     }
 
-    FieldNode createCREATORField(ClassNode ownerClass, SourceUnit sourceUnit) {
+    void createCREATORField(ClassNode ownerClass, SourceUnit sourceUnit) {
         // We take a Creator<MyClass>
         ClassNode creatorInterfaceClassNode = ClassHelper.make(android.os.Parcelable.Creator)
-        creatorInterfaceClassNode.genericsTypes = [new GenericsType(ownerClass)]
+        creatorInterfaceClassNode.genericsTypes = [new GenericsType(ownerClass)] as GenericsType[]
 
         // Create an inner class that implements that Creator<MyClass>
-        InnerClassNode customCreatorClassNode = new InnerClassNode(ownerClass, "${ownerClass.name}.Creator", ACC_PUBLIC | ACC_STATIC, ClassHelper.OBJECT_TYPE)
+        String name = ownerClass.getNameWithoutPackage() + '$Creator';
+        String fullName = ASTHelper.dot(ownerClass.getPackageName(), name);
+        InnerClassNode customCreatorClassNode = new InnerClassNode(ownerClass, fullName, ACC_PUBLIC | ACC_STATIC, ClassHelper.OBJECT_TYPE)
         customCreatorClassNode.addInterface(creatorInterfaceClassNode.getPlainNodeReference())
-
+        // This line is needed to add the inner class to the original class
+        ownerClass.module.addClass(customCreatorClassNode)
         // Add createFromParcel method to inner class
         customCreatorClassNode.addMethod(createFromParcelMethod(ownerClass, customCreatorClassNode))
-
         // Add newArray method to inner class
         customCreatorClassNode.addMethod(newArrayMethod(ownerClass, customCreatorClassNode))
 
         // public static CREATOR = new MyClass.Creator()
         FieldNode creatorField = new FieldNode("CREATOR",
                 ACC_PUBLIC | ACC_STATIC,
-                creatorInterfaceClassNode.getPlainNodeReference(),
+                creatorInterfaceClassNode.plainNodeReference,
                 ownerClass,
                 new ConstructorCallExpression(customCreatorClassNode, new ArgumentListExpression()))
 
         ownerClass.addField(creatorField)
-
-        // This line is needed to add the inner class to the original class
-        ownerClass.module.addClass(customCreatorClassNode)
-
     }
 
     MethodNode createFromParcelMethod(ClassNode outerClass, InnerClassNode creatorClassNode) {
