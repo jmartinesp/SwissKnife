@@ -72,7 +72,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.0-rc-2:grooid'
     compile 'com.android.support:support-v4:21.0.0'
     compile('org.springframework.android:spring-android-rest-template:1.0.1.RELEASE') {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'

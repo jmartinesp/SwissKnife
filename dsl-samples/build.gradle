@@ -96,7 +96,7 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':SwissKnife')
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.0-rc-2:grooid'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
     compile 'com.google.android.gms:play-services-maps:6.+'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
