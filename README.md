@@ -11,7 +11,8 @@ With **SwissKnife** you can:
 * Inject views dynamically on *any Object* as long a you have a View to find them. No more ``findViewById`` and **you don't have to extend any classes**.
 * Add callback methods to several actions using ``@OnClick``, ``@OnItemClick``, etc.
 * Execute methods in the UI Thread or a background one using ``@OnUIThread`` and ``@OnBackground``.
-* Make your variables persistent across state changes **without messing with** `onSaveInstanceState`
+* Make your variables persistent across state changes **without messing with** `onSaveInstanceState`.
+* Make anything Parcelable with the @Parcelable annotation - which can be used with @SaveInstance to automatize the data persistance.
 
 You can see an example here:
 
@@ -84,7 +85,7 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile 'com.arasthel:swissknife:1.1.4'
+    compile 'com.arasthel:swissknife:1.2.0'
     ...
 }
 ```

@@ -18,7 +18,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 /**
  * Created by Dexafree on 02/10/14.
  */
-@GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
+@GroovyASTTransformation(phase = CompilePhase.INSTRUCTION_SELECTION)
 public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
     private ClassNode declaringClass

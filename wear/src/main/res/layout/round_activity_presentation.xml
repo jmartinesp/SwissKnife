@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".PresentationActivity"
+                tools:deviceIds="wear_round"
+                android:background="@color/white">
+
+    <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:src="@drawable/groovy_logo"
+            android:contentDescription="Groovy Logo"/>
+
+    <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/dark_blue"
+            android:textSize="13dp"
+            android:text="LG G Watch R"
+            android:background="@color/white"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="22dp" android:textStyle="bold"/>
+    <TextView android:id="@+id/textView" android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:textColor="@color/dark_blue" android:textSize="13dp"
+              android:text="RUNNIG WITH" android:background="@color/white"
+              android:layout_alignWithParentIfMissing="false"
+              android:layout_below="@+id/text" android:layout_centerHorizontal="true" android:textStyle="bold"
+            />
+
+</RelativeLayout>

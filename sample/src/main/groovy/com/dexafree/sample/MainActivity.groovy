@@ -13,7 +13,7 @@ import com.arasthel.swissknife.annotations.*
 import groovy.transform.CompileStatic
 
 @CompileStatic
-public class MainActivity extends BaseActivity {
+public class MainActivity extends Activity {
 
     private Context mContext;
 
@@ -23,6 +23,8 @@ public class MainActivity extends BaseActivity {
     Button firstButton
     @InjectView(R.id.list_view)
     ListView listView
+    @InjectView(R.id.written_text)
+    TextView writtenTextView
 
     @OnTextChanged(value = R.id.edit_text, method = OnTextChanged.Method.ON_TEXT_CHANGED)
     public void onTextChanged(CharSequence sequence) {

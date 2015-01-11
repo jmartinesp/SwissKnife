@@ -1,9 +1,48 @@
+import com.android.build.gradle.tasks.MergeResources
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
+    }
+}
+
+allprojects {
+    apply plugin: 'idea'
+    repositories {
+        jcenter()
+    }
+
+}
+
+gradle.taskGraph.whenReady {
+    allprojects {
+        tasks.withType(GroovyCompile) { task ->
+            logger.lifecycle("Task $task")
+            task.groovyOptions.forkOptions.jvmArgs = ['-noverify']
+        }
+        tasks.withType(MergeResources) { task ->
+            task.process9Patch = false
+        }
+    }
+}
+
+tasks.whenTaskAdded {
+    if (it.name.contains('lint') || it.name.contains('Lint')) {
+        it.enabled = false
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'me.champeau.gradle.groovy-android'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.dexafree.sample"
@@ -12,10 +51,19 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice.txt'
+    }
+
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }

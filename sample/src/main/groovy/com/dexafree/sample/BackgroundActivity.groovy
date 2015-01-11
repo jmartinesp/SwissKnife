@@ -85,7 +85,6 @@ public class BackgroundActivity extends Activity {
 
             myPersons[0] = aPerson
             aParcelableList.add(aPerson)
-
         }
 
 
@@ -101,14 +100,5 @@ public class BackgroundActivity extends Activity {
         assert myInt == 150
         assert myString == "I am a String"
     }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState)
-    }
-
-
-
 
 }

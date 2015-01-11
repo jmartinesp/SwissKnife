@@ -1,6 +1,7 @@
 # Changelog:
 
 ### Versions:
+* **1.2.0** - Added @Parcelable annotation and DSL methods.
 * **1.1.4** - Fixed another minor bug with primitives.
 * **1.1.3** - Fixed minor bug where methods with primitive parameters weren't found on method search.
 * **1.1.2** - Fixed BIG bug when SwissKnife couldn't find the method.
