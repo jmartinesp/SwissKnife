@@ -7,6 +7,7 @@ import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
@@ -29,7 +30,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
 
         def ids = [];
 
-        Class fieldClass = annotatedField.getType();
+        ClassNode fieldClass = annotatedField.getType();
 
         if(!AnnotationUtils.isSubtype(fieldClass, List.class)) {
             throw new Exception("The annotated field must extend List. Type: $fieldClass.name");
@@ -50,18 +51,20 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
 
         List<Statement> statementList = ((BlockStatement) injectMethod.getCode()).getStatements();
 
-        statementList.add(createViewListStatement());
+        statementList.add(createViewListStatement(annotatedField));
 
-        ids.each { statementList.add(createInjectViewStatement(it)); }
+        ids.each { statementList.add(createInjectViewStatement(annotatedField, it)); }
 
-        statementList.add(createFieldAssignStatement(annotatedField));
     }
 
-    private Statement createViewListStatement() {
+    private Statement createViewListStatement(FieldNode field) {
         return new AstBuilder().buildFromSpec {
             expression{
-                declaration {
-                    variable "views"
+                binary {
+                    property {
+                        variable "this"
+                        constant field.name
+                    }
                     token "="
                     constructorCall(ArrayList.class) {
                         argumentList {}
@@ -71,38 +74,31 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
         }[0];
     }
 
-    private Statement createInjectViewStatement(String id) {
+    private Statement createInjectViewStatement(FieldNode field, String id) {
 
-        def statement =
+        ExpressionStatement injectStatement = AnnotationUtils.createInjectExpression(id)
+
+        BlockStatement blockStatement = new BlockStatement()
+
+        ExpressionStatement addToListExpression =
                 new AstBuilder().buildFromSpec {
-                    block {
                         expression {
-                            binary {
-                                variable "views"
-                                token "<<"
-                                staticMethodCall(Finder.class, "findView") {
-                                    argumentList {
-                                        variable "view"
-                                        constant id
-                                    }
+                            methodCall {
+                                property {
+                                    variable "this"
+                                    constant field.name
+                                }
+                                constant "add"
+                                argumentList {
+                                    variable "v"
                                 }
                             }
                         }
-                    }
                 }[0];
 
-        return statement;
-    }
+        blockStatement.addStatement(injectStatement)
+        blockStatement.addStatement(addToListExpression)
 
-    private Statement createFieldAssignStatement(FieldNode field) {
-        return new AstBuilder().buildFromSpec {
-            expression {
-                binary {
-                    variable field.name
-                    token "="
-                    variable "views"
-                }
-            }
-        }[0]
+        return blockStatement;
     }
 }
