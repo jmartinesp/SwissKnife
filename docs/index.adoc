@@ -1,0 +1,19 @@
+= SwissKnife
+(Draft)
+:numbered:                                                                                                         
+:skCoreSrc: ../SwissKnife/src/main/groovy
+:skCoreTest: ../SwissKnife/src/test/groovy
+:skSampleSrc: ../sample/src/main/groovy
+
+[quote,]
+""
+A Swiss army Knife is like a Dagger, but although it may be less sharp, it can
+be more handy
+""
+image::intro_swissknife_logo.png[align=center]
+
+include::intro.adoc[]
+
+include::annotations.adoc[]
+
+include::intellij.adoc[]

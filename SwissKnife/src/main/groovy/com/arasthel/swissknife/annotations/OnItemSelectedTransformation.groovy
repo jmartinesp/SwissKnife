@@ -64,7 +64,6 @@ public class OnItemSelectedTransformation implements ASTTransformation, Opcodes 
         Parameter viewParameter = injectMethod.parameters.first()
 
         Variable variable = varX("v", ClassHelper.make(AdapterView))
-
         BlockStatement statement =
                 block(
                         AnnotationUtils.createInjectExpression(variable, viewParameter, id),

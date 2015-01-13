@@ -1,0 +1,101 @@
+== Intro
+
+*SwissKnife* is a multi-purpose library based -only in behavior, not in code- on
+other libraries such as https://github.com/JakeWharton/butterknife[ButterKnife] or
+https://github.com/excilys/androidannotations[AndroidAnnotations].
+
+This library is only compatible with http://www.groovy-lang.org[Groovy] language
+as it uses its Ast processing to generate the final code.  If you don't use
+Groovy on your Android projects yet, you can find some info about how to use it
+here.
+
+Don't be afraid of using Groovy,
+http://developer.android.com/tools/studio/index.html[Android Studio] supports it
+really well, its syntax is almost the same as Java's, it's compatible with
+Dalvik and ART and can be mixed with your existing Java code. Also, most times
+turning a Java class into a Groovy one is as easy as changing the file extension
+from *.java* to *.groovy*.
+
+WARNING: As of Groovy 2.4.0 beta 3, anything compiled using API 21 won't be able to run
+fine on < 4.4.4 if you use Bundles -which you probably do-.
+
+=== Annotations
+
+SwissKnife is heavily based on annotations. Most annotations will need only one
+parameter named value which can be a View id or a list of ids. When it's the
+only annotation parameter, the *"value="* part can be ignored.
+
+[source, groovy]
+----
+include::{skSampleSrc}/com/dexafree/sample/MainActivity.groovy[tags=injectViewWithId,indent=0]
+
+@InjectView(value=R.id.button)
+Button myButton;
+ 
+// To inject several views, the annotation is @InjectViews, in plural
+@InjectViews([R.id.view_1, R.id.view_2])
+List<View> myViews;
+ 
+// This case here is special. If the name of the field is the same as the id,
+// the @InjectView annotation doesn't need any parameters
+@InjectView()
+Button button_1;
+----
+
+Also, you can have several listener injection methods. When the listener is
+triggered on the provided view, they will execute the code specified in the
+method. On some annotations, a *"method"* parameter is also required to specify
+which method of the listener interface will be triggered.
+
+[source, groovy]
+----
+include::{skSampleSrc}/com/dexafree/sample/MainActivity.groovy[tags=onClick]
+
+include::{skSampleSrc}/com/dexafree/sample/MainActivity.groovy[tags=multipleOnClick]
+
+include::{skSampleSrc}/com/dexafree/sample/MainActivity.groovy[tags=methodAwareAnnotation]
+----
+
+=== Injecting Views and Listeners
+
+To make those annotations work, both view injection and listener injection, you
+will need to tell your class to use SwissKnife. You can do it like this:
+
+[source, groovy]
+----
+// Inject an Activity or a View in which "findViewById()" method is accesible
+SwissKnife.inject(Object objectInjected);
+
+// If you are using a Fragment or want to inject a View's children into any object, you use this
+SwissKnife.inject(Object objectInjected, View viewToInject);
+----
+
+For example, in an Activity, you would do it like this:
+
+[source, groovy]
+----
+SwissKnife.inject(this);
+----
+
+And in a Fragment, it would be:
+
+[source, groovy]
+----
+SwissKnife.inject(this, getView());
+----
+
+This means that injection can be used on any class and is done on runtime, so
+you can choose when you want that injection to happen.
+
+=== Method declaration:
+
+As stated before, annotated method declarations can't be anything you want, as
+this library uses reflection to call them and must have a specified argument
+structure. To see compatible declarations with each annotation, please visit
+their wiki pages.
+
+Also, as I realized this was difficult to remember, I started working on an
+IntelliJ Plugin which creates the annotations, the declarations and imports the
+needed classes for you. You can find it <<_intellij_plugin,here>>.
+
+image::intro_intellij_plugin.jpg[]

@@ -19,17 +19,21 @@ public class MainActivity extends Activity {
 
     @InjectView(R.id.first_textview)
     TextView firstTextView
+    // tag::injectViewWithId[]
     @InjectView(R.id.first_button)
     Button firstButton
+    // end::injectViewWithId[]
     @InjectView(R.id.list_view)
     ListView listView
     @InjectView(R.id.written_text)
     TextView writtenTextView
 
+    // tag::methodAwareAnnotation[]
     @OnTextChanged(value = R.id.edit_text, method = OnTextChanged.Method.ON_TEXT_CHANGED)
     public void onTextChanged(CharSequence sequence) {
         writtenTextView.setText(sequence)
     }
+    // end::methodAwareAnnotation[]
 
     @OnEditorAction(R.id.edit_text)
     public boolean onEditorAction(KeyEvent key) {
@@ -37,11 +41,12 @@ public class MainActivity extends Activity {
         true
     }
 
-
+    // tag::onClick[]
     @OnClick(R.id.first_button)
     public void clicked() {
         firstButton.setText("I've been clicked! Click me longer!")
     }
+    // end::onClick[]
 
     @OnLongClick(R.id.first_button)
     public boolean longClicked() {
@@ -70,6 +75,13 @@ public class MainActivity extends Activity {
         true
     }
 
+    // tag::multipleOnClick[]
+    @OnClick([R.id.third_button, R.id.fourth_button])
+    public void onClick() {
+        Toast.makeText(
+            this, "Button three or four has been clicked", Toast.LENGTH_SHORT).show()
+    }
+    // end::multipleOnClick[]
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

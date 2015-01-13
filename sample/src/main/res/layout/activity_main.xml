@@ -14,19 +14,28 @@
         tools:text="Here will be text"
         android:id="@+id/first_textview"/>
 
-
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="I'm the first button!"
         android:id="@+id/first_button"/>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="I'm the second button!"
         android:id="@+id/second_button"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm the third button"
+        android:id="@+id/third_button"/>
 
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm the fourth button"
+        android:id="@+id/fourth_button"/>
 
     <EditText
         android:layout_width="fill_parent"
