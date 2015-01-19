@@ -4,7 +4,6 @@ import android.view.View
 import com.arasthel.swissknife.utils.AnnotationUtils
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
@@ -24,47 +23,30 @@ public class InjectViewTransformation implements ASTTransformation, Opcodes {
         AnnotationNode annotation = astNodes[0];
         ClassNode declaringClass = annotatedField.declaringClass;
 
-        if(!AnnotationUtils.isSubtype(annotatedField.getType(), View.class)) {
-            throw new Exception("Annotated field must extend View class. Type: $annotatedField.type.name");
+        if (!AnnotationUtils.isSubtype(annotatedField.getType(), View.class)) {
+            throw new Exception("Annotated field must extend View class. Type: " +
+                    "${annotatedField.type.name}");
         }
 
         MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
 
+        Variable viewParameter = injectMethod.parameters.first()
+
         String id = null;
 
-        if(annotation.members.size() > 0) {
+        if (annotation.members.size() > 0) {
             id = annotation.members.value.property.getValue();
         }
 
-        if(id == null) {
+        if (id == null) {
             id = annotatedField.name;
         }
 
-        Statement statement = createInjectStatement(annotatedField, id);
+        Statement statement = AnnotationUtils.createInjectExpression(annotatedField,
+                viewParameter, id)
 
         List<Statement> statementList = ((BlockStatement) injectMethod.getCode()).getStatements();
         statementList.add(statement);
-
-    }
-
-    private Statement createInjectStatement(FieldNode field, String id) {
-
-        BlockStatement statement =
-                new AstBuilder().buildFromSpec {
-                    block {
-                        expression {
-                            binary {
-                                variable field.name
-                                token "="
-                                variable "v"
-                            }
-                        }
-                    }
-                }[0];
-
-        statement.statements.add(0, AnnotationUtils.createInjectExpression(id));
-
-        return statement;
 
     }
 }

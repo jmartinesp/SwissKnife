@@ -20,7 +20,8 @@ class ObjectPropertyResolver {
         String last
         if (this.notation.length() > 1) {
             last = this.notation[0..-2]
-        } else {
+        }
+        else {
             last = this.notation
         }
         this.notation = ''

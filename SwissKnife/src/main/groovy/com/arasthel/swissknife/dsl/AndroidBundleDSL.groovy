@@ -48,15 +48,20 @@ public class AndroidBundleDSL {
                 def type = value.class.componentType
                 if (type.isPrimitive()) {
                     fromPrimitive(bundle, key, value, true, type)
-                } else {
+                }
+                else {
                     fromObject(bundle, key, value, true, type)
                 }
-            } else if (value.class.isAssignableFrom(ArrayList)) {
+            }
+            else if (value.class.isAssignableFrom(ArrayList)) {
                 fromList(bundle, key, value)
-            } else if (value.class.isAssignableFrom(SparseArray)) {
+            }
+            else if (value.class.isAssignableFrom(SparseArray)) {
                 fromList(bundle, key, value)
-            } else {
-                // For some reason, primitives when passed as a single variable are treated as objects
+            }
+            else {
+                // For some reason, primitives when passed as a single variable are treated as
+                // objects
                 fromObject(bundle, key, value, false, value.class)
             }
         }
@@ -73,11 +78,13 @@ public class AndroidBundleDSL {
      * @return
      */
     private
-    static Bundle fromObject(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
+    static Bundle fromObject(Bundle bundle, String key, Object value, boolean asArray,
+                             Class valueClass) {
         if (valueClass.isAssignableFrom(Parcelable)) {
             if (asArray) {
                 bundle.putParcelableArray(key, (Parcelable[]) value)
-            } else {
+            }
+            else {
                 bundle.putParcelable(key, (Parcelable) value)
             }
             return bundle
@@ -91,7 +98,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(String)) {
             if (asArray) {
                 bundle.putStringArray(key, (String[]) value)
-            } else {
+            }
+            else {
                 bundle.putString(key, (String) value)
             }
             return bundle
@@ -100,7 +108,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(CharSequence)) {
             if (asArray) {
                 bundle.putCharSequenceArray(key, (CharSequence[]) value)
-            } else {
+            }
+            else {
                 bundle.putCharSequence(key, (CharSequence) value)
             }
             return bundle
@@ -114,7 +123,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Integer)) {
             if (asArray) {
                 bundle.putIntArray(key, (int[]) value)
-            } else {
+            }
+            else {
                 bundle.putInt(key, (int) value)
             }
             return bundle
@@ -122,7 +132,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Byte)) {
             if (asArray) {
                 bundle.putByteArray(key, (byte[]) value)
-            } else {
+            }
+            else {
                 bundle.putByte(key, (byte) value)
             }
             return bundle
@@ -130,7 +141,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Character)) {
             if (asArray) {
                 bundle.putCharArray(key, (char[]) value)
-            } else {
+            }
+            else {
                 bundle.putChar(key, (char) value)
             }
             return bundle
@@ -138,7 +150,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Long)) {
             if (asArray) {
                 bundle.putLongArray(key, (long[]) value)
-            } else {
+            }
+            else {
                 bundle.putLong(key, (long) value)
             }
             return bundle
@@ -146,7 +159,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Boolean)) {
             if (asArray) {
                 bundle.putBooleanArray(key, (boolean[]) value)
-            } else {
+            }
+            else {
                 bundle.putBoolean(key, (boolean) value)
             }
             return bundle
@@ -154,7 +168,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Short)) {
             if (asArray) {
                 bundle.putShortArray(key, (short[]) value)
-            } else {
+            }
+            else {
                 bundle.putShort(key, (short) value)
             }
             return bundle
@@ -162,7 +177,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(Double)) {
             if (asArray) {
                 bundle.putDoubleArray(key, (double[]) value)
-            } else {
+            }
+            else {
                 bundle.putDouble(key, (double) value)
             }
             return bundle
@@ -181,12 +197,14 @@ public class AndroidBundleDSL {
      * @return
      */
     private
-    static Bundle fromPrimitive(Bundle bundle, String key, Object value, boolean asArray, Class valueClass) {
+    static Bundle fromPrimitive(Bundle bundle, String key, Object value, boolean asArray,
+                                Class valueClass) {
 
         if (valueClass.isAssignableFrom(int)) {
             if (asArray) {
                 bundle.putIntArray(key, (int[]) value)
-            } else {
+            }
+            else {
                 bundle.putInt(key, (int) value)
             }
             return bundle
@@ -194,7 +212,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(byte)) {
             if (asArray) {
                 bundle.putByteArray(key, (byte[]) value)
-            } else {
+            }
+            else {
                 bundle.putByte(key, (byte) value)
             }
             return bundle
@@ -202,7 +221,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(char)) {
             if (asArray) {
                 bundle.putCharArray(key, (char[]) value)
-            } else {
+            }
+            else {
                 bundle.putChar(key, (char) value)
             }
             return bundle
@@ -210,7 +230,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(long)) {
             if (asArray) {
                 bundle.putLongArray(key, (long[]) value)
-            } else {
+            }
+            else {
                 bundle.putLong(key, (long) value)
             }
             return bundle
@@ -218,7 +239,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(boolean)) {
             if (asArray) {
                 bundle.putBooleanArray(key, (boolean[]) value)
-            } else {
+            }
+            else {
                 bundle.putBoolean(key, (boolean) value)
             }
             return bundle
@@ -226,7 +248,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(short)) {
             if (asArray) {
                 bundle.putShortArray(key, (short[]) value)
-            } else {
+            }
+            else {
                 bundle.putShort(key, (short) value)
             }
             return bundle
@@ -234,7 +257,8 @@ public class AndroidBundleDSL {
         if (valueClass.isAssignableFrom(double)) {
             if (asArray) {
                 bundle.putDoubleArray(key, (double[]) value)
-            } else {
+            }
+            else {
                 bundle.putDouble(key, (double) value)
             }
             return bundle

@@ -4,15 +4,13 @@ import com.arasthel.swissknife.SwissKnife
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+
+import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 
 /**
  * Created by Arasthel on 16/08/14.
@@ -34,27 +32,30 @@ public class OnUIThreadTransformation implements ASTTransformation, Opcodes {
     }
 
     private MethodNode createNewMethod(MethodNode annotatedMethod, BlockStatement originalCode) {
-        return new MethodNode(annotatedMethod.name+"\$uithread", annotatedMethod.getModifiers(), ClassHelper.VOID_TYPE, annotatedMethod.parameters, null, originalCode);
+        return new MethodNode(annotatedMethod.name + "\$uithread",
+                annotatedMethod.getModifiers(),
+                ClassHelper.VOID_TYPE,
+                annotatedMethod.parameters,
+                null,
+                originalCode);
     }
 
     private void createRunnable(MethodNode annotatedMethod) {
-        BlockStatement blockStatement = new BlockStatement();
 
-        ArgumentListExpression argumentListExpression = new ArgumentListExpression();
-        argumentListExpression.addExpression(new VariableExpression("this"));
-        argumentListExpression.addExpression(new ConstantExpression(annotatedMethod.name + "\$uithread"));
+        ArgumentListExpression argumentListExpression = args(varX("this"),
+                constX(annotatedMethod.name+"\$uithread"))
 
-        for(Parameter parameter : annotatedMethod.parameters) {
-            argumentListExpression.addExpression(new VariableExpression(parameter.name));
+        for (Parameter parameter : annotatedMethod.parameters) {
+            argumentListExpression.addExpression(varX(parameter));
         }
 
-        StaticMethodCallExpression staticMethodCallExpression = new StaticMethodCallExpression(ClassHelper.make(SwissKnife.class), "runOnUIThread", argumentListExpression);
+        BlockStatement blockStatement =
+                block(
+                        stmt(callX(ClassHelper.make(SwissKnife), "runOnUIThread",
+                                argumentListExpression))
+                )
 
-        ExpressionStatement expressionStatement = new ExpressionStatement(staticMethodCallExpression);
-
-        blockStatement.addStatement(expressionStatement);
-
-        annotatedMethod.setCode(blockStatement);
+        annotatedMethod.setCode(blockStatement)
     }
 
 }

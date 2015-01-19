@@ -1,9 +1,9 @@
 package com.arasthel.swissknife.dsl
 
-import android.support.v4.app.Fragment
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.support.v4.app.Fragment
 import android.util.Log
 import android.util.SparseArray
 import android.view.View
@@ -13,7 +13,6 @@ import com.arasthel.swissknife.dsl.components.Form
 import com.arasthel.swissknife.dsl.components.GArrayAdapter
 import com.arasthel.swissknife.dsl.components.GAsyncTask
 import com.arasthel.swissknife.dsl.components.ObjectPropertyResolver
-import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import groovy.transform.stc.ClosureParams
@@ -33,12 +32,15 @@ class AndroidDSL {
     }
 
     static View view(context, int id,
-                     @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) Closure closure = null) {
+                     @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) Closure
+                             closure = null) {
         (View) build(context, id, closure)
     }
 
     static <T extends EditText> T editText(context, int id,
-                                           @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) Closure closure = null) {
+                                           @DelegatesTo(value = T,
+                                                   strategy = Closure.DELEGATE_FIRST) Closure
+                                                   closure = null) {
         (T) build(context, id, closure)
     }
 
@@ -48,12 +50,18 @@ class AndroidDSL {
     }
 
     static <I extends Serializable, T extends View, S> T attach(T view, S object,
-                                                                @ClosureParams(value = FromString, options = 'S') Closure<I> closure) {
+                                                                @ClosureParams(value =
+                                                                        FromString,
+                                                                        options = 'S') Closure<I>
+                                                                        closure) {
         attach(view, object.class, closure)
     }
 
     static <I extends Serializable, T extends View, S> T attach(T view, Class<S> clazz,
-                                                                @ClosureParams(value = FromString, options = 'S') Closure<I> closure) {
+                                                                @ClosureParams(value =
+                                                                        FromString,
+                                                                        options = 'S') Closure<I>
+                                                                        closure) {
         view?.tag = attachViewTag(closure.dehydrate())
         view
     }
@@ -65,7 +73,9 @@ class AndroidDSL {
     }
 
     static <S, T extends Form<S>> T form(context, int id, S object,
-                                         @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) Closure closure) {
+                                         @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST) Closure
+                                                 closure) {
         def form = (T) build(context, id)
         form.build(object, closure)
         form
@@ -83,29 +93,6 @@ class AndroidDSL {
             viewHolder.put(id, res)
         }
         return (T) res;
-    }
-
-    /**
-     * Parse json to List of objects
-     *
-     * @since 0.1
-     * @param json
-     * @param clazz
-     * @param transform
-     * @return
-     */
-    static <T> List<T> jsonAsList(String json, Class<T> clazz,
-                                  @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) Closure transform = null) {
-        def parsed = new JsonSlurper().parse(json.bytes)
-        if (parsed instanceof Collection) {
-            parsed.collect {
-                transform?.call(it)
-                clazz.newInstance((Map) it)
-            }
-        } else {
-            transform?.call(parsed)
-            [clazz.newInstance(parsed)]
-        }
     }
 
     /**
@@ -131,7 +118,8 @@ class AndroidDSL {
         Context ctx = null
         if (context instanceof Context) {
             ctx = (Context) context
-        } else if (context instanceof View) {
+        }
+        else if (context instanceof View) {
             ctx = ((View) context).context
         }
         Toast.makeText(ctx, text, Toast.LENGTH_SHORT)
@@ -162,7 +150,8 @@ class AndroidDSL {
      */
     static <T extends Button> T button(context, int id,
                                        @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
-                                       @ClosureParams(value = FromString, options = 'T') Closure closure = null) {
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
         (T) build(context, id, closure)
     }
 
@@ -185,7 +174,10 @@ class AndroidDSL {
      * @return
      */
     static <T extends ImageView> T image(context, int id,
-                                         @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = 'T') Closure closure = null) {
+                                         @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST)
+                                         @ClosureParams(value = FromString,
+                                                 options = 'T') Closure closure = null) {
         (T) build(context, id, closure)
     }
 
@@ -198,7 +190,8 @@ class AndroidDSL {
      * @return
      */
     static <T, S> S async(S context,
-                          @ClosureParams(value = FromString, options = ['S', 'S,com.arasthel.swissknife.dsl.components.GAsyncTask']) Closure<T> task) {
+                          @ClosureParams(value = FromString, options = ['S', 'S,com.arasthel.swissknife.dsl.components.GAsyncTask'])
+                                  Closure<T> task) {
         new GAsyncTask<T>(task).execute(context)
         context
     }
@@ -214,8 +207,14 @@ class AndroidDSL {
      * @param closure
      * @return
      */
-    static <T extends ListView, S> T asListView(Iterable<S> iterable, context, int id, int rowLayoutId,
-                                                @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = ['S', 'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure closure = null) {
+    static <T extends ListView, S> T asListView(Iterable<S> iterable, context, int id,
+                                                int rowLayoutId,
+                                                @DelegatesTo(value = View,
+                                                        strategy = Closure.DELEGATE_FIRST)
+                                                @ClosureParams(value = FromString,
+                                                        options = ['S', 'S,android.view.View',
+                                                                'S,android.view.View,java.lang.Integer'])
+                                                        Closure closure = null) {
         asListView(context, id, rowLayoutId, iterable, closure)
     }
 
@@ -230,7 +229,8 @@ class AndroidDSL {
      * @param closure
      * @return
      */
-    static <T extends ListView, A extends ListAdapter> T asListView(context, int id, A listAdapter) {
+    static <T extends ListView, A extends ListAdapter> T asListView(context, int id,
+                                                                    A listAdapter) {
         def listView = (T) build(context, id)
         listView.setAdapter(listAdapter)
         listView
@@ -248,7 +248,12 @@ class AndroidDSL {
      * @return
      */
     static <T extends ListView, S> T asListView(context, int id, int rowLayoutId, Iterable<S> items,
-                                                @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = ['S', 'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure closure = null) {
+                                                @DelegatesTo(value = View,
+                                                        strategy = Closure.DELEGATE_FIRST)
+                                                @ClosureParams(value = FromString,
+                                                        options = ['S', 'S,android.view.View',
+                                                                'S,android.view.View,java.lang.Integer'])
+                                                        Closure closure = null) {
         def listView = (ListView) build(context, id)
         onItem(listView, rowLayoutId, items, closure)
     }
@@ -264,7 +269,10 @@ class AndroidDSL {
      * @return
      */
     static <T extends ListView, S> T onItem(T listView, int rowLayoutId, Iterable<S> items,
-                                            @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = ['S', 'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure closure) {
+                                            @DelegatesTo(value = View,
+                                                    strategy = Closure.DELEGATE_FIRST)
+                                            @ClosureParams(value = FromString, options = ['S',
+                                                    'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure closure) {
         listView.adapter = new GArrayAdapter(listView.context, rowLayoutId, items.toList(), closure)
         listView
     }
@@ -279,7 +287,9 @@ class AndroidDSL {
      * @return
      */
     static <T extends TextView> T text(context, int id,
-                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = 'T') Closure closure = null) {
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
         (T) build(context, id, closure)
     }
 
@@ -325,10 +335,12 @@ class AndroidDSL {
      * @return
      */
     static <T extends View> T visible(T view,
-                                      @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) Closure<Boolean> closure) {
+                                      @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                              Closure<Boolean> closure) {
         if (closure.call()) {
             visible(view, true)
-        } else {
+        }
+        else {
             visible(view, false)
         }
         view

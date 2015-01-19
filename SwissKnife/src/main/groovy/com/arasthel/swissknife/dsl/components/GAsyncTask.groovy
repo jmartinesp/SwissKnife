@@ -69,7 +69,8 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
     protected void onPostExecute(T object) {
         if (exception || !object) {
             this.error?.call(exception)
-        } else {
+        }
+        else {
             this.after?.call(object)
         }
     }
@@ -90,7 +91,8 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
      * error closure setter
      * @param closure
      */
-    void error(@ClosureParams(value = FromString, options = 'java.lang.Exception') Closure closure) {
+    void error(
+            @ClosureParams(value = FromString, options = 'java.lang.Exception') Closure closure) {
         this.error = closure
     }
 }

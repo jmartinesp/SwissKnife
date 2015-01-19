@@ -1,27 +1,17 @@
 package com.arasthel.swissknife.utils
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.View
-import groovy.transform.TypeChecked
-import groovy.transform.TypeCheckingMode
+import com.arasthel.swissknife.annotations.Parcelable
+import com.arasthel.swissknife.annotations.SaveInstanceTransformation
 import groovyjarjarasm.asm.Opcodes
-import org.codehaus.groovy.ast.AnnotationNode;
-import org.codehaus.groovy.ast.ClassHelper
-import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.FieldNode
-import org.codehaus.groovy.ast.GenericsType;
-import org.codehaus.groovy.ast.MethodNode;
-import org.codehaus.groovy.ast.Parameter
-import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.ClassExpression
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.DeclarationExpression
-import org.codehaus.groovy.ast.expr.PropertyExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
+import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.expr.CastExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
-import org.codehaus.groovy.syntax.Token
-import org.codehaus.groovy.syntax.Types
+
+import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 
 /**
  * Created by Arasthel on 17/08/14.
@@ -37,83 +27,51 @@ public class AnnotationUtils {
             declaringClass.addMethod(injectMethod);
         }
 
-        return injectMethod;
+        return injectMethod
     }
 
     private static MethodNode createInjectMethod() {
 
-        BlockStatement blockStatement = new BlockStatement();
+        BlockStatement blockStatement = block(
+                declS(varX("v", ClassHelper.make(View)), constX(null))
+        )
 
-        int tokenType = Types.EQUAL;
-
-         ExpressionStatement expressionStatement = new ExpressionStatement(
-            new DeclarationExpression(
-                    new VariableExpression("v", ClassHelper.make(View.class)),
-                    new Token(tokenType, "=", -1, -1),
-                    new ConstantExpression(null)));
-
-
-        blockStatement.addStatement(expressionStatement);
-
-        Parameter[] parameters =  [new Parameter(ClassHelper.make(Object.class), "view")];
-
-        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
-        annotationNode.addMember("value", new PropertyExpression(
-                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
-                new ConstantExpression(TypeCheckingMode.SKIP)));
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Object.class), "view")]
 
         MethodNode node = new MethodNode("injectViews",
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
                 ClassHelper.VOID_TYPE,
                 parameters,
                 null,
-                blockStatement);
+                blockStatement)
 
-        node.addAnnotation(annotationNode);
-
-        return node;
+        return node
     }
 
-    public static ExpressionStatement createInjectExpression(String id) {
+    public
+    static ExpressionStatement createInjectExpression(Variable variable, Parameter viewParameter,
+                                                      String id) {
 
-        return new AstBuilder().buildFromSpec {
-            expression {
-                binary {
-                    variable "v"
-                    token "="
-                    staticMethodCall(Finder.class, "findView") {
-                        argumentList {
-                            variable "view"
-                            constant id
-                        }
-                    }
-                }
-            }
-        }[0];
+        return assignS(varX(variable), callX(ClassHelper.make(Finder), "findView",
+                args(varX(viewParameter), constX(id))))
     }
 
+    public
+    static ExpressionStatement createListInjectExpression(Variable variable,
+                                                          Parameter viewParameter, String id) {
 
+        return stmt(callX(varX(variable), "add", callX(ClassHelper.make(Finder), "findView",
+                args(varX(viewParameter), constX(id)))))
+    }
 
-    private static MethodNode createRestoreStateMethod(){
+    private static MethodNode createRestoreStateMethod() {
 
-        BlockStatement blockStatement = new BlockStatement()
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "savedState")];
 
-        Parameter[] parameters =  [new Parameter(ClassHelper.make(Bundle.class), "savedState")];
-
-        int tokenType = Types.EQUAL;
-
-        ExpressionStatement expressionStatement = new ExpressionStatement(
-                new DeclarationExpression(
-                        new VariableExpression("o", ClassHelper.make(Object.class)),
-                        new Token(tokenType, "=", -1, -1),
-                        new ConstantExpression(null)));
-
-        blockStatement.addStatement(expressionStatement)
-
-        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
-        annotationNode.addMember("value", new PropertyExpression(
-                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
-                new ConstantExpression(TypeCheckingMode.SKIP)));
+        BlockStatement blockStatement =
+                block(
+                        declS(varX("o"), constX(null))
+                )
 
         MethodNode node = new MethodNode("restoreSavedState",
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
@@ -122,37 +80,19 @@ public class AnnotationUtils {
                 null,
                 blockStatement);
 
-        node.addAnnotation(annotationNode);
-
         return node;
     }
 
-    private static MethodNode createSaveStateMethod(){
+    private static MethodNode createSaveStateMethod() {
 
-        BlockStatement blockStatement = new BlockStatement()
+        Parameter savedState = new Parameter(ClassHelper.make(Bundle.class), "savedState");
 
-        Parameter[] parameters =  [new Parameter(ClassHelper.make(Bundle.class), "savedState")];
+        Parameter[] parameters = [savedState];
 
-        ExpressionStatement expressionStatement =
-                new AstBuilder().buildFromSpec {
-                    expression{
-                        methodCall {
-                            variable "super"
-                            constant "onSaveInstanceState"
-                            argumentList {
-                                variable "savedState"
-                            }
-                        }
-                    }
-                }[0]
-
-        blockStatement.addStatement(expressionStatement)
-
-        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
-        annotationNode.addMember("value", new PropertyExpression(
-                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
-                new ConstantExpression(TypeCheckingMode.SKIP)));
-
+        BlockStatement blockStatement =
+                block(
+                        stmt(callSuperX("onSaveInstanceState", args(savedState)))
+                )
 
         AnnotationNode overrideAnnotation = new AnnotationNode(ClassHelper.make(Override.class))
 
@@ -163,37 +103,25 @@ public class AnnotationUtils {
                 null,
                 blockStatement);
 
-
-        node.addAnnotation(annotationNode);
         node.addAnnotation(overrideAnnotation)
 
         return node;
 
     }
 
-
     public static boolean isSubtype(ClassNode original, Class compared) {
         ClassNode comparedClassNode = ClassHelper.make(compared);
         return original.isDerivedFrom(comparedClassNode);
     }
 
-    public static MethodNode getSaveStateMethod(ClassNode declaringClass){
+    public static MethodNode getSaveStateMethod(ClassNode declaringClass) {
         Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "outState")]
-        MethodNode saveStateMethod = declaringClass.getDeclaredMethod("onSaveInstanceState", parameters)
-        if(saveStateMethod == null){
+        MethodNode saveStateMethod = declaringClass.getDeclaredMethod("onSaveInstanceState",
+                parameters)
+        if (saveStateMethod == null) {
             saveStateMethod = createSaveStateMethod()
             declaringClass.addMethod(saveStateMethod)
         }
-
-
-        def typechecked = false
-
-        saveStateMethod.annotations.each {
-            if(it.getClassNode().name == "groovy.transform.TypeChecked") typechecked = true
-        }
-
-        if(!typechecked) addTypeCheckedAnnotation(saveStateMethod)
-
 
         saveStateMethod
 
@@ -210,119 +138,47 @@ public class AnnotationUtils {
         restoreStateMethod
     }
 
-    private static addTypeCheckedAnnotation(MethodNode saveStateMethod){
-        AnnotationNode annotationNode = new AnnotationNode(ClassHelper.make(TypeChecked.class));
-        annotationNode.addMember("value", new PropertyExpression(
-                new ClassExpression(ClassHelper.make(TypeCheckingMode.class)),
-                new ConstantExpression(TypeCheckingMode.SKIP)));
-
-        saveStateMethod.addAnnotation(annotationNode)
-    }
-
-
-    public static boolean canImplementSaveState(ClassNode declaringClass, FieldNode annotatedField){
-
-        def canImplement = false
-
-        Class[] classes = [String.class, int.class, byte.class, char.class, double.class, boolean.class,
-                           float.class, long.class, short.class, Integer.class, CharSequence.class,
-                           Bundle.class]
-
-
+    public static boolean canImplementSaveState(FieldNode annotatedField) {
 
         ClassNode originalClassNode = annotatedField.getType()
 
-        boolean isArray = originalClassNode.isArray()
+        ClassNode realClassNode = originalClassNode
 
-        classes.each {
-            if (it.name == originalClassNode.name) canImplement = true
+        // We look for the real ClassNode
+        if (originalClassNode.isArray()) {
+            realClassNode = originalClassNode.getComponentType()
+        }
+        else if (originalClassNode == ClassHelper.make(ArrayList)) {
+            realClassNode = originalClassNode.getGenericsTypes()[0].type
         }
 
-
-
-        if(isArray){
-            String type = originalClassNode.name
-            if(type.contains("String[]")){
-                canImplement = true
-            } else {
-
-                /*
-                 * If it's not a String, then we will check if it's a Parcelable object, so we get the
-                 * array's Type Class and check if it implements Parcelable
-                 */
-                ClassNode arrayTypeClass = annotatedField.originType.componentType
-
-                if(doesClassImplementInterface(arrayTypeClass, "android.os.Parcelable")){
-                    canImplement = true
-                } else {
-
-                    classes.each {
-                        if (it.name == arrayTypeClass.name) canImplement = true
-                    }
-
-                }
-            }
+        // If it's a parcelable class, it's parcelable
+        if (SaveInstanceTransformation.PARCELABLE_CLASSES.find {
+            ClassHelper.make(it) == realClassNode
+        }) {
+            return true
         }
 
-
-        if(!canImplement){
-
-            def containsGenerics = false
-
-            ArrayList dummyAL = new ArrayList()
-
-            if(originalClassNode.name == dummyAL.class.name) containsGenerics = true
-
-            if(containsGenerics){
-                GenericsType[] generics = declaringClass.getDeclaredField(annotatedField.name).type.genericsTypes
-
-                generics.each {
-
-                    ClassNode genericClassNode = it.type
-
-                    // Here we don't check Serializable because Bundle does not support putSerializableArrayList
-                    if(!canImplement) canImplement = doesClassImplementInterface(genericClassNode, "android.os.Parcelable")
-
-                    if(!canImplement){
-
-                        switch(genericClassNode.name){
-
-                            case [Integer.class.name, Boolean.class.name, Byte.class.name,
-                                  Character.class.name, CharSequence.class.name, Double.class.name,
-                                  Float.class.name, Long.class.name, String.class.name,
-                                  Short.class.name]:
-                                canImplement = true
-                                break
-                            default:
-                                canImplement = false
-                                break
-
-                        }
-                    }
-                }
-            }
-
+        // If it implements Parcelable or Serializable, it's parcelable
+        if (doesClassImplementInterface(originalClassNode, android.os.Parcelable) ||
+                doesClassImplementInterface(originalClassNode, Serializable)) {
+            return true
         }
 
-        if(!canImplement) canImplement = doesClassImplementInterface(originalClassNode, "android.os.Parcelable") ||
-                doesClassImplementInterface(originalClassNode, "java.io.Serializable")
+        // If uses the @Parcelable annotation, it's parcelable
+        return hasParcelableAnnotation(realClassNode)
+    }
 
-        canImplement
-
+    public static boolean hasParcelableAnnotation(ClassNode node) {
+        node.annotations.find { it.classNode == ClassHelper.make(Parcelable) }
     }
 
 
-    public static boolean doesClassImplementInterface(ClassNode original, String desiredInterface){
+    public static boolean doesClassImplementInterface(ClassNode original, Class implementable) {
 
-        def interfaces = original.getInterfaces()
-
-        def implementsInterface = false
-
-        interfaces.each {
-            if(it.getName().equalsIgnoreCase(desiredInterface)) implementsInterface = true
+        return original.getInterfaces().find {
+            it == ClassHelper.make(implementable)
         }
-
-        implementsInterface
 
     }
 

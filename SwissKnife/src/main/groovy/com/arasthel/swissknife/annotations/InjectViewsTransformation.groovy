@@ -1,18 +1,17 @@
 package com.arasthel.swissknife.annotations
 
 import com.arasthel.swissknife.utils.AnnotationUtils
-import com.arasthel.swissknife.utils.Finder
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+
+import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 
 /**
  * Created by Arasthel on 16/08/14.
@@ -28,23 +27,27 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
 
         MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass);
 
+        Parameter viewParameter = injectMethod.parameters.first()
+
         def ids = [];
 
         ClassNode fieldClass = annotatedField.getType();
 
-        if(!AnnotationUtils.isSubtype(fieldClass, List.class)) {
-            throw new Exception("The annotated field must extend List. Type: $fieldClass.name");
+        if (!AnnotationUtils.doesClassImplementInterface(fieldClass, List.class)) {
+            throw new Exception("The annotated field must extend List. Type: ${fieldClass.name}");
         }
 
-        if(annotation.members.size() > 0) {
-            if(annotation.members.value instanceof ListExpression) {
+        if (annotation.members.size() > 0) {
+            if (annotation.members.value instanceof ListExpression) {
                 annotation.members.value.getExpressions().each {
-                    ids << (String) it.property.getValue();
+                    ids << it.property.getValue() as String;
                 };
-            } else {
+            }
+            else {
                 throw new Exception("InjectViews must have a list of ids");
             }
-        } else {
+        }
+        else {
             throw new Exception("InjectViews must have a list of ids");
         }
 
@@ -53,52 +56,17 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
 
         statementList.add(createViewListStatement(annotatedField));
 
-        ids.each { statementList.add(createInjectViewStatement(annotatedField, it)); }
+        ids.each { String id -> statementList.add(createInjectViewStatement(annotatedField,
+                viewParameter, id)); }
 
     }
 
     private Statement createViewListStatement(FieldNode field) {
-        return new AstBuilder().buildFromSpec {
-            expression{
-                binary {
-                    property {
-                        variable "this"
-                        constant field.name
-                    }
-                    token "="
-                    constructorCall(ArrayList.class) {
-                        argumentList {}
-                    }
-                }
-            }
-        }[0];
+        return assignS(varX(field), ctorX(ClassHelper.make(ArrayList)))
     }
 
-    private Statement createInjectViewStatement(FieldNode field, String id) {
-
-        ExpressionStatement injectStatement = AnnotationUtils.createInjectExpression(id)
-
-        BlockStatement blockStatement = new BlockStatement()
-
-        ExpressionStatement addToListExpression =
-                new AstBuilder().buildFromSpec {
-                        expression {
-                            methodCall {
-                                property {
-                                    variable "this"
-                                    constant field.name
-                                }
-                                constant "add"
-                                argumentList {
-                                    variable "v"
-                                }
-                            }
-                        }
-                }[0];
-
-        blockStatement.addStatement(injectStatement)
-        blockStatement.addStatement(addToListExpression)
-
-        return blockStatement;
+    private Statement createInjectViewStatement(FieldNode field, Parameter viewParameter,
+                                                String id) {
+        return AnnotationUtils.createListInjectExpression(field, viewParameter, id)
     }
 }

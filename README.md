@@ -12,7 +12,7 @@ With **SwissKnife** you can:
 * Add callback methods to several actions using ``@OnClick``, ``@OnItemClick``, etc.
 * Execute methods in the UI Thread or a background one using ``@OnUIThread`` and ``@OnBackground``.
 * Make your variables persistent across state changes **without messing with** `onSaveInstanceState`.
-* Make anything Parcelable with the @Parcelable annotation - which can be used with @SaveInstance to automatize the data persistance.
+* Make anything Parcelable with the `@Parcelable` annotation - which can be used with `@SaveInstance` to automatize data persistance. **NO MORE PARCELABLES! YAY!**
 
 You can see an example here:
 
@@ -71,6 +71,7 @@ For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKni
 * [@OnUIThread](https://github.com/Arasthel/SwissKnife/wiki/@OnUIThread)
 * [@OnBackground](https://github.com/Arasthel/SwissKnife/wiki/@OnBackground)
 * [@SaveInstance](https://github.com/Arasthel/SwissKnife/wiki/@SaveInstance)
+* [@Parcelable](https://github.com/Arasthel/SwissKnife/wiki/@Parcelable)
 
 I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
 
@@ -85,7 +86,7 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile 'com.arasthel:swissknife:1.2.1'
+    compile "com.arasthel:swissknife:1.2.1"
     ...
 }
 ```
@@ -95,7 +96,7 @@ If you want *SwissKnife* to update automatically, you could just type:
 ```groovy
 dependencies {
     ...
-    compile 'com.arasthel:swissknife:+'
+    compile "com.arasthel:swissknife:+""
     ...
 }
 ```
@@ -106,7 +107,7 @@ Also, [there is an IntelliJ IDEA plugin](https://github.com/Arasthel/SwissKnife/
 
 ## License
 
-SwissKnife is licensed under Apache v2 License, which means that is Open Source and free to use and modify.
+SwissKnife is licensed under Apache v2 License, which means that it is Open Source and free to use and modify.
 
 ```
 Copyright 2014 Jorge Martín Espinosa (Arasthel)

@@ -11,6 +11,7 @@ import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.ReturnStatement
 import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.ast.tools.GeneralUtils
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.syntax.ASTHelper
@@ -30,7 +31,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
 
     // Classes that can be written in Parcel
     private static final List<Class> PARCELABLE_CLASSES = [
-            String, String[], List, Map, SparseArray, android.os.Parcelable, android.os.Parcelable[], Bundle, CharSequence, Serializable
+            String, String[], List, Map, SparseArray, android.os.Parcelable,
+            android.os.Parcelable[], Bundle, CharSequence, Serializable
     ]
 
     // Classes which need a ClassLoader as an argument for reading
@@ -59,13 +61,15 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
         annotatedClass.addConstructor(createEmptyConstructor());
         // We add a constructor which takes only one Parcel argument
         annotatedClass.addConstructor(createParcelConstructor(annotatedClass));
-        println "Generated class: $annotatedClass"
+        println "Implemented Parcelable class for $annotatedClass"
     }
+
     def readExcludedFields(AnnotationNode annotationNode, ClassNode annotatedClass) {
         Expression excludesExpression = annotationNode.members.exclude as ClosureExpression
         if (excludesExpression) {
             (excludesExpression.getCode() as BlockStatement).getStatements().each {
-                String fieldName = ((it as ExpressionStatement).expression as VariableExpression).accessedVariable.name
+                String fieldName = ((it as ExpressionStatement).expression as VariableExpression)
+                        .accessedVariable.name
                 FieldNode excluded = annotatedClass.getField(fieldName)
                 if (excluded) {
                     excludedFields.add(excluded)
@@ -84,12 +88,15 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                     // If it's a primitive, it can be parceled
                     if (ClassHelper.isPrimitiveType(fieldClass)) {
                         parcelableFields << field
-                    } else if (fieldClass.isArray()) {
+                    }
+                    else if (fieldClass.isArray()) {
                         // If it's an array of primitives, too
                         if (ClassHelper.isPrimitiveType(fieldClass.getComponentType())) {
                             parcelableFields << field
-                        } else {
-                            // If it's an array of objects, find if it's one of the parcelable classes
+                        }
+                        else {
+                            // If it's an array of objects, find if it's one of the parcelable
+                            // classes
                             PARCELABLE_CLASSES.find {
                                 if (fieldClass.isDerivedFrom(ClassHelper.make(it))
                                         || fieldClass.implementsInterface(ClassHelper.make(it))) {
@@ -99,8 +106,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                                 return false
                             }
                         }
-                    } else {
-                        println field.name
+                    }
+                    else {
                         // If it's an object, check if it's parcelable
                         PARCELABLE_CLASSES.find {
                             if (fieldClass.isDerivedFrom(ClassHelper.make(it))
@@ -120,7 +127,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     }
 
     ConstructorNode createParcelConstructor(ClassNode annotatedClass) {
-        Parameter parcelParameter = new Parameter(ClassHelper.make(Parcel).plainNodeReference, 'parcel')
+        Parameter parcelParameter = new Parameter(ClassHelper.make(Parcel).plainNodeReference,
+                'parcel')
         Statement code = readFromParcelCode(annotatedClass, parcelParameter)
         return new ConstructorNode(ACC_PUBLIC, params(parcelParameter), ClassNode.EMPTY_ARRAY, code)
     }
@@ -131,14 +139,17 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
 
     MethodNode createDescribeContentsMethod() {
         ReturnStatement returnStatement = new ReturnStatement(new ConstantExpression(0))
-        MethodNode methodNode = new MethodNode("describeContents", ACC_PUBLIC, ClassHelper.int_TYPE, [] as Parameter[], [] as ClassNode[], returnStatement)
+        MethodNode methodNode = new MethodNode("describeContents", ACC_PUBLIC,
+                ClassHelper.int_TYPE, [] as Parameter[], [] as ClassNode[], returnStatement)
         return methodNode
     }
 
     MethodNode createWriteToParcelMethod(ClassNode annotatedClass) {
         Statement statement = writeToParcelCode(annotatedClass)
-        Parameter[] parameters = [new Parameter(ClassHelper.make(Parcel), "dest"), new Parameter(ClassHelper.int_TYPE, "flags")]
-        MethodNode methodNode = new MethodNode("writeToParcel", ACC_PUBLIC, ClassHelper.VOID_TYPE, parameters, [] as ClassNode[], statement)
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Parcel), "dest"),
+                                  new Parameter(ClassHelper.int_TYPE, "flags")]
+        MethodNode methodNode = new MethodNode("writeToParcel", ACC_PUBLIC,
+                ClassHelper.VOID_TYPE, parameters, [] as ClassNode[], statement)
         return methodNode
     }
 
@@ -150,12 +161,14 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             String methodPostfix = null
             if (ClassHelper.isPrimitiveType(it.getType())) {
                 // Example: int -> writeInt, char -> writeChar
-                methodPostfix = it.class.name.capitalize()
-            } else {
+                methodPostfix = it.type.name.capitalize()
+            }
+            else {
                 if (!it.getType().isArray()) {
                     // If a parcelable object, writeClassName
                     methodPostfix = getImplementedClassNode(it.getType())
-                } else {
+                }
+                else {
                     // If an array of parcelables, writeClassNameArray
                     methodPostfix = "${getImplementedClassNode(it.getType().getComponentType())}Array"
                 }
@@ -164,9 +177,11 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             ArgumentListExpression argumentListExpression = new ArgumentListExpression(
                     new VariableExpression("${it.name}", it.getType())
             )
-            ClassNode fieldClassNode = it.getType().isArray() ? it.getType().getComponentType() : it.getType()
+            ClassNode fieldClassNode = it.getType().isArray() ? it.getType().getComponentType() :
+                    it.getType()
             // But Parcelable and Parcelable[] also need a "flags" int argument
-            if (fieldClassNode.implementsInterface(ClassHelper.make(android.os.Parcelable).plainNodeReference)) {
+            if (fieldClassNode.implementsInterface(ClassHelper.make(android.os.Parcelable)
+                    .plainNodeReference)) {
                 argumentListExpression.addExpression(new VariableExpression("flags"))
             }
             statement.addStatement(
@@ -186,49 +201,61 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
         List<FieldNode> fields = getParcelableFields(annotatedClass)
         def parcelVar = varX(parcelParam)
         parcelVar.accessedVariable = parcelParam
+
+        def classLoaderVar = varX('classLoader', ClassHelper.make(ClassLoader))
+
         // We create the classLoader variable just in case for complex classes
-        statements.add(assignS(varX('classLoader', ClassHelper.make(ClassLoader).plainNodeReference), callX(classX(ClassHelper.make(Object)), 'getClassLoader')))
+        statements.add(declS(classLoaderVar, callX(classX(ClassHelper.OBJECT_TYPE), 'getClassLoader')))
         fields.each { FieldNode field ->
             // Every method will be read____
             String methodPostfix = null
             if (ClassHelper.isPrimitiveType(field.getType())) {
                 // char -> readChar()
                 methodPostfix = field.getType().nameWithoutPackage.capitalize()
-            } else {
+            }
+            else {
                 if (!field.getType().isArray()) {
                     // If a parcelable object -> readClassName
                     methodPostfix = getImplementedClassNode(field.getType())
-                } else {
+                }
+                else {
                     // If an array of parcelable objects -> readClassNameArray
                     methodPostfix = "${getImplementedClassNode(field.getType().getComponentType())}Array"
                 }
             }
-            ClassNode fieldClass = field.getType().isArray() ? field.getType().getComponentType() : field.getType()
+            ClassNode fieldClass = field.getType().isArray() ? field.getType().getComponentType()
+                    : field.getType()
             ArgumentListExpression argumentListExpression = new ArgumentListExpression()
 
             // For arrays and lists, read____ returns void and field must be passed as an argument
-            if (field.getType().isArray() || field.getType().isDerivedFrom(ClassHelper.make(List).plainNodeReference)) {
+            if (field.getType().isArray() || field.getType().isDerivedFrom(ClassHelper.make(List)
+                    .plainNodeReference)) {
                 argumentListExpression.addExpression(new FieldExpression(field))
                 // There are some classes that also need the classLoader variable as an argument
                 NEED_CLASSLOADER.find {
-                    if (fieldClass.isDerivedFrom(ClassHelper.make(it)) || fieldClass.implementsInterface(ClassHelper.make(it))) {
-                        argumentListExpression.addExpression(varX("classLoader"))
+                    if (fieldClass.isDerivedFrom(ClassHelper.make(it)) || fieldClass
+                            .implementsInterface(ClassHelper.make(it))) {
+                        argumentListExpression.addExpression(classLoaderVar)
                         return true
                     }
                     return false
                 }
                 statements.add(stmt(callX(parcelVar, "read$methodPostfix", argumentListExpression)))
-            } else {
+            }
+            else {
                 // Else, just "field = parcel.read___()"
                 // There are some classes that also need the classLoader variable as an argument
                 NEED_CLASSLOADER.find {
-                    if (fieldClass.isDerivedFrom(ClassHelper.make(it).plainNodeReference) || fieldClass.implementsInterface(ClassHelper.make(it).plainNodeReference)) {
-                        argumentListExpression.addExpression(varX('classLoader', ClassHelper.make(ClassLoader)))
+                    if (fieldClass.isDerivedFrom(ClassHelper.make(it).plainNodeReference) ||
+                            fieldClass.implementsInterface(ClassHelper.make(it)
+                                    .plainNodeReference)) {
+                        argumentListExpression.addExpression(classLoaderVar)
                         return true
                     }
                     return false
                 }
-                statements.add(assignS(varX(field), callX(parcelVar, "read$methodPostfix", argumentListExpression)))
+                statements.add(assignS(varX(field), callX(parcelVar, "read$methodPostfix",
+                        argumentListExpression)))
             }
         }
         block(statements as Statement[])
@@ -257,7 +284,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
         // Create an inner class that implements that Creator<MyClass>
         String name = ownerClass.getNameWithoutPackage() + '$Creator';
         String fullName = ASTHelper.dot(ownerClass.getPackageName(), name);
-        InnerClassNode customCreatorClassNode = new InnerClassNode(ownerClass, fullName, ACC_PUBLIC | ACC_STATIC, ClassHelper.OBJECT_TYPE)
+        InnerClassNode customCreatorClassNode = new InnerClassNode(ownerClass, fullName,
+                ACC_PUBLIC | ACC_STATIC, ClassHelper.OBJECT_TYPE)
         customCreatorClassNode.addInterface(creatorInterfaceClassNode.getPlainNodeReference())
         // This line is needed to add the inner class to the original class
         ownerClass.module.addClass(customCreatorClassNode)
@@ -281,7 +309,9 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
         ReturnStatement cfpCode =
                 new ReturnStatement(
                         new ExpressionStatement(
-                                new ConstructorCallExpression(outerClass.getPlainNodeReference(), new ArgumentListExpression(new VariableExpression("source", ClassHelper.make(Parcel))))
+                                new ConstructorCallExpression(outerClass.getPlainNodeReference(),
+                                        new ArgumentListExpression(new VariableExpression
+                                                ("source", ClassHelper.make(Parcel))))
                         )
                 )
         MethodNode createFromParcelMethod = new MethodNode("createFromParcel",
@@ -296,13 +326,9 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     MethodNode newArrayMethod(ClassNode outerClass, InnerClassNode creatorClassNode) {
         // Return an array of MyClass of the given size
         ClassNode arrayNode = ClassHelper.OBJECT_TYPE.makeArray()
-        ExpressionStatement returnExpression = new ExpressionStatement(
-                new CastExpression(arrayNode, new ArrayExpression(outerClass, null, Arrays.asList(new VariableExpression("size", ClassHelper.int_TYPE)) as List<Expression>))
-        )
-        ReturnStatement naCode =
-                new ReturnStatement(
-                        returnExpression
-                )
+        Statement naCode =
+                returnS(new ArrayExpression(outerClass, null,
+                        [varX("size", ClassHelper.int_TYPE)] as List<Expression>))
         MethodNode createNewArrayNode = new MethodNode("newArray",
                 ACC_PUBLIC,
                 arrayNode,

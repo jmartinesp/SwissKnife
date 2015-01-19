@@ -24,7 +24,8 @@ class AndroidEventDSL {
      * @return
      */
     static <T extends ListView, S> T onClick(T listView,
-                                             @ClosureParams(value = FromString, options = ['S', 'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure closure) {
+                                             @ClosureParams(value = FromString, options = ['S',
+                                                     'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure closure) {
         def clone = closure?.rehydrate(listView, closure?.owner, closure?.thisObject)
         clone?.resolveStrategy = Closure.DELEGATE_FIRST
         listView.onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -34,7 +35,8 @@ class AndroidEventDSL {
                     default: clone?.call(); break;
                     case 1: clone?.call(listView.getItemAtPosition(position)); break;
                     case 2: clone?.call(listView.getItemAtPosition(position), view); break;
-                    case 3: clone?.call(listView.getItemAtPosition(position), view, position); break;
+                    case 3: clone?.call(listView.getItemAtPosition(position), view,
+                            position); break;
                 }
             }
         }
@@ -50,7 +52,12 @@ class AndroidEventDSL {
      * @return
      */
     static <T extends ListView, S> T onLongClick(T listView,
-                                                 @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = ['S', 'S,android.view.View', 'S,android.view.View,java.lang.Integer']) Closure<Boolean> closure) {
+                                                 @DelegatesTo(value = T,
+                                                         strategy = Closure.DELEGATE_FIRST)
+                                                 @ClosureParams(value = FromString,
+                                                         options = ['S', 'S,android.view.View',
+                                                                 'S,android.view.View,java.lang.Integer'])
+                                                         Closure<Boolean> closure) {
         def clone = closure?.rehydrate(listView, closure?.owner, closure?.thisObject)
         clone?.resolveStrategy = Closure.DELEGATE_FIRST
         listView.onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
@@ -60,7 +67,8 @@ class AndroidEventDSL {
                     default: clone?.call(); break;
                     case 1: clone?.call(listView.getItemAtPosition(position)); break;
                     case 2: clone?.call(listView.getItemAtPosition(position), view); break;
-                    case 3: clone?.call(listView.getItemAtPosition(position), view, position); break;
+                    case 3: clone?.call(listView.getItemAtPosition(position), view,
+                            position); break;
                 }
             }
         }
@@ -76,7 +84,9 @@ class AndroidEventDSL {
      * @return
      */
     static <T extends View> T onClick(T view,
-                                      @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = 'T') Closure closure) {
+                                      @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                      @ClosureParams(value = FromString,
+                                              options = 'T') Closure closure) {
         def clone = closure?.rehydrate(view, closure?.owner, closure?.thisObject)
         clone?.resolveStrategy = Closure.DELEGATE_FIRST
         view?.onClickListener = new View.OnClickListener() {
@@ -97,7 +107,10 @@ class AndroidEventDSL {
      * @return
      */
     static <T extends View> T onLongClick(T view,
-                                          @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST) @ClosureParams(value = FromString, options = 'T') Closure<Boolean> closure) {
+                                          @DelegatesTo(value = T,
+                                                  strategy = Closure.DELEGATE_FIRST)
+                                          @ClosureParams(value = FromString,
+                                                  options = 'T') Closure<Boolean> closure) {
         def clone = closure?.rehydrate(view, closure?.owner, closure?.thisObject)
         clone?.resolveStrategy = Closure.DELEGATE_FIRST
         view.onLongClickListener = new View.OnLongClickListener() {

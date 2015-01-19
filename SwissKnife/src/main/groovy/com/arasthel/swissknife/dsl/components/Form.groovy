@@ -40,17 +40,21 @@ class Form<T> extends LinearLayout {
         this.submit(AndroidDSL.view(this.context, id), clickClosure)
     }
 
-    void submit(View submitView, @ClosureParams(value = FromString, options = 'T') Closure clickClosure) {
+    void submit(View submitView,
+                @ClosureParams(value = FromString, options = 'T') Closure clickClosure) {
         AndroidEventDSL.onClick(submitView) {
             def foundViews = AndroidDSL.getChildren(this, true).findAll {
                 it.tag != null && it instanceof TextView
             }
             try {
                 for (view in foundViews) {
-                    def type = object.metaClass.properties.find { it.name == (String) view.tag }.type
+                    def type = object.metaClass.properties.find {
+                        it.name == (String) view.tag
+                    }.type
                     switch (type) {
                         case String: object[(String) view.tag] = ((TextView) view).getText(); break;
-                        case Number: object[(String) view.tag] = ((TextView) view).getText().toInteger(); break;
+                        case Number: object[(String) view.tag] = ((TextView) view).getText()
+                                .toInteger(); break;
                     }
                 }
             }

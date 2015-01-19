@@ -16,7 +16,8 @@ class CacheHolder<K, V> {
     synchronized V findOrCreate(K key, Closure<V> closure = null) {
         if (elements.containsKey(key)) {
             return elements[key]
-        } else {
+        }
+        else {
             V element
             try {
                 element = closure?.call()
