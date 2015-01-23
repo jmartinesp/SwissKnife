@@ -1,17 +1,16 @@
 package com.arasthel.swissknife.utils
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import com.arasthel.swissknife.annotations.Parcelable
 import com.arasthel.swissknife.annotations.SaveInstanceTransformation
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.expr.CastExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
+import static org.codehaus.groovy.ast.tools.GeneralUtils.args
 
 /**
  * Created by Arasthel on 17/08/14.
@@ -64,22 +63,21 @@ public class AnnotationUtils {
                 args(varX(viewParameter), constX(id)))))
     }
 
-    private static MethodNode createRestoreStateMethod() {
-
-        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "savedState")];
-
-        BlockStatement blockStatement =
-                block(
-                        declS(varX("o"), constX(null))
-                )
-
+    private static MethodNode createRestoreStateMethod(boolean overrideSuper) {
+        def parameters = params(new Parameter(ClassHelper.make(Bundle.class), 'savedState'))
+        BlockStatement blockStatement
+        if (overrideSuper) {
+            blockStatement = block(stmt(callSuperX('restoreSavedState', args(parameters))))
+        } else {
+            blockStatement = new BlockStatement()
+        }
+        blockStatement.addStatement(block(declS(varX("o"), constX(null))))
         MethodNode node = new MethodNode("restoreSavedState",
-                Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+                Opcodes.ACC_PUBLIC,
                 ClassHelper.VOID_TYPE,
                 parameters,
                 null,
-                blockStatement);
-
+                blockStatement)
         return node;
     }
 
@@ -129,10 +127,12 @@ public class AnnotationUtils {
 
     public static MethodNode getRestoreStateMethod(ClassNode declaringClass) {
         Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle.class), "savedState")]
-
+        boolean overrideSuper = declaringClass.superClass.methods.find {
+            it.name == 'restoreSavedState'
+        } != null
         MethodNode restoreStateMethod = declaringClass.getMethod("restoreSavedState", parameters)
         if (restoreStateMethod == null) {
-            restoreStateMethod = createRestoreStateMethod()
+            restoreStateMethod = createRestoreStateMethod(overrideSuper)
             declaringClass.addMethod(restoreStateMethod)
         }
         restoreStateMethod
