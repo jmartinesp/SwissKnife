@@ -88,7 +88,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-21.0.3" level="project" />
-    <orderEntry type="library" exported="" name="groovy-2.4.0-rc-2-grooid" level="project" />
+    <orderEntry type="library" exported="" name="groovy-2.4.0-grooid" level="project" />
   </component>
 </module>
 

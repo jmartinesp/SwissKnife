@@ -8,7 +8,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 21
         versionCode 1
-        versionName "1.2.1"
+        versionName "1.2.2"
     }
 
     packagingOptions {
@@ -38,7 +38,7 @@ repositories {
 
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy:2.4.0-rc-2:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.0:grooid'
     compile 'com.android.support:support-v4:21.0.3'
 }
 
