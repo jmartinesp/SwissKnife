@@ -14,6 +14,8 @@ image::intro_swissknife_logo.png[align=center]
 
 include::intro.adoc[]
 
+include::groovy.adoc[]
+
 include::annotations.adoc[]
 
 include::intellij.adoc[]

@@ -1,0 +1,53 @@
+== Groovy
+
+Okay, so you've seen this project and wondered WTF is http://groovy-lang.org[Groovy]. You've made some research, and seen how awesome it is.
+
+So, do you want to use it on your Android application development? Here's how.
+
+=== Android Studio
+
+First of all, Android Studio has native Groovy support, so here you don't really have to add anything.
+
+IMPORTANT: Every Groovy class or Java class which references a Groovy one must be inside of `src/main/groovy` instead of `src/main/java`. To add a Groovy class you'll only need to create your new Class files as a `.groovy` file, instead of a Java class (you could define your own template).
+
+=== Gradle
+
+In order to make Android Studio compile your Android Groovy code, you will need a plugin which is under development. You will have to make a few changes at your module's build.gradle:
+
+[source, groovy]
+.build.gradle
+----
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'org.codehaus.groovy:gradle-groovy-android-plugin:0.3.5'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'groovyx.grooid.groovy-android'
+
+android {
+    ...
+    packagingOptions {
+        // workaround for http://stackoverflow.com/questions/20673625/android-gradle-plugin-0-7-0-duplicate-files-during-packaging-of-apk
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/groovy-release-info.properties'
+    }
+}
+
+dependencies{
+    compile 'org.codehaus.groovy:groovy:2.4.0-rc-2:grooid'
+}
+----
+
+After this little edits, you're ready to start using Groovy in your Android development.
+
+=== References
+
+https://github.com/groovy/groovy-android-gradle-plugin[Groovy Android Gradle Plugin] + 
+http://melix.github.io/blog/2014/06/grooid.html[Cedric Champeau's Grooid post]
