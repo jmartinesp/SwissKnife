@@ -1,0 +1,28 @@
+== Using Proguard
+
+First of all, thanks to https://github.com/marcoRS[@marcoRS] for his https://github.com/marcoRS/groovy-android/[base proguard config file], in which I based the one I'm going to show you.
+
+=== Reflection and ProGuard issues
+
+If you try to use ProGuard on a project that uses SwissKnife, you will see how most injection methods are not on the final classes. Why does this happen?
+
+ProGuard shrinks all unused methods by default from your code. As most methods are called using Reflection, ProGuard just assumes that they are never called at all and shrinks them automatically, making you app not work anymore. To fix this, you must put this code on your proguard-rules.pro:
+
+[source, text]
+----
+# Groovy stuff so the compiler doesn't complain
+-dontwarn org.codehaus.groovy.**
+-dontwarn groovy**
+-keep class org.codehaus.groovy.vmplugin.**
+-keep class org.codehaus.groovy.runtime.dgm*
+-keepclassmembers class org.codehaus.groovy.runtime.dgm* {*;}
+-keepclassmembers class ** implements org.codehaus.groovy.runtime.GeneratedClosure {*;}
+-keepclassmembers class org.codehaus.groovy.reflection.GroovyClassValue* {*;}
+
+# Don't shrink SwissKnife methods
+-dontshrink class com.arasthel.swissknife.**
+
+# Don't shrink annotated methods on your classes
+-dontshrink class com.myname.myproject.MyClass
+-dontshrink class com.myname.myproject.subpackage.**
+----

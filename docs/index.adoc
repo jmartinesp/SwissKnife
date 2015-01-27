@@ -18,4 +18,6 @@ include::groovy.adoc[]
 
 include::annotations.adoc[]
 
+include::proguard.adoc[]
+
 include::intellij.adoc[]
