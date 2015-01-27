@@ -87,7 +87,7 @@ SwissKnife.inject(this, getView());
 This means that injection can be used on any class and is done on runtime, so
 you can choose when you want that injection to happen.
 
-=== Method declaration:
+=== Method declaration
 
 As stated before, annotated method declarations can't be anything you want, as
 this library uses reflection to call them and must have a specified argument
