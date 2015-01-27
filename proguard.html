@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.0">
-<title>Intellij Plugin</title>
+<title>Using Proguard</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic|Noto+Serif:400,400italic,700,700italic|Droid+Sans+Mono:400">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -418,55 +418,55 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_intellij_plugin">Intellij Plugin</a></li>
+<li><a href="#_using_proguard">Using Proguard</a>
+<ul class="sectlevel2">
+<li><a href="#_reflection_and_proguard_issues">Reflection and ProGuard issues</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_intellij_plugin">Intellij Plugin</h2>
+<h2 id="_using_proguard">Using Proguard</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can find it on <a href="http://plugins.jetbrains.com/plugin/7538?pr=">JetBrains Plugin Repo</a>.</p>
+<p>First of all, thanks to <a href="https://github.com/marcoRS">@marcoRS</a> for his <a href="https://github.com/marcoRS/groovy-android/">base proguard config file</a>, in which I based the one I&#8217;m going to show you.</p>
+</div>
+<div class="sect2">
+<h3 id="_reflection_and_proguard_issues">Reflection and ProGuard issues</h3>
+<div class="paragraph">
+<p>If you try to use ProGuard on a project that uses SwissKnife, you will see how most injection methods are not on the final classes. Why does this happen?</p>
 </div>
 <div class="paragraph">
-<p>Using the plugin is really simple. You just have to install it, go to a Groovy class and open Generate menu. There, you will find this:</p>
+<p>ProGuard shrinks all unused methods by default from your code. As most methods are called using Reflection, ProGuard just assumes that they are never called at all and shrinks them automatically, making you app not work anymore. To fix this, you must put this code on your proguard-rules.pro:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="images/intellij-1.jpg" alt="intellij 1">
+<pre class="prettyprint highlight"><code class="language-text" data-lang="text"># Groovy stuff so the compiler doesn't complain
+-dontwarn org.codehaus.groovy.**
+-dontwarn groovy**
+-keep class org.codehaus.groovy.vmplugin.**
+-keep class org.codehaus.groovy.runtime.dgm*
+-keepclassmembers class org.codehaus.groovy.runtime.dgm* {*;}
+-keepclassmembers class ** implements org.codehaus.groovy.runtime.GeneratedClosure {*;}
+-keepclassmembers class org.codehaus.groovy.reflection.GroovyClassValue* {*;}
+
+# Don't shrink SwissKnife methods
+-dontshrink class com.arasthel.swissknife.**
+
+# Don't shrink annotated methods on your classes
+-dontshrink class com.myname.myproject.MyClass
+-dontshrink class com.myname.myproject.subpackage.**</code></pre>
 </div>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-2.jpg" alt="intellij 2">
-</div>
-</div>
-<div class="paragraph">
-<p>Then, you select the desired annotation and a list of compatible methods will be shown:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-3.jpg" alt="intellij 3">
-</div>
-</div>
-<div class="paragraph">
-<p>After you select one, the desired method will be appended to your class:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-4.jpg" alt="intellij 4">
-</div>
-</div>
-<div class="paragraph">
-<p>The names of the methods and variables can be changed to whatever you want if you keep the argument list structure.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-27 21:00:58 CET
+Last updated 2015-01-27 20:52:13 CET
 </div>
 </div>
 </body>

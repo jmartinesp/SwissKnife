@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.0">
-<title>Intellij Plugin</title>
+<title>Groovy</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic|Noto+Serif:400,400italic,700,700italic|Droid+Sans+Mono:400">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -418,55 +418,97 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_intellij_plugin">Intellij Plugin</a></li>
+<li><a href="#_groovy">Groovy</a>
+<ul class="sectlevel2">
+<li><a href="#_android_studio">Android Studio</a></li>
+<li><a href="#_gradle">Gradle</a></li>
+<li><a href="#_references">References</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_intellij_plugin">Intellij Plugin</h2>
+<h2 id="_groovy">Groovy</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can find it on <a href="http://plugins.jetbrains.com/plugin/7538?pr=">JetBrains Plugin Repo</a>.</p>
+<p>Okay, so you&#8217;ve seen this project and wondered WTF is <a href="http://groovy-lang.org">Groovy</a>. You&#8217;ve made some research, and seen how awesome it is.</p>
 </div>
 <div class="paragraph">
-<p>Using the plugin is really simple. You just have to install it, go to a Groovy class and open Generate menu. There, you will find this:</p>
+<p>So, do you want to use it on your Android application development? Here&#8217;s how.</p>
 </div>
-<div class="imageblock">
+<div class="sect2">
+<h3 id="_android_studio">Android Studio</h3>
+<div class="paragraph">
+<p>First of all, Android Studio has native Groovy support, so here you don&#8217;t really have to add anything.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Every Groovy class or Java class which references a Groovy one must be inside of <code>src/main/groovy</code> instead of <code>src/main/java</code>. To add a Groovy class you&#8217;ll only need to create your new Class files as a <code>.groovy</code> file, instead of a Java class (you could define your own template).
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gradle">Gradle</h3>
+<div class="paragraph">
+<p>In order to make Android Studio compile your Android Groovy code, you will need a plugin which is under development. You will have to make a few changes at your module&#8217;s build.gradle:</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
 <div class="content">
-<img src="images/intellij-1.jpg" alt="intellij 1">
-</div>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-2.jpg" alt="intellij 2">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'org.codehaus.groovy:gradle-groovy-android-plugin:0.3.5'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'groovyx.grooid.groovy-android'
+
+android {
+    ...
+    packagingOptions {
+        // workaround for http://stackoverflow.com/questions/20673625/android-gradle-plugin-0-7-0-duplicate-files-during-packaging-of-apk
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/groovy-release-info.properties'
+    }
+}
+
+dependencies{
+    compile 'org.codehaus.groovy:groovy:2.4.0-rc-2:grooid'
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then, you select the desired annotation and a list of compatible methods will be shown:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-3.jpg" alt="intellij 3">
+<p>After this little edits, you&#8217;re ready to start using Groovy in your Android development.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_references">References</h3>
 <div class="paragraph">
-<p>After you select one, the desired method will be appended to your class:</p>
+<p><a href="https://github.com/groovy/groovy-android-gradle-plugin">Groovy Android Gradle Plugin</a><br>
+<a href="http://melix.github.io/blog/2014/06/grooid.html">Cedric Champeau&#8217;s Grooid post</a></p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-4.jpg" alt="intellij 4">
-</div>
-</div>
-<div class="paragraph">
-<p>The names of the methods and variables can be changed to whatever you want if you keep the argument list structure.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-27 21:00:58 CET
+Last updated 2015-01-27 20:49:17 CET
 </div>
 </div>
 </body>
