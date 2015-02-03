@@ -1,0 +1,18 @@
+== Intellij Plugin
+
+You can find it on http://plugins.jetbrains.com/plugin/7538?pr=[JetBrains Plugin Repo].
+
+Using the plugin is really simple. You just have to install it, go to a Groovy class and open Generate menu. There, you will find this:
+
+image::intellij-1.jpg[]
+image::intellij-2.jpg[]
+
+Then, you select the desired annotation and a list of compatible methods will be shown:
+
+image::intellij-3.jpg[]
+
+After you select one, the desired method will be appended to your class:
+
+image::intellij-4.jpg[]
+
+The names of the methods and variables can be changed to whatever you want if you keep the argument list structure.

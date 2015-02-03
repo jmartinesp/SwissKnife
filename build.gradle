@@ -8,8 +8,11 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'org.codehaus.groovy:gradle-groovy-android-plugin:0.3.5'
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.0'
     }
 }
+
+apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 
 allprojects {
     apply plugin: 'idea'
@@ -34,4 +37,16 @@ tasks.whenTaskAdded {
     if (it.name.contains('lint') || it.name.contains('Lint')) {
         it.enabled = false
     }
+}
+
+asciidoctor {
+    sourceDir = 'docs' as  File
+    options = [
+        attributes: [
+            'imagesdir':'images',
+            'icons': 'font',
+            'source-highlighter': 'prettify',
+            'toc': 'left'
+        ]
+    ]
 }
