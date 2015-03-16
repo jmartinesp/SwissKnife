@@ -1,5 +1,6 @@
 package com.arasthel.swissknife
 
+import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -42,6 +43,11 @@ public class SwissKnife {
     @TypeChecked(TypeCheckingMode.SKIP)
     public static void inject(Object target, View view) {
         target.injectViews(view)
+    }
+	
+    @TypeChecked(TypeCheckingMode.SKIP)
+    public static void inject(Object target, Activity activity) {
+        target.injectViews(activity)
     }
 
     public static boolean setOnClick(View v, Object target, String methodName) {
