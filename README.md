@@ -1,6 +1,8 @@
 SwissKnife [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.arasthel/swissknife/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.arasthel/swissknife)
 ==========
 
+[![Join the chat at https://gitter.im/Arasthel/SwissKnife](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Arasthel/SwissKnife?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 <div align="center"><img src="./SwissKnife.png"></div>
 
