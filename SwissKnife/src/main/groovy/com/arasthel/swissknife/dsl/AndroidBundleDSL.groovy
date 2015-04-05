@@ -19,20 +19,9 @@ public class AndroidBundleDSL {
      * @return
      */
     static Bundle asBundle(Map<String, ?> argsMap) {
-        fromMap(null, argsMap)
+        AndroidStaticBundleDSL.fromMap(null, argsMap)
     }
 
-    /**
-     * Create Bundle from Map
-     * @param c
-     * @param argsMap
-     * @return
-     */
-    static Bundle fromMap(Object c, Map<String, ?> argsMap) {
-        Bundle bundle = new Bundle()
-        bundle = putFromMap(bundle, argsMap)
-        return bundle
-    }
 
     /**
      * Fill bundle from map

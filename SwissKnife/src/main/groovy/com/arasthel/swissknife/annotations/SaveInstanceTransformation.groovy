@@ -22,9 +22,6 @@ import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
 public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
-    static final Class[] PARCELABLE_CLASSES = [String, int, byte, char, double, boolean, float,
-                                               long, short, Integer, CharSequence, Bundle]
-
     private ClassNode declaringClass
 
     @Override
@@ -92,7 +89,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             insertStatement = createViewSaveStateExpression(bundleVariable, id, annotatedField);
         }
         else {
-            String bundleMethod = getBundleMethod(annotatedField)
+            String bundleMethod = AnnotationUtils.getBundleMethod(annotatedField)
 
             insertStatement = createSaveStateExpression(onSaveInstanceState.parameters.first(),
                     bundleMethod, id, annotatedField);
@@ -137,7 +134,7 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
             statement = createViewRestoreStatement(annotatedField, bundleVariable, id);
         }
         else {
-            statement = createRestoreStatement(annotatedField, bundleVariable, id);
+            statement = AnnotationUtils.createRestoreStatement(annotatedField, bundleVariable, id);
         }
 
         /*
@@ -210,128 +207,6 @@ public class SaveInstanceTransformation implements ASTTransformation, Opcodes {
 
         return stmt(callX(varX(annotatedField), "onRestoreInstanceState", callX(varX(savedState), "getParcelable",
                 args(constX(id)))))
-
-    }
-
-    /*
-     * Creates the Statement which will be used for restoring a variable's content in the
-     * restoreState method
-     */
-
-    private Statement createRestoreStatement(FieldNode annotatedField, Parameter savedState,
-                                             String id) {
-
-        String bundleMethod = getBundleMethod(annotatedField)
-
-        String getBundleMethod = "get$bundleMethod"
-
-        return assignS(varX(annotatedField), callX(varX(savedState), getBundleMethod,
-                args(constX(id))))
-
-    }
-
-    /*
-     * Returns the corresponding method in order to add the content to the Bundle
-     *
-     * Example:
-     * String -> StringArray
-     * boolean[] -> BooleanArray
-     * Parcelable -> Parcelable
-     * Parcelable[] -> ParcelableArray
-     * ArrayList<? extends Parcelable> -> ParcelableArrayList
-     */
-
-    private String getBundleMethod(FieldNode annotatedField) {
-
-        String method = null
-
-        /*
-         * We must first check if the annotated field is an array, in order to react accordingly
-         */
-        def isArray = annotatedField.getType().isArray()
-
-        if (isArray) {
-            method = processArray(annotatedField)
-        }
-        else {
-            method = processCommonVariable(annotatedField)
-        }
-
-        method
-
-    }
-
-    /*
-     * Returns the Bundle method for a variable declared as an array
-     */
-
-    private String processArray(FieldNode annotatedField) {
-
-        String method
-        ClassNode type = annotatedField.getType().getComponentType()
-
-        String typeName = ""
-
-        if (ClassHelper.isPrimitiveType(type)) {
-            typeName = type.nameWithoutPackage.capitalize()
-        }
-        else if (type == ClassHelper.STRING_TYPE) {
-            typeName = "String"
-        }
-        else if (hasParcelableAnnotation(type)) {
-            typeName = "Parcelable"
-        }
-
-        /*
-         * As the variable is an array, we must append the "Array" suffix
-         */
-
-        method = typeName + "Array"
-
-        method
-    }
-
-    /*
-     * Returns the Bundle method for a variable that has not been declared as an array
-     */
-
-    private String processCommonVariable(FieldNode annotatedField) {
-
-        String method = ""
-
-        ClassNode annotatedFieldClassNode = annotatedField.getType()
-
-        ClassNode realClassNode = annotatedFieldClassNode
-
-        if (annotatedFieldClassNode.isArray()) {
-            method = "Array"
-            realClassNode = annotatedFieldClassNode.getComponentType()
-        }
-        else if (annotatedFieldClassNode == ClassHelper.make(ArrayList)) {
-            method = "ArrayList"
-            realClassNode = annotatedFieldClassNode.getGenericsTypes()[0].type
-        }
-
-        /*
-         * First we check if the variable is one of the Class objects declared at classes
-         */
-        PARCELABLE_CLASSES.find {
-            if (ClassHelper.make(it) == realClassNode) {
-                method = it.simpleName.capitalize() + method
-                return true
-            }
-            return false
-        }
-
-        if (AnnotationUtils.doesClassImplementInterface(annotatedFieldClassNode,
-                android.os.Parcelable) ||
-                hasParcelableAnnotation(realClassNode))
-            method = "Parcelable" + method
-        else if (!method && AnnotationUtils.doesClassImplementInterface(annotatedFieldClassNode,
-                java.io.Serializable))
-            method = "Serializable"
-
-        method
 
     }
 

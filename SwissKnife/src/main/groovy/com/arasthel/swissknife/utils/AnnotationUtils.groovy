@@ -1,5 +1,7 @@
 package com.arasthel.swissknife.utils
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.arasthel.swissknife.annotations.Parcelable
@@ -8,6 +10,7 @@ import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
+import org.codehaus.groovy.ast.stmt.Statement
 
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.args
@@ -17,13 +20,45 @@ import static org.codehaus.groovy.ast.tools.GeneralUtils.args
  */
 public class AnnotationUtils {
 
-    public static MethodNode getInjectViewsMethod(ClassNode declaringClass) {
-        Parameter[] parameters = [new Parameter(ClassHelper.make(Object.class), "view")];
+    static final Class[] PARCELABLE_CLASSES = [String, int, byte, char, double, boolean, float,
+                                               long, short, Integer, CharSequence, Bundle]
 
-        MethodNode injectMethod = declaringClass.getMethod("injectViews", parameters);
+    public static MethodNode getSetExtrasMethod(ClassNode declaringClass) {
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle), "extras")]
+
+        MethodNode setExtrasMethod = declaringClass.getMethod("setExtras", parameters)
+        if(setExtrasMethod == null) {
+            setExtrasMethod = createSetExtrasMethod()
+            declaringClass.addMethod(setExtrasMethod)
+        }
+        return setExtrasMethod
+    }
+
+    private static MethodNode createSetExtrasMethod() {
+
+        def activityParam = new Parameter(ClassHelper.make(Bundle), "extras")
+
+        Parameter[] parameters = [activityParam]
+
+        BlockStatement blockStatement = block()
+
+        MethodNode node = new MethodNode("setExtras",
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+                ClassHelper.VOID_TYPE,
+                parameters,
+                null,
+                blockStatement)
+
+        return node
+    }
+
+    public static MethodNode getInjectViewsMethod(ClassNode declaringClass) {
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Object.class), "view")]
+
+        MethodNode injectMethod = declaringClass.getMethod("injectViews", parameters)
         if (injectMethod == null) {
-            injectMethod = createInjectMethod();
-            declaringClass.addMethod(injectMethod);
+            injectMethod = createInjectMethod()
+            declaringClass.addMethod(injectMethod)
         }
 
         return injectMethod
@@ -153,7 +188,7 @@ public class AnnotationUtils {
         }
 
         // If it's a parcelable class, it's parcelable
-        if (SaveInstanceTransformation.PARCELABLE_CLASSES.find {
+        if (PARCELABLE_CLASSES.find {
             ClassHelper.make(it) == realClassNode
         }) {
             return true
@@ -179,6 +214,128 @@ public class AnnotationUtils {
         return original.getInterfaces().find {
             it == ClassHelper.make(implementable)
         }
+
+    }
+
+    /*
+     * Creates the Statement which will be used for restoring a variable's content in the
+     * restoreState method
+     */
+
+    public static Statement createRestoreStatement(FieldNode annotatedField, Variable savedState,
+                                             String id) {
+
+        String bundleMethod = getBundleMethod(annotatedField)
+
+        String getBundleMethod = "get$bundleMethod"
+
+        return assignS(varX(annotatedField), callX(varX(savedState), getBundleMethod,
+                args(constX(id))))
+
+    }
+
+    /*
+     * Returns the corresponding method in order to add the content to the Bundle
+     *
+     * Example:
+     * String -> StringArray
+     * boolean[] -> BooleanArray
+     * Parcelable -> Parcelable
+     * Parcelable[] -> ParcelableArray
+     * ArrayList<? extends Parcelable> -> ParcelableArrayList
+     */
+
+    public static String getBundleMethod(FieldNode annotatedField) {
+
+        String method = null
+
+        /*
+         * We must first check if the annotated field is an array, in order to react accordingly
+         */
+        def isArray = annotatedField.getType().isArray()
+
+        if (isArray) {
+            method = processArray(annotatedField)
+        }
+        else {
+            method = processCommonVariable(annotatedField)
+        }
+
+        method
+
+    }
+
+    /*
+     * Returns the Bundle method for a variable declared as an array
+     */
+
+    private static String processArray(FieldNode annotatedField) {
+
+        String method
+        ClassNode type = annotatedField.getType().getComponentType()
+
+        String typeName = ""
+
+        if (ClassHelper.isPrimitiveType(type)) {
+            typeName = type.nameWithoutPackage.capitalize()
+        }
+        else if (type == ClassHelper.STRING_TYPE) {
+            typeName = "String"
+        }
+        else if (hasParcelableAnnotation(type)) {
+            typeName = "Parcelable"
+        }
+
+        /*
+         * As the variable is an array, we must append the "Array" suffix
+         */
+
+        method = typeName + "Array"
+
+        method
+    }
+
+    /*
+     * Returns the Bundle method for a variable that has not been declared as an array
+     */
+
+    private static String processCommonVariable(FieldNode annotatedField) {
+
+        String method = ""
+
+        ClassNode annotatedFieldClassNode = annotatedField.getType()
+
+        ClassNode realClassNode = annotatedFieldClassNode
+
+        if (annotatedFieldClassNode.isArray()) {
+            method = "Array"
+            realClassNode = annotatedFieldClassNode.getComponentType()
+        }
+        else if (annotatedFieldClassNode == ClassHelper.make(ArrayList)) {
+            method = "ArrayList"
+            realClassNode = annotatedFieldClassNode.getGenericsTypes()[0].type
+        }
+
+        /*
+         * First we check if the variable is one of the Class objects declared at classes
+         */
+        PARCELABLE_CLASSES.find {
+            if (ClassHelper.make(it) == realClassNode) {
+                method = it.simpleName.capitalize() + method
+                return true
+            }
+            return false
+        }
+
+        if (AnnotationUtils.doesClassImplementInterface(annotatedFieldClassNode,
+                android.os.Parcelable) ||
+                hasParcelableAnnotation(realClassNode))
+            method = "Parcelable" + method
+        else if (!method && AnnotationUtils.doesClassImplementInterface(annotatedFieldClassNode,
+                java.io.Serializable))
+            method = "Serializable"
+
+        method
 
     }
 

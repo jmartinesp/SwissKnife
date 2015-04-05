@@ -17,7 +17,7 @@ import java.lang.annotation.Target
 public @interface OnTextChanged {
     int[] value();
 
-    Method method();
+    OnTextChanged.Method method();
 
     @CompileStatic
     public static final enum Method {

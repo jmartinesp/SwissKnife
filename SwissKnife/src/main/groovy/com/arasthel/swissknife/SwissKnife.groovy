@@ -1,5 +1,6 @@
 package com.arasthel.swissknife
 
+import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -42,6 +43,14 @@ public class SwissKnife {
     @TypeChecked(TypeCheckingMode.SKIP)
     public static void inject(Object target, View view) {
         target.injectViews(view)
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
+    public static void loadExtras(Activity target) {
+        def extras = target.getIntent()?.getExtras()
+        if(extras) {
+            target.setExtras(extras)
+        }
     }
 
     public static boolean setOnClick(View v, Object target, String methodName) {
@@ -489,8 +498,7 @@ public class SwissKnife {
     }
 
 
-    public
-    static Method searchMethod(Object currentObject, String name, List<Class> originalParameters) {
+    public static Method searchMethod(Object currentObject, String name, List<Class> originalParameters) {
         Class[] parameters = new Class[originalParameters.size()];
         originalParameters.toArray(parameters);
 

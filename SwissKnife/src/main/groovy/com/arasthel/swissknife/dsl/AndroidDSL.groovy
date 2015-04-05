@@ -1,5 +1,6 @@
 package com.arasthel.swissknife.dsl
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,7 +15,6 @@ import com.arasthel.swissknife.dsl.components.GArrayAdapter
 import com.arasthel.swissknife.dsl.components.GAsyncTask
 import com.arasthel.swissknife.dsl.components.ObjectPropertyResolver
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.FromString
 
@@ -22,42 +22,130 @@ import groovy.transform.stc.FromString
  * DSL methods class
  *
  * @author Eugene Kamenev @eugenekamenev
+ * @author Jorge Martín Espinosa
  * @since 0.1
  */
 @CompileStatic
 class AndroidDSL {
 
+    /**
+     * Seng a DEBUG log message with the provided message
+     * @param message String
+     * @param throwable (Optional) Exception to show on logcat
+     * @return
+     */
     static void log(anyObject, message, Throwable throwable = null) {
         Log.d('DEBUG', message.toString(), throwable)
     }
 
-    static View view(context, int id,
+    /**
+     * Short way of writing 'findViewById' and applying a closure to that view
+     * @param context The container View
+     * @param id Id of the view we want to find
+     * @param closure (Optional) Closure to apply to the found view
+     * @return View
+     */
+    static View view(View context, int id,
                      @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) Closure
                              closure = null) {
         (View) build(context, id, closure)
     }
 
-    static <T extends EditText> T editText(context, int id,
+    /**
+     * Short way of writing 'findViewById' and applying a closure to that view
+     * @param context The container Activity
+     * @param id Id of the view we want to find
+     * @param closure (Optional) Closure to apply to the found view
+     * @return View
+     */
+    static View view(Activity context, int id,
+                     @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) Closure
+                             closure = null) {
+        (View) build(context, id, closure)
+    }
+
+    /**
+     * Short way of writing 'findViewById' and applying a closure to that view
+     * @param context The container Fragment
+     * @param id Id of the view we want to find
+     * @param closure (Optional) Closure to apply to the found view
+     * @return View
+     */
+    static View view(Fragment context, int id,
+                     @DelegatesTo(value = View, strategy = Closure.DELEGATE_FIRST) Closure
+                             closure = null) {
+        (View) build(context, id, closure)
+    }
+
+    /**
+     * Find and cast a View to {@link EditText} and optionally apply a closure to it
+     * @param context The container View
+     * @param id Id of the EditText we want to find
+     * @param closure (Optional) Closure to apply to the found view
+     * @return EditText
+     */
+    static <T extends EditText> T editText(View context, int id,
                                            @DelegatesTo(value = T,
                                                    strategy = Closure.DELEGATE_FIRST) Closure
                                                    closure = null) {
         (T) build(context, id, closure)
     }
 
+    /**
+     * Find and cast a View to {@link EditText} and optionally apply a closure to it
+     * @param context The container Activity
+     * @param id Id of the EditText we want to find
+     * @param closure (Optional) Closure to apply to the found view
+     * @return EditText
+     */
+    static <T extends EditText> T editText(Activity context, int id,
+                                           @DelegatesTo(value = T,
+                                                   strategy = Closure.DELEGATE_FIRST) Closure
+                                                   closure = null) {
+        (T) build(context, id, closure)
+    }
+
+    /**
+     * Find and cast a View to {@link EditText} and optionally apply a closure to it
+     * @param context The container Fragment
+     * @param id Id of the EditText we want to find
+     * @param closure (Optional) Closure to apply to the found view
+     * @return EditText
+     */
+    static <T extends EditText> T editText(Fragment context, int id,
+                                           @DelegatesTo(value = T,
+                                                   strategy = Closure.DELEGATE_FIRST) Closure
+                                                   closure = null) {
+        (T) build(context, id, closure)
+    }
+
+    /**
+     * Add a String tag to a View
+     * @param view The View
+     * @param propertyName The String tag
+     * @return View
+     */
     static <T extends View> T attach(T view, String propertyName) {
         view?.tag = propertyName
         view
     }
 
+    /**
+     * Add an object's property as a tag to a View using a closure
+     * @param view The View
+     * @param object The object that holds the property
+     * @param closure Closure to apply
+     * @return View
+     */
     static <I extends Serializable, T extends View, S> T attach(T view, S object,
                                                                 @ClosureParams(value =
                                                                         FromString,
                                                                         options = 'S') Closure<I>
                                                                         closure) {
-        attach(view, object.class, closure)
+        internalAttach(view, object.class, closure)
     }
 
-    static <I extends Serializable, T extends View, S> T attach(T view, Class<S> clazz,
+    private static <I extends Serializable, T extends View, S> T internalAttach(T view, Class<S> clazz,
                                                                 @ClosureParams(value =
                                                                         FromString,
                                                                         options = 'S') Closure<I>
@@ -72,15 +160,66 @@ class AndroidDSL {
         resolver.notation
     }
 
-    static <S, T extends Form<S>> T form(context, int id, S object,
+    /**
+     * Create a {@link Form} using a closure
+     * @param context The container View
+     * @param id The id of the form-holding view
+     * @param object The object whose properties will be used on the closure
+     * @param closure Closure with form configuration and callbacks
+     * @return Form
+     */
+    static <S, T extends Form<S>> T form(View context, int id, S object,
                                          @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T,
                                                  strategy = Closure.DELEGATE_FIRST) Closure
                                                  closure) {
+        internalForm(context, id, object, closure)
+    }
+
+    /**
+     * Create a {@link Form} using a closure
+     * @param context The container Fragment
+     * @param id The id of the form-holding view
+     * @param object The object whose properties will be used on the closure
+     * @param closure Closure with form configuration and callbacks
+     * @return Form
+     */
+    static <S, T extends Form<S>> T form(Fragment context, int id, S object,
+                                         @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST) Closure
+                                                 closure) {
+        internalForm(context, id, object, closure)
+    }
+
+    /**
+     * Create a {@link Form} using a closure
+     * @param context The container Activity
+     * @param id The id of the form-holding view
+     * @param object The object whose properties will be used on the closure
+     * @param closure Closure with form configuration and callbacks
+     * @return Form
+     */
+    static <S, T extends Form<S>> T form(Activity context, int id, S object,
+                                         @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST) Closure
+                                                 closure) {
+        internalForm(context, id, object, closure)
+    }
+
+    private static <S, T extends Form<S>> T internalForm (context, int id, S object,
+                                                         @ClosureParams(value = FromString, options = ['T', 'T,S']) @DelegatesTo(value = T,
+                                                                 strategy = Closure.DELEGATE_FIRST) Closure
+                                                                 closure) {
         def form = (T) build(context, id)
         form.build(object, closure)
         form
     }
 
+    /**
+     * Find a component in a {@link SparseArray} View tag
+     * @param view The view which holds the tag
+     * @param id The id of the view we want to retrieve
+     * @return View
+     */
     static <T extends View> T findComponent(View view, int id) {
         def viewHolder = (SparseArray<View>) view.tag
         if (!viewHolder) {
@@ -99,22 +238,38 @@ class AndroidDSL {
      * Show android {@link Toast} message
      *
      * @since 0.1
-     * @param context
+     * @param view A View object
      * @param text
      */
-    static void showToast(context, CharSequence text) {
-        toast(context, text).show()
+    static void showToast(View view, CharSequence text) {
+        toast(view, text).show()
     }
 
     /**
-     * Create android {@link Toast} message
+     * Create android {@link Toast} message with short length
      *
      * @since 0.1
-     * @param context
+     * @param context A Context object
      * @param text
-     * @return
+     * @return {@link Toast}
      */
-    static Toast toast(context, CharSequence text) {
+    static Toast toast(Context context, CharSequence text) {
+        internalToast(context, text)
+    }
+
+    /**
+     * Create android {@link Toast} message with short length
+     *
+     * @since 0.1
+     * @param view A View Object
+     * @param text
+     * @return {@link Toast}
+     */
+    static Toast toast(View view, CharSequence text) {
+        internalToast(view, text)
+    }
+
+    private static Toast internalToast(context, CharSequence text) {
         Context ctx = null
         if (context instanceof Context) {
             ctx = (Context) context
@@ -125,16 +280,20 @@ class AndroidDSL {
         Toast.makeText(ctx, text, Toast.LENGTH_SHORT)
     }
 
-    static <T extends View> List<View> getChildren(T view, Boolean nested = false) {
-        if (!(view instanceof ViewGroup)) {
-            return [view]
-        }
-        def viewGroup = (ViewGroup) view
+    /**
+     * Get child views of a ViewGroup
+     *
+     * @since 0.1
+     * @param view A ViewGroup Object
+     * @param text
+     * @return {@link Toast}
+     */
+    static <T extends ViewGroup> List<View> getChildren(T view, Boolean nested = false) {
         List<View> views = []
-        viewGroup.childCount.times { int child ->
-            def v = viewGroup.getChildAt(child)
+        view.childCount.times { int child ->
+            def v = view.getChildAt(child)
             views << v
-            views += nested ? getChildren(v) : [v]
+            views += nested && v instanceof ViewGroup ? getChildren(v as ViewGroup) : [v]
         }
         views
     }
@@ -143,12 +302,51 @@ class AndroidDSL {
      * Find {@link Button} by R.id and apply closure on it
      *
      * @since 0.1
-     * @param context
+     * @param view
      * @param id
      * @param closure
      * @return
      */
-    static <T extends Button> T button(context, int id,
+    static <T extends Button> T button(View view, int id,
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
+        internalButton(view, id, closure)
+    }
+
+    /**
+     * Find {@link Button} by R.id and apply closure on it
+     *
+     * @since 0.1
+     * @param fragment
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends Button> T button(Fragment fragment, int id,
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
+        internalButton(fragment, id, closure)
+    }
+
+    /**
+     * Find {@link Button} by R.id and apply closure on it
+     *
+     * @since 0.1
+     * @param activity
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends Button> T button(Activity activity, int id,
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
+        internalButton(activity, id, closure)
+    }
+
+    static <T extends Button> T internalButton(context, int id,
                                        @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
                                        @ClosureParams(value = FromString,
                                                options = 'T') Closure closure = null) {
@@ -156,7 +354,7 @@ class AndroidDSL {
     }
 
     /**
-     * Url String as {@link Bitmap}
+     * Download image from a String url and convert it to {@link Bitmap}
      * @param url
      * @return
      */
@@ -167,13 +365,55 @@ class AndroidDSL {
     /**
      * Find {@link ImageView} by R.id and apply closure on it
      *
-     * @param context
+     * @param view
      * @param id
      * @param closure
      * @since 0.1
      * @return
      */
-    static <T extends ImageView> T image(context, int id,
+    static <T extends ImageView> T image(View view, int id,
+                                         @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST)
+                                         @ClosureParams(value = FromString,
+                                                 options = 'T') Closure closure = null) {
+        internalImage(view, id, closure)
+    }
+
+    /**
+     * Find {@link ImageView} by R.id and apply closure on it
+     *
+     * @param fragment
+     * @param id
+     * @param closure
+     * @since 0.1
+     * @return
+     */
+    static <T extends ImageView> T image(Fragment fragment, int id,
+                                         @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST)
+                                         @ClosureParams(value = FromString,
+                                                 options = 'T') Closure closure = null) {
+        internalImage(fragment, id, closure)
+    }
+
+    /**
+     * Find {@link ImageView} by R.id and apply closure on it
+     *
+     * @param activity
+     * @param id
+     * @param closure
+     * @since 0.1
+     * @return
+     */
+    static <T extends ImageView> T image(Activity activity, int id,
+                                         @DelegatesTo(value = T,
+                                                 strategy = Closure.DELEGATE_FIRST)
+                                         @ClosureParams(value = FromString,
+                                                 options = 'T') Closure closure = null) {
+        internalImage(activity, id, closure)
+    }
+
+    static <T extends ImageView> T internalImage(context, int id,
                                          @DelegatesTo(value = T,
                                                  strategy = Closure.DELEGATE_FIRST)
                                          @ClosureParams(value = FromString,
@@ -215,21 +455,52 @@ class AndroidDSL {
                                                         options = ['S', 'S,android.view.View',
                                                                 'S,android.view.View,java.lang.Integer'])
                                                         Closure closure = null) {
-        asListView(context, id, rowLayoutId, iterable, closure)
+        (T) internalAsListViewWithoutAdapter(context, id, rowLayoutId, iterable, closure)
     }
 
     /**
      * Create simple {@link ListView} from list with {@link GArrayAdapter}
      *
      * @since 0.1
-     * @param context
+     * @param view
      * @param id
-     * @param rowLayoutId
-     * @param items
      * @param closure
      * @return
      */
-    static <T extends ListView, A extends ListAdapter> T asListView(context, int id,
+    static <T extends ListView, A extends ListAdapter> T asListView(View view, int id,
+                                                                    A listAdapter) {
+        internalAsListViewWithAdapter(view, id, listAdapter)
+    }
+
+    /**
+     * Create simple {@link ListView} from list with {@link GArrayAdapter}
+     *
+     * @since 0.1
+     * @param fragment
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends ListView, A extends ListAdapter> T asListView(Fragment fragment, int id,
+                                                                    A listAdapter) {
+        internalAsListViewWithAdapter(fragment, id, listAdapter)
+    }
+
+    /**
+     * Create simple {@link ListView} from list with {@link GArrayAdapter}
+     *
+     * @since 0.1
+     * @param activity
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends ListView, A extends ListAdapter> T asListView(Activity activity, int id,
+                                                                    A listAdapter) {
+        internalAsListViewWithAdapter(activity, id, listAdapter)
+    }
+
+    private static <T extends ListView, A extends ListAdapter> T internalAsListViewWithAdapter(context, int id,
                                                                     A listAdapter) {
         def listView = (T) build(context, id)
         listView.setAdapter(listAdapter)
@@ -240,22 +511,75 @@ class AndroidDSL {
      * Create simple {@link ListView} from list with {@link GArrayAdapter}
      *
      * @since 0.1
-     * @param context
+     * @param view
      * @param id
      * @param rowLayoutId
      * @param items
      * @param closure
      * @return
      */
-    static <T extends ListView, S> T asListView(context, int id, int rowLayoutId, Iterable<S> items,
+    static <T extends ListView, S> T asListView(View view, int id, int rowLayoutId, Iterable<S> items,
                                                 @DelegatesTo(value = View,
                                                         strategy = Closure.DELEGATE_FIRST)
                                                 @ClosureParams(value = FromString,
                                                         options = ['S', 'S,android.view.View',
                                                                 'S,android.view.View,java.lang.Integer'])
                                                         Closure closure = null) {
-        def listView = (ListView) build(context, id)
+        internalAsListViewWithoutAdapter(view, id, rowLayoutId, items, closure)
+    }
+
+    /**
+     * Create simple {@link ListView} from list with {@link GArrayAdapter}
+     *
+     * @since 0.1
+     * @param fragment
+     * @param id
+     * @param rowLayoutId
+     * @param items
+     * @param closure
+     * @return
+     */
+    static <T extends ListView, S> T asListView(Fragment fragment, int id, int rowLayoutId, Iterable<S> items,
+                                                @DelegatesTo(value = View,
+                                                        strategy = Closure.DELEGATE_FIRST)
+                                                @ClosureParams(value = FromString,
+                                                        options = ['S', 'S,android.view.View',
+                                                                'S,android.view.View,java.lang.Integer'])
+                                                        Closure closure = null) {
+        internalAsListViewWithoutAdapter(fragment, id, rowLayoutId, items, closure)
+    }
+
+    /**
+     * Create simple {@link ListView} from list with {@link GArrayAdapter}
+     *
+     * @since 0.1
+     * @param activity
+     * @param id
+     * @param rowLayoutId
+     * @param items
+     * @param closure
+     * @return
+     */
+    static <T extends ListView, S> T asListView(Activity activity, int id, int rowLayoutId, Iterable<S> items,
+                                                @DelegatesTo(value = View,
+                                                        strategy = Closure.DELEGATE_FIRST)
+                                                @ClosureParams(value = FromString,
+                                                        options = ['S', 'S,android.view.View',
+                                                                'S,android.view.View,java.lang.Integer'])
+                                                        Closure closure = null) {
+        internalAsListViewWithoutAdapter(activity, id, rowLayoutId, items, closure)
+    }
+
+    private static <T extends ListView, S> T internalAsListViewWithoutAdapter(context, int id, int rowLayoutId, Iterable<S> items,
+                                                @DelegatesTo(value = View,
+                                                        strategy = Closure.DELEGATE_FIRST)
+                                                @ClosureParams(value = FromString,
+                                                        options = ['S', 'S,android.view.View',
+                                                                'S,android.view.View,java.lang.Integer'])
+                                                        Closure closure = null) {
+        def listView = (T) build(context, id)
         onItem(listView, rowLayoutId, items, closure)
+        listView
     }
 
     /**
@@ -281,12 +605,60 @@ class AndroidDSL {
      * Find {@link TextView} by R.id and apply closure on it
      *
      * @since 0.1
+     * @param view
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends TextView> T text(View view, int id,
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
+        (T) internalText(view, id, closure)
+    }
+
+    /**
+     * Find {@link TextView} by R.id and apply closure on it
+     *
+     * @since 0.1
+     * @param fragment
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends TextView> T text(Fragment fragment, int id,
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
+        (T) internalText(fragment, id, closure)
+    }
+
+    /**
+     * Find {@link TextView} by R.id and apply closure on it
+     *
+     * @since 0.1
+     * @param activity
+     * @param id
+     * @param closure
+     * @return
+     */
+    static <T extends TextView> T text(Activity activity, int id,
+                                       @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
+                                       @ClosureParams(value = FromString,
+                                               options = 'T') Closure closure = null) {
+        (T) internalText(activity, id, closure)
+    }
+
+    /**
+     * Find {@link TextView} by R.id and apply closure on it
+     *
+     * @since 0.1
      * @param context
      * @param id
      * @param closure
      * @return
      */
-    static <T extends TextView> T text(context, int id,
+    private static <T extends TextView> T internalText(context, int id,
                                        @DelegatesTo(value = T, strategy = Closure.DELEGATE_FIRST)
                                        @ClosureParams(value = FromString,
                                                options = 'T') Closure closure = null) {
@@ -356,21 +728,31 @@ class AndroidDSL {
      * @since 0.1
      * @return
      */
-    @CompileStatic(TypeCheckingMode.SKIP)
     private static <T extends View> Object build(context, int id, Closure closure = null) {
         def object = null
         if (context instanceof View) {
             if (context.tag instanceof SparseArray<T>) {
                 object = findComponent(context, id)
             }
-        }
-        if (context instanceof Fragment) {
+        } else if (context instanceof Fragment) {
             object = context.view.findViewById(id)
+        } else if (context instanceof Activity) {
+            object = context.findViewById(id)
         }
-        object = object ?: context?.findViewById(id)
         def clone = closure?.rehydrate(object, closure?.owner, closure?.thisObject)
         clone?.resolveStrategy = Closure.DELEGATE_FIRST
         clone?.call(object)
         object
+    }
+
+    /**
+     * Returns the root view of the {@link Activity}
+     *
+     * @param activity
+     * @return View
+     */
+    static View getRootView(Activity activity) {
+        def root = activity.getWindow().getDecorView().findViewById(android.R.id.content) as ViewGroup
+        root.getChildAt(0)
     }
 }

@@ -13,11 +13,15 @@ With **SwissKnife** you can:
 * Execute methods in the UI Thread or a background one using ``@OnUIThread`` and ``@OnBackground``.
 * Make your variables persistent across state changes **without messing with** `onSaveInstanceState`.
 * Make anything Parcelable with the `@Parcelable` annotation - which can be used with `@SaveInstance` to automatize data persistance. **NO MORE PARCELABLES! YAY!**
+* Read intent extras automatically with `@Extra` annotation.
 
 You can see an example here:
 
 ```groovy
 class MyActivity extends Activity {
+
+  @Extra("api_key")
+  String apiKey
 
   @SaveInstance
   public String myString;
@@ -42,6 +46,9 @@ class MyActivity extends Activity {
 
         // This must be called for saved state restoring
         SwissKnife.restoreState(this, savedInstanceState);
+
+        // This mus be called for automatic parsing of intent extras
+        SwissKnife.loadExtras(this)
     }
 }
 ```
@@ -72,10 +79,11 @@ For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKni
 * [@OnBackground](https://github.com/Arasthel/SwissKnife/wiki/@OnBackground)
 * [@SaveInstance](https://github.com/Arasthel/SwissKnife/wiki/@SaveInstance)
 * [@Parcelable](https://github.com/Arasthel/SwissKnife/wiki/@Parcelable)
+* [@Extra](https://github.com/Arasthel/SwissKnife/wiki/@Extra)<
 
 I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
 
-You can find a **CHANGELOG** [here](./CHANGELOG.md).
+You can find a all the releases and their changes here: [RELEASES](https://github.com/OrdonTeam/SwissKnife/releases)
 
 ## Using it
 
@@ -86,7 +94,7 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile "com.arasthel:swissknife:1.2.2"
+    compile "com.arasthel:swissknife:1.2.3"
     ...
 }
 ```

@@ -37,7 +37,7 @@ class Form<T> extends LinearLayout {
     }
 
     void submit(int id, @ClosureParams(value = FromString, options = 'T') Closure clickClosure) {
-        this.submit(AndroidDSL.view(this.context, id), clickClosure)
+        this.submit(AndroidDSL.view(this, id), clickClosure)
     }
 
     void submit(View submitView,

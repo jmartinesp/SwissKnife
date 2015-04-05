@@ -228,8 +228,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             ArgumentListExpression argumentListExpression = new ArgumentListExpression()
 
             // For arrays and lists, read____ returns void and field must be passed as an argument
-            if (field.getType().isArray() || field.getType().isDerivedFrom(ClassHelper.make(List)
-                    .plainNodeReference)) {
+            if (field.getType().isArray() || field.getType().implementsInterface(ClassHelper.LIST_TYPE)
+                    || field.getType() == ClassHelper.LIST_TYPE) {
                 argumentListExpression.addExpression(new FieldExpression(field))
                 // There are some classes that also need the classLoader variable as an argument
                 NEED_CLASSLOADER.find {
