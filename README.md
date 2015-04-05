@@ -81,7 +81,7 @@ For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKni
 * [@OnBackground](https://github.com/Arasthel/SwissKnife/wiki/@OnBackground)
 * [@SaveInstance](https://github.com/Arasthel/SwissKnife/wiki/@SaveInstance)
 * [@Parcelable](https://github.com/Arasthel/SwissKnife/wiki/@Parcelable)
-* [@Extra](https://github.com/Arasthel/SwissKnife/wiki/@Extra)<
+* [@Extra](https://github.com/Arasthel/SwissKnife/wiki/@Extra)
 
 I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
 
