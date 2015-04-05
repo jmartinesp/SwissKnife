@@ -44,6 +44,11 @@ public class SwissKnife {
     public static void inject(Object target, View view) {
         target.injectViews(view)
     }
+	
+    @TypeChecked(TypeCheckingMode.SKIP)
+    public static void inject(Object target, Activity activity) {
+        target.injectViews(activity)
+    }
 
     @TypeChecked(TypeCheckingMode.SKIP)
     public static void loadExtras(Activity target) {
