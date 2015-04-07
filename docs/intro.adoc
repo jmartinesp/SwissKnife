@@ -5,7 +5,7 @@ other libraries such as https://github.com/JakeWharton/butterknife[ButterKnife] 
 https://github.com/excilys/androidannotations[AndroidAnnotations].
 
 This library is only compatible with http://www.groovy-lang.org[Groovy] language
-as it uses its Ast processing to generate the final code.  If you don't use
+as it uses its AST processing to generate the final code.  If you don't use
 Groovy on your Android projects yet, you can find some info about how to use it
 here.
 
@@ -15,9 +15,6 @@ really well, its syntax is almost the same as Java's, it's compatible with
 Dalvik and ART and can be mixed with your existing Java code. Also, most times
 turning a Java class into a Groovy one is as easy as changing the file extension
 from *.java* to *.groovy*.
-
-WARNING: As of Groovy 2.4.0 beta 3, anything compiled using API 21 won't be able to run
-fine on < 4.4.4 if you use Bundles -which you probably do-.
 
 === Annotations
 
@@ -31,11 +28,11 @@ include::{skSampleSrc}/com/dexafree/sample/MainActivity.groovy[tags=injectViewWi
 
 @InjectView(value=R.id.button)
 Button myButton;
- 
+
 // To inject several views, the annotation is @InjectViews, in plural
 @InjectViews([R.id.view_1, R.id.view_2])
 List<View> myViews;
- 
+
 // This case here is special. If the name of the field is the same as the id,
 // the @InjectView annotation doesn't need any parameters
 @InjectView()
@@ -82,6 +79,13 @@ And in a Fragment, it would be:
 [source, groovy]
 ----
 SwissKnife.inject(this, getView());
+----
+
+You can also  inject views and listeners on other objects, like a Controller or a Presenter like this:
+
+[source, groovy]
+----
+SwissKnife.inject(controller, view);
 ----
 
 This means that injection can be used on any class and is done on runtime, so

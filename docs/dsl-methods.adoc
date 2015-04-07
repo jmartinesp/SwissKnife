@@ -1,0 +1,481 @@
+== DSL Methods - aka method extensions
+
+What we call 'DSL Methods' are actually 'Extension Methods'.
+
+Still no clue of what those are?
+
+Imagine you have GPS coordinates in (lat, lon) format, with lat and lon being doubles. If you want to show that on screen, you'd have to format them as 'String' with a desired number of decimal positions.
+
+So you could write in *Java*:
+
+[source, java]
+.DoubleUtils.java
+----
+public class DoubleUtils {
+
+    public static String doubleWithDecimals(double number, int decimals) {
+        String parseDef = "#."+"0"*decimals
+        DecimalFormat formatter = new DecimalFormat(parseDef)
+        return formatter.format(number)
+    }
+}
+----
+
+But why do you have to add a whole class just for that - or even worse, mix it with some random code?
+
+Wouldn't this method fit perfectly inside the 'Double' class?
+
+Well, in *Groovy* that can be done and is quite simple. You could write an extension method and just use:
+
+[source, groovy]
+----
+// Actually, Groovy does have ".trunc(int)" extension method for that
+String coordStr = coordinate.withDecimals(4)
+----
+
+So if that can be done to data classes, why shouldn't we use it on Android?
+
+Short answer is: *we do.*
+
+=== Types of DSL methods
+
+The DSL methods written so far can be classified on these big groups:
+
+* *View* methods.
+* *Context* methods.
+* *Fragment* methods.
+* *Bundle* methods.
+* *Event* methods.
+* *Misc* methods.
+
+=== View methods
+
+==== (View|Fragment|Activity).view(int id, (Optional)Closure modifier)
+
+A short for `findViewById(int)`, can be used from *Activity, View and Fragment* instances.
+
+The optional closure is a way to modify the retrieved item.
+
+'Example:'
+
+[source, groovy]
+----
+def myTextView = activity.view(R.id.text_view) {
+    def textView = it as TextView
+    textView.setText("Hi there!")
+}
+----
+
+==== (View|Fragment|Activity).text(int id, (Optional)Closure modifier)
+
+Retrieves a View, but it is downcasted to `TextView` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
+
+'Example:'
+
+[source, groovy]
+----
+def myTextView = activity.text(R.id.text_view) {
+    it.setText("Hi there!")
+}
+----
+
+==== (View|Fragment|Activity).editText(int id, (Optional)Closure modifier)
+
+Retrieves a View, but it is downcasted to `EditText` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
+
+'Example:'
+
+[source, groovy]
+----
+def myEditText = activity.editText(R.id.edittext) {
+    it.setHint("Type your name")
+}
+----
+
+==== (View|Fragment|Activity).button(int id, (Optional)Closure modifier)
+
+Retrieves a View, but it is downcasted to `Button` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
+
+'Example:'
+
+[source, groovy]
+----
+def myButton = activity.button(R.id.button) {
+    it.setBackgroundColor(color)
+}
+----
+
+==== (View|Fragment|Activity).image(int id, (Optional)Closure modifier)
+
+Retrieves a View, but it is downcasted to `ImageView` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
+
+'Example:'
+
+[source, groovy]
+----
+def myImageVIew = activity.image(R.id.image_view) {
+    it.setDrawable(R.drawable.photo)
+}
+----
+
+==== (View|Fragment|Activity).asListView(int id, ListAdapter adapter)
+
+Retrieves a `ListView`, applying the provided adapter to it. Can be used from *Activity, View and Fragment* instances.
+
+'Example:'
+
+[source, groovy]
+----
+def listView = activity.asListView(R.id.list_view, adapter)
+----
+
+==== (Iterable).asListView(Context context, int id, int rowLayoutId, (Optional) Closure closure)
+
+Retrieves a `ListView` and configures it. Can be used from *an Iterable instance*, such as *List, Set*, etc. The internal adapter is a `GArrayAdapter` which executes the `closure` param to configure the rows.
+
+'Example:'
+
+[source, groovy]
+----
+myListOfStrings.asListView(context, R.id.list_view, R.layout.list_row) { String item, View view ->
+    view.text(R.id.title) {
+        it.setText(item)
+    }
+}
+----
+
+==== (View|Fragment|Activity).asListView(int id, int rowLayoutId, Iterable items, (Optional) Closure closure)
+
+Retrieves a `ListView` and configures it. Can be used from *Acitvity, Fragment or View* instances. The internal adapter is a `GArrayAdapter` which executes the `closure` param to configure the rows.
+
+'Example:'
+
+[source, groovy]
+----
+containerView.asListView(R.id.list_view, R.layout.list_row, items) { String item, View view ->
+    view.text(R.id.title) {
+        it.setText(item)
+    }
+}
+----
+
+==== (ListView).onItem(int rowLayoutId, Iterable items, (Optional) Closure closure)
+
+Creates a `GArrayAdapter` which will execute the closure to configure the rows. Can be used from a *ListView* instance.
+
+'Example:'
+
+[source, groovy]
+----
+listView.onItem(R.layout.list_row, items) { String item, View view ->
+    view.text(R.id.title) {
+        it.setText(item)
+    }
+}
+----
+
+==== (View).show()
+
+Makes view's visibility `VISIBLE`. Can be called from a *View* instance.
+
+==== (View).hide()
+
+Makes view's visibility `GONE`. Can be called from a *View* instance.
+
+==== (View).visible(boolean visible, (Optional) closure)
+
+Makes view's visibility `VISIBLE` if `visible` is true, `GONE` if it's false and applies the provided closure to it. Can be called from a *View* instance.
+
+==== (Activity).getRootView()
+
+Gets an *Activity*'s root view. Can be called from an *Activity* instance.
+
+=== Context methods
+
+==== (Context).log(String message, (Optional)Throwable throwable)
+
+Sends a *DEBUG* message to logcat including the provided message and optional throwable exception. Can be called from any Object.
+
+==== (Context).getCompatNotificationManager()
+
+Get a `CompatNotificationManager` instance for the current `Context`. Can be called from a *Context* instance.
+
+==== (Context).showNotification(int notificationId, Notification notification)
+
+Sends the provided notification with its notificationId. Can be called from a *Context* instance.
+
+==== (Context).showNotification(int notificationId, Closure notificationSpec)
+
+Sends the a notification with the provided notificationId, the notification will be created on `notificationSpec` with `NotificationCompat.Builder`'s methods. Can be called from a *Context* instance.
+
+'Example:'
+
+[source, groovy]
+----
+context.showNotification(1234) {
+    contentTitle = "New message!"
+    ongoing = false
+}
+----
+
+==== (Context).notification(Closure notificationSpec)
+
+Creates a notification from `notificationSpec` with `NotificationCompat.Builder`'s methods. Can be called from a *Context* instance.
+
+'Example:'
+
+[source, groovy]
+----
+def notification = context.notification {
+    contentTitle = "New message!"
+    ongoing = false
+}
+----
+
+==== (Context).bigTextStyle(Closure notificationSpec)
+
+Creates a `BigTextStyle` notification from `notificationSpec` with `NotificationCompat.Builder`'s methods. Can be called from a *Context* instance.
+
+'Example:'
+
+[source, groovy]
+----
+def notification = context.bigTextStyle {
+    contentTitle = "New message!"
+    ongoing = false
+}
+----
+
+==== (Context).pendingActivityIntent(int requestCode, Intent intent, int flags)
+
+Creates a `PendingIntent` to an `Activity`. Can be called from a *Context* instance.
+
+==== (Context).intent(Class class)
+
+Creates an explicit `Intent` to the provided class. Can be called from a *Context* instance.
+
+'Example:'
+
+[source, groovy]
+----
+def intent = context.intent(OtherActivity)
+context.startActivity(intent)
+----
+
+==== (Context).startActivity(Class<Activity> activityClass, Closure closure)
+
+Creates an explicit `Intent` to an `Activity` of the provided class, the Intent can be modified using the closure. Can be called from a *Context* instance.
+
+'Example:'
+
+[source, groovy]
+----
+context.startActivity(AnotherActivity) {
+    putExtra("key", value)
+}
+----
+
+=== Fragment methods
+
+==== Class<Fragment>.withArgs(Context context, Map<String, ?> args)
+
+Creates a `Fragment` of the selected type with the `args` pairs as arguments. Can be called from any class that inherits `Fragment`.
+
+'Example:'
+
+[source, groovy]
+----
+def fragment = MyFragment.withArgs(context, ["page": 0])
+----
+
+==== Class<Fragment>.withArgs(Context context, Bundle args)
+
+Creates a `Fragment` of the selected type with the `args` `Bundle` as arguments. Can be called from any class that inherits `Fragment`.
+
+'Example:'
+
+[source, groovy]
+----
+def fragment = MyFragment.withArgs(context, bundle)
+----
+
+==== (FragmentActivity).addFragment(Closure transactionSpec)
+
+Commits an *add* `FragmentTransaction` with the `transactionSpec` values.
+
+'Example:'
+
+[source, groovy]
+----
+fragmentActivity.addFragment {
+    replacedViewId = R.id.container
+    fragment = myFragment
+    // These 2 are not required
+    addToBackStack = false
+    customAnimations = null
+}
+----
+
+==== (FragmentActivity).replaceFragment(Closure transactionSpec)
+
+Commits a *replace* `FragmentTransaction` with the `transactionSpec` values.
+
+'Example:'
+
+[source, groovy]
+----
+fragmentActivity.replaceFragment {
+    replacedViewId = R.id.container
+    fragment = myFragment
+    // These 2 are not required
+    addToBackStack = false
+    customAnimations = null
+}
+----
+
+=== Bundle methods
+
+==== Bundle.fromMap(Map<String, ?> argsMap)
+
+Turns a `Map` object with `String` keys into a `Bundle`. It will only add values that can be put into a `Bundle` object. Can be called from `Bundle` class.
+
+'Example:'
+
+[source, groovy]
+----
+def myMap = ["id": 1, "value": parcelableEntity]
+def bundle = Bundle.fromMap(myMap)
+----
+
+==== (Map).asBundle()
+
+Turns a `Map` object with `String` keys into a `Bundle`. It will only add values that can be put into a `Bundle` object. Can be called from a `Map<String, ?>` instance.
+
+'Example:'
+
+[source, groovy]
+----
+def myMap = ["id": 1, "value": parcelableEntity]
+def bundle = myMap.asBundle()
+----
+
+==== (Bundle).putFromMap(Map<String, ?> argsMap)
+
+Adds a `Map` object with `String` keys to a `Bundle`. It will only add values that can be put into a `Bundle` object. Can be called from a `Bundle` instance.
+
+'Example:'
+
+[source, groovy]
+----
+def myMap = ["id": 1, "value": parcelableEntity]
+def myBundle = new Bundle()
+myBundle.putFromMap(myMap)
+----
+
+=== Event methods
+
+==== (View).onClick(Closure closure)
+
+Sets a `View`'s `OnClickListener` and executes the closure when it's called.
+
+'Example:'
+
+[source, groovy]
+----
+myButton.onClick {
+    callSomeMethod()
+}
+----
+
+==== (View).onLongClick(Closure closure)
+
+Sets a `View`'s `OnLongClickListener` and executes the closure when it's called.
+
+The closure must *return a boolean value*.
+
+'Example:'
+
+[source, groovy]
+----
+myButton.onClick {
+    callSomeMethod()
+    return true
+}
+----
+
+==== (ListView).onClick(Closure closure)
+
+Sets a `ListView`'s `OnItemClickListener` and executes the closure when it's called.
+
+Valid closure parameters:
+
+* ItemClass item
+* ItemClass item, View v
+* ItemClass item, View v, int position
+
+'Example:'
+
+[source, groovy]
+----
+myList.onClick { Object item, View v ->
+    callSomeMethod(item)
+}
+----
+
+==== (View).onLongClick(Closure closure)
+
+Sets a `View`'s `OnItemLongClickListener` and executes the closure when it's called.
+
+Valid closure parameters:
+
+* ItemClass item
+* ItemClass item, View v
+* ItemClass item, View v, int position
+
+Must *return a boolean value*.
+
+'Example:'
+
+[source, groovy]
+----
+myList.onLongClick { Object item, View v ->
+    callSomeMethod()
+    return true
+}
+----
+
+=== Misc methods
+
+==== (Object).async(Closure closure)
+
+`AsyncTasks` using closures.
+
+'Example:'
+
+[source, groovy]
+----
+async {
+    return getSomeDataFromWeb()
+} before {
+    prepareEverything()
+} after { String result ->
+    showItOnUI()
+} error { Exception e ->
+    showError()
+}
+----
+
+==== (String).asImage()
+
+Download and decode a `Bitmap` from a `String` url.
+
+'Example:'
+
+[source, groovy]
+----
+async {
+    return myOnlinePhotoURL.asImage()
+} after { Bitmap bitmap ->
+    showImage(bitmap)
+}
+----

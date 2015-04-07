@@ -312,10 +312,13 @@ public void afterTextChanged(Editable editable)
 
 ==== Example
 
+[source, groovy]
+----
 @OnTextChanged(value=R.id.edit_text, method=OnTextChanged.Method.ON_TEXT_CHANGED)
 public void onTextChanged(CharSequence sequence) {
     Toast.makeText(this, "Sentence written: $sequence", Toast.LENGTH_SHORT).show();
 }
+----
 
 === @OnEditorAction
 
@@ -520,3 +523,52 @@ As previously said, `@Parcelable` will only parcel what can be put into a Parcel
 Of course, **any other primitive variable (int, long, float, char, etc.) can be parceled too** , as well as arrays (int[], double[]...).
 
 Also, please take in mind that `static` variables won't be parceled as they don't belong to a single instance.
+
+=== @Extra
+
+This annotation will generate hidden code for automatically parsing
+Intent extras.
+
+==== How to use
+
+You would put extras on an _Intent_ as you usually do:
+
+[source,groovy]
+----
+Intent goToActivityIntent = new Intent(this, SomeActivity.class)
+goToActivityIntent.putExtra("some_key", "my api key")
+startActivity(goToActivityIntent)
+----
+
+To parse the `"some_key"` extra, you would add this field:
+
+[source,groovy]
+----
+@Extra("some_key")
+String myKey
+
+// or
+
+@Extra
+String some_key
+----
+
+And then, to load them, you would need to call:
+
+[source, groovy]
+----
+
+public void onCreate(Bundle savedInstanceState) {
+    ...
+    SwissKnife.loadExtras(this)
+    println myKey // It's usable!
+}
+----
+
+==== What can be retrieved as an extra?
+
+Almost everything that can be put into a Bundle, just like with `@SaveInstance`:
+
+* Primitive types *(int, double, long, char...)*.
+* Classes that implement `Parcelable` or `Serializable`.
+* Arrays an Lists all above.

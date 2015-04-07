@@ -1,6 +1,5 @@
 = SwissKnife
-(Draft)
-:numbered:                                                                                                         
+:numbered:
 :skCoreSrc: ../SwissKnife/src/main/groovy
 :skCoreTest: ../SwissKnife/src/test/groovy
 :skSampleSrc: ../sample/src/main/groovy
@@ -17,6 +16,8 @@ include::intro.adoc[]
 include::groovy.adoc[]
 
 include::annotations.adoc[]
+
+include::dsl-methods.adoc[]
 
 include::proguard.adoc[]
 
