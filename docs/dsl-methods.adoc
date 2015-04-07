@@ -56,7 +56,7 @@ A short for `findViewById(int)`, can be used from *Activity, View and Fragment* 
 
 The optional closure is a way to modify the retrieved item.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -70,7 +70,7 @@ def myTextView = activity.view(R.id.text_view) {
 
 Retrieves a View, but it is downcasted to `TextView` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -83,7 +83,7 @@ def myTextView = activity.text(R.id.text_view) {
 
 Retrieves a View, but it is downcasted to `EditText` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -96,7 +96,7 @@ def myEditText = activity.editText(R.id.edittext) {
 
 Retrieves a View, but it is downcasted to `Button` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -109,7 +109,7 @@ def myButton = activity.button(R.id.button) {
 
 Retrieves a View, but it is downcasted to `ImageView` before it's returned and configured using the optional closure. Can be used from *Activity, View and Fragment* instances.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -122,7 +122,7 @@ def myImageVIew = activity.image(R.id.image_view) {
 
 Retrieves a `ListView`, applying the provided adapter to it. Can be used from *Activity, View and Fragment* instances.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -133,7 +133,7 @@ def listView = activity.asListView(R.id.list_view, adapter)
 
 Retrieves a `ListView` and configures it. Can be used from *an Iterable instance*, such as *List, Set*, etc. The internal adapter is a `GArrayAdapter` which executes the `closure` param to configure the rows.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -148,7 +148,7 @@ myListOfStrings.asListView(context, R.id.list_view, R.layout.list_row) { String 
 
 Retrieves a `ListView` and configures it. Can be used from *Acitvity, Fragment or View* instances. The internal adapter is a `GArrayAdapter` which executes the `closure` param to configure the rows.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -163,7 +163,7 @@ containerView.asListView(R.id.list_view, R.layout.list_row, items) { String item
 
 Creates a `GArrayAdapter` which will execute the closure to configure the rows. Can be used from a *ListView* instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -208,7 +208,7 @@ Sends the provided notification with its notificationId. Can be called from a *C
 
 Sends the a notification with the provided notificationId, the notification will be created on `notificationSpec` with `NotificationCompat.Builder`'s methods. Can be called from a *Context* instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -222,7 +222,7 @@ context.showNotification(1234) {
 
 Creates a notification from `notificationSpec` with `NotificationCompat.Builder`'s methods. Can be called from a *Context* instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -236,7 +236,7 @@ def notification = context.notification {
 
 Creates a `BigTextStyle` notification from `notificationSpec` with `NotificationCompat.Builder`'s methods. Can be called from a *Context* instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -254,7 +254,7 @@ Creates a `PendingIntent` to an `Activity`. Can be called from a *Context* insta
 
 Creates an explicit `Intent` to the provided class. Can be called from a *Context* instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -266,7 +266,7 @@ context.startActivity(intent)
 
 Creates an explicit `Intent` to an `Activity` of the provided class, the Intent can be modified using the closure. Can be called from a *Context* instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -281,7 +281,7 @@ context.startActivity(AnotherActivity) {
 
 Creates a `Fragment` of the selected type with the `args` pairs as arguments. Can be called from any class that inherits `Fragment`.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -292,7 +292,7 @@ def fragment = MyFragment.withArgs(context, ["page": 0])
 
 Creates a `Fragment` of the selected type with the `args` `Bundle` as arguments. Can be called from any class that inherits `Fragment`.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -303,7 +303,7 @@ def fragment = MyFragment.withArgs(context, bundle)
 
 Commits an *add* `FragmentTransaction` with the `transactionSpec` values.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -320,7 +320,7 @@ fragmentActivity.addFragment {
 
 Commits a *replace* `FragmentTransaction` with the `transactionSpec` values.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -339,7 +339,7 @@ fragmentActivity.replaceFragment {
 
 Turns a `Map` object with `String` keys into a `Bundle`. It will only add values that can be put into a `Bundle` object. Can be called from `Bundle` class.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -351,7 +351,7 @@ def bundle = Bundle.fromMap(myMap)
 
 Turns a `Map` object with `String` keys into a `Bundle`. It will only add values that can be put into a `Bundle` object. Can be called from a `Map<String, ?>` instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -363,7 +363,7 @@ def bundle = myMap.asBundle()
 
 Adds a `Map` object with `String` keys to a `Bundle`. It will only add values that can be put into a `Bundle` object. Can be called from a `Bundle` instance.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -376,9 +376,9 @@ myBundle.putFromMap(myMap)
 
 ==== (View).onClick(Closure closure)
 
-Sets a `View`'s `OnClickListener` and executes the closure when it's called.
+Sets a `View` 's `OnClickListener` and executes the closure when it's called.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -389,11 +389,11 @@ myButton.onClick {
 
 ==== (View).onLongClick(Closure closure)
 
-Sets a `View`'s `OnLongClickListener` and executes the closure when it's called.
+Sets a `View` 's `OnLongClickListener` and executes the closure when it's called.
 
 The closure must *return a boolean value*.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -405,7 +405,7 @@ myButton.onClick {
 
 ==== (ListView).onClick(Closure closure)
 
-Sets a `ListView`'s `OnItemClickListener` and executes the closure when it's called.
+Sets a `ListView` 's `OnItemClickListener` and executes the closure when it's called.
 
 Valid closure parameters:
 
@@ -413,7 +413,7 @@ Valid closure parameters:
 * ItemClass item, View v
 * ItemClass item, View v, int position
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -424,7 +424,7 @@ myList.onClick { Object item, View v ->
 
 ==== (View).onLongClick(Closure closure)
 
-Sets a `View`'s `OnItemLongClickListener` and executes the closure when it's called.
+Sets a `ListView` 's `OnItemLongClickListener` and executes the closure when it's called.
 
 Valid closure parameters:
 
@@ -434,7 +434,7 @@ Valid closure parameters:
 
 Must *return a boolean value*.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -450,7 +450,7 @@ myList.onLongClick { Object item, View v ->
 
 `AsyncTasks` using closures.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----
@@ -469,7 +469,7 @@ async {
 
 Download and decode a `Bitmap` from a `String` url.
 
-'Example:'
+_Example:_
 
 [source, groovy]
 ----

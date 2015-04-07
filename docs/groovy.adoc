@@ -1,4 +1,4 @@
-== Groovy
+== How to use
 
 Okay, so you've seen this project and wondered WTF is http://groovy-lang.org[Groovy]. You've made some research, and seen how awesome it is.
 
