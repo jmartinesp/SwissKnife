@@ -450,7 +450,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Every Groovy class or Java class which references a Groovy one must be inside of <code>src/main/groovy</code> instead of <code>src/main/java</code>. To add a Groovy class you&#8217;ll only need to create your new Class files as a <code>.groovy</code> file, instead of a Java class (you could define your own template).
+Every Groovy class or Java class which references a Groovy one must be inside of <code>src/main/groovy</code> instead of <code>src/main/java</code>. To add a Groovy class you&#8217;ll only need to create your new Class files as a <code>.groovy</code> file, instead of a Java class (you could define your own template on IDEA&#8217;s or Android Studio&#8217;s Settings &gt; File Code and Templates).
 </td>
 </tr>
 </table>
@@ -459,14 +459,13 @@ Every Groovy class or Java class which references a Groovy one must be inside of
 <div class="sect2">
 <h3 id="_gradle">Gradle</h3>
 <div class="paragraph">
-<p>In order to make Android Studio compile your Android Groovy code, you will need a plugin which is under development. You will have to make a few changes at your module&#8217;s build.gradle:</p>
+<p>In order to make Android Studio compile your Android Groovy code, you will need a plugin and a few changes at your module&#8217;s build.gradle:</p>
 </div>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">buildscript {
     repositories {
-        mavenLocal()
         jcenter()
     }
     dependencies {
@@ -478,17 +477,8 @@ Every Groovy class or Java class which references a Groovy one must be inside of
 apply plugin: 'com.android.application'
 apply plugin: 'groovyx.grooid.groovy-android'
 
-android {
-    ...
-    packagingOptions {
-        // workaround for http://stackoverflow.com/questions/20673625/android-gradle-plugin-0-7-0-duplicate-files-during-packaging-of-apk
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/groovy-release-info.properties'
-    }
-}
-
 dependencies{
-    compile 'org.codehaus.groovy:groovy:2.4.0-rc-2:grooid'
+    compile 'org.codehaus.groovy:groovy:2.4.3:grooid'
 }</code></pre>
 </div>
 </div>
@@ -508,7 +498,7 @@ dependencies{
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-27 20:49:17 CET
+Last updated 2015-04-07 10:29:45 CEST
 </div>
 </div>
 </body>

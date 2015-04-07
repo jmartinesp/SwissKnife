@@ -439,7 +439,7 @@ other libraries such as <a href="https://github.com/JakeWharton/butterknife">But
 </div>
 <div class="paragraph">
 <p>This library is only compatible with <a href="http://www.groovy-lang.org">Groovy</a> language
-as it uses its Ast processing to generate the final code.  If you don&#8217;t use
+as it uses its AST processing to generate the final code.  If you don&#8217;t use
 Groovy on your Android projects yet, you can find some info about how to use it
 here.</p>
 </div>
@@ -450,19 +450,6 @@ really well, its syntax is almost the same as Java&#8217;s, it&#8217;s compatibl
 Dalvik and ART and can be mixed with your existing Java code. Also, most times
 turning a Java class into a Groovy one is as easy as changing the file extension
 from <strong>.java</strong> to <strong>.groovy</strong>.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-As of Groovy 2.4.0 beta 3, anything compiled using API 21 won&#8217;t be able to run
-fine on &lt; 4.4.4 if you use Bundles -which you probably do-.
-</td>
-</tr>
-</table>
 </div>
 <div class="sect2">
 <h3 id="_annotations">Annotations</h3>
@@ -536,6 +523,14 @@ SwissKnife.inject(Object objectInjected, View viewToInject);</code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>You can also  inject views and listeners on other objects, like a Controller or a Presenter like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">SwissKnife.inject(controller, view);</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>This means that injection can be used on any class and is done on runtime, so
 you can choose when you want that injection to happen.</p>
 </div>
@@ -564,7 +559,7 @@ needed classes for you. You can find it <a href="#_intellij_plugin">here</a>.</p
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-27 20:41:54 CET
+Last updated 2015-04-07 10:25:08 CEST
 </div>
 </div>
 </body>

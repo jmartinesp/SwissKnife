@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.0">
-<title>Annotations</title>
+<title>DSL Methods - aka method extensions</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic|Noto+Serif:400,400italic,700,700italic|Droid+Sans+Mono:400">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -418,24 +418,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_annotations">Annotations</a>
+<li><a href="#_dsl_methods_aka_method_extensions">DSL Methods - aka method extensions</a>
 <ul class="sectlevel2">
-<li><a href="#__onclick">@OnClick</a></li>
-<li><a href="#__onlongclick">@OnLongClick</a></li>
-<li><a href="#__onitemclick">@OnItemClick</a></li>
-<li><a href="#__onitemlongclick">@OnItemLongClick</a></li>
-<li><a href="#__onitemselected">@OnItemSelected</a></li>
-<li><a href="#__onchecked">@OnChecked</a></li>
-<li><a href="#__onfocuschanged">@OnFocusChanged</a></li>
-<li><a href="#__ontouch">@OnTouch</a></li>
-<li><a href="#__onpagechanged">@OnPageChanged</a></li>
-<li><a href="#__ontextchanged">@OnTextChanged</a></li>
-<li><a href="#__oneditoraction">@OnEditorAction</a></li>
-<li><a href="#__onuithread">@OnUIThread</a></li>
-<li><a href="#__onbackground">@OnBackground</a></li>
-<li><a href="#__saveinstance">@SaveInstance</a></li>
-<li><a href="#__parcelable">@Parcelable</a></li>
-<li><a href="#__extra">@Extra</a></li>
+<li><a href="#_types_of_dsl_methods">Types of DSL methods</a></li>
+<li><a href="#_view_methods">View methods</a></li>
+<li><a href="#_context_methods">Context methods</a></li>
+<li><a href="#_fragment_methods">Fragment methods</a></li>
+<li><a href="#_bundle_methods">Bundle methods</a></li>
+<li><a href="#_event_methods">Event methods</a></li>
+<li><a href="#_misc_methods">Misc methods</a></li>
 </ul>
 </li>
 </ul>
@@ -443,770 +434,637 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_annotations">Annotations</h2>
+<h2 id="_dsl_methods_aka_method_extensions">DSL Methods - aka method extensions</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="__onclick">@OnClick</h3>
 <div class="paragraph">
-<p>This annotation will trigger an event when a View (for example, a Button) is clicked.</p>
+<p>What we call 'DSL Methods' are actually 'Extension Methods'.</p>
 </div>
-<div class="sect3">
-<h4 id="_how_to_use">How to use</h4>
 <div class="paragraph">
-<p>The method should be this way:</p>
+<p>Still no clue of what those are?</p>
+</div>
+<div class="paragraph">
+<p>Imagine you have GPS coordinates in (lat, lon) format, with lat and lon being doubles. If you want to show that on screen, you&#8217;d have to format them as 'String' with a desired number of decimal positions.</p>
+</div>
+<div class="paragraph">
+<p>So you could write in <strong>Java</strong>:</p>
 </div>
 <div class="listingblock">
+<div class="title">DoubleUtils.java</div>
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onClick()
-public void onClick(View v)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnClick(R.id.button)
-public void onClick() {
-    Toast.makeText(this, "Button clicked", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onlongclick">@OnLongClick</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when a View (for example, a Button) is long-clicked.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_2">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way:</p>
-</div>
-<div class="paragraph">
-<p>public boolean onLongClick()
-public boolean onLongClick(View v)
-Notice it must return a boolean</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_2">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnLongClick(R.id.button)
-public boolean onLongClick() {
-    Toast.makeText(this, "Button long clicked", Toast.LENGTH_SHORT).show();
-    return true;
-}</code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-More information about return <a href="http://developer.android.com/reference/android/view/View.OnLongClickListener.html">View.OnLongClickListener</a>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onitemclick">@OnItemClick</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when an AbsListView (ListView, GridView&#8230;&#8203;) item is clicked.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_3">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way (the method and variable names can be changed):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onItemClick(int position)
-public void onItemClick(int position, AdapterView adapterView)
-public void onItemClick(int position, AdapterView adapterView, View clickedView)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_3">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnItemClick(R.id.list)
-public void onItemClick(int position) {
-    Toast.makeText(this, "Item $position clicked", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onitemlongclick">@OnItemLongClick</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when an AbsListView (ListView, GridView&#8230;&#8203;) item is long-clicked.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_4">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way (the method and variable names can be changed):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public boolean onItemClick(int position)
-public boolean onItemClick(int position, AdapterView adapterView)
-public boolean onItemClick(int position, AdapterView adapterView, View clickedView)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Notice it must return a boolean</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_4">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnItemLongClick(R.id.list)
-public void onItemLongClick(int position) {
-    Toast.makeText(this, "Item $position long-clicked", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-More information about return <a href="http://developer.android.com/reference/android/view/View.OnLongClickListener.html">View.OnItemLongClick</a>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onitemselected">@OnItemSelected</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when an AbsListView (ListView, GridView&#8230;&#8203;) item is selected.</p>
-</div>
-<div class="sect3">
-<h4 id="_annotation_arguments">Annotation arguments</h4>
-<div class="paragraph">
-<p>@OnItemSelected uses an extra "method" argument to specify the listener method which will call this method.</p>
-</div>
-<div class="paragraph">
-<p>The annotation must be:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnItemSelected(value=R.id.my_view, method=OnItemSelected.Method.ITEM_SELECTED)
-// or
-@OnItemSelected(value=R.id.my_view, method=OnItemSelected.Method.NOTHING_SELECTED)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_5">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way (the method and variable names can be changed):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onItemSelected(int position)
-public void onItemSelected(int position, AdapterView adapterView)
-public void onItemSelected(int position, AdapterView adapterView, View clickedView)
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">public class DoubleUtils {
 
-public void onNothingSelected(AdapterView adapterView)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_5">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnItemSelected(value=R.id.list, method=OnItemSelected.Method.ITEM_SELECTED)
-public void onItemSelected(int position) {
-    Toast.makeText(this, "Item $position selected", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onchecked">@OnChecked</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when a CompoundButton (for example, a RadioButton) is checked.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_6">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public boolean onChecked(boolean checked)
-public boolean onChecked(CompoundButton button, boolean checked)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_6">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnChecked(R.id.radio_button)
-public public boolean onChecked(CompoundButton button, boolean checked) {
-    Toast.makeText(this, "Button checked: $checked", Toast.LENGTH_SHORT).show();
-    return false;
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onfocuschanged">@OnFocusChanged</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when a View receives or loses focus.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_7">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onFocusChanged(boolean hasFocus)
-public void onFocusChanged(View v, boolean hasFocus)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_7">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnFocusChanged(R.id.my_view)
-public void onFocusChanged(boolean hasFocus) {
-    Toast.makeText(this, "View has focus: $hasFocus", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__ontouch">@OnTouch</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when a View is touched.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_8">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public boolean onTouch(MotionEvent event)
-public boolean onClick(View v, MotionEvent event)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_8">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnTouch(R.id.button)
-public boolean onTouch(MotionEvent event) {
-    Toast.makeText(this, "Button touched, action: $event.action", Toast.LENGTH_SHORT).show();
-    return false;
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onpagechanged">@OnPageChanged</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when a ViewPager scroll changes.</p>
-</div>
-<div class="sect3">
-<h4 id="_annotation_arguments_2">Annotation arguments</h4>
-<div class="paragraph">
-<p>@OnPageChanged uses an extra "method" argument to specify the listener method which will call this method.</p>
-</div>
-<div class="paragraph">
-<p>The annotation must be:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnPageChanged(value=R.id.view_pager, method=OnPageChanged.Method.PAGE_SCROLLED)
-// or
-@OnPageChanged(value=R.id.view_pager, method=OnPageChanged.Method.PAGE_SELECTED)
-// or
-@OnPageChanged(value=R.id.view_pager, method=OnPageChanged.Method.PAGE_SCROLL_STATE_CHANGED)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_9">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way (the method and variable names can be changed):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onPageScrolled(int position)
-public void onPageScrolled(int position, float offset, int pixelOffset)
-
-public void onPageSelected(int position)
-
-public void onPageScrollStateChanged(int state)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_9">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnPageChanged(value=R.id.list, method=OnPageChanged.Method.PAGE_SELECTED)
-public void onPageSelected(int position) {
-    Toast.makeText(this, "Current page: $position", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__ontextchanged">@OnTextChanged</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when an EditText&#8217;s text is changed.</p>
-</div>
-<div class="sect3">
-<h4 id="_annotation_arguments_3">Annotation arguments</h4>
-<div class="paragraph">
-<p>@OnTextChanged uses an extra "method" argument to specify the listener method which will call this method.</p>
-</div>
-<div class="paragraph">
-<p>The annotation must be:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnTextChanged(value=R.id.edit_text, method=OnTextChanged.Method.BEFORE_TEXT_CHANGED)
-// or
-@OnTextChanged(value=R.id.edit_text, method=OnTextChanged.Method.ON_TEXT_CHANGED)
-// or
-@OnTextChanged(value=R.id.edit_text, method=OnTextChanged.Method.AFTER_TEXT_CHANGED)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_10">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way (the method and variable names can be changed):</p>
-</div>
-<div class="paragraph">
-<p><strong>BeforeTextChanged</strong></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void beforeTextChanged(CharSequence sequence)
-public void beforeTextChanged(TextView textView, CharSequence sequence)
-public void beforeTextChanged(CharSequence sequence, int start, int count, int after)
-public void beforeTextChanged(TextView textView, CharSequence sequence, int start, int count, int after)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong>OnTextChanged</strong></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onTextChanged(CharSequence sequence)
-public void onTextChanged(TextView textView, CharSequence sequence)
-public void onTextChanged(CharSequence sequence, int start, int before, int count)
-public void onTextChanged(TextView textView, CharSequence sequence, int start, int before, int count)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong>AfterTextChanged</strong></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void afterTextChanged(Editable editable)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_10">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnTextChanged(value=R.id.edit_text, method=OnTextChanged.Method.ON_TEXT_CHANGED)
-public void onTextChanged(CharSequence sequence) {
-    Toast.makeText(this, "Sentence written: $sequence", Toast.LENGTH_SHORT).show();
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__oneditoraction">@OnEditorAction</h3>
-<div class="paragraph">
-<p>This annotation will trigger an event when a TextView receives an action such as pressing ENTER key or a custom action on the keyboard.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_11">How to use</h4>
-<div class="paragraph">
-<p>The method should be this way:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public boolean onEditorAction(KeyEvent event)
-public boolean onEditorAction(TextView textView, KeyEvent event)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_11">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnEditorAction(R.id.edit_text)
-public boolean onEditorAction(KeyEvent event) {
-    Toast.makeText(this, "Editor action received", Toast.LENGTH_SHORT).show();
-    return false;
-}</code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-More information <a href="http://developer.android.com/reference/android/widget/TextView.html#setOnEditorActionListener(android.widget.TextView.OnEditorActionListener)">TextView.setOnEditorActionListener</a>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__onuithread">@OnUIThread</h3>
-<div class="paragraph">
-<p>This annotation will execute the code inside the method on the UI Thread using a Handler.</p>
-</div>
-<div class="sect3">
-<h4 id="_example_12">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnUIThread()
-public void getResult(Context context, boolean value){
-    if(value == true) {
-        Toast.makeText(context, "Result was: $value", Toast.LENGTH_SHORT).show()
+    public static String doubleWithDecimals(double number, int decimals) {
+        String parseDef = "#."+"0"*decimals
+        DecimalFormat formatter = new DecimalFormat(parseDef)
+        return formatter.format(number)
     }
 }</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>But why do you have to add a whole class just for that - or even worse, mix it with some random code?</p>
 </div>
+<div class="paragraph">
+<p>Wouldn&#8217;t this method fit perfectly inside the 'Double' class?</p>
+</div>
+<div class="paragraph">
+<p>Well, in <strong>Groovy</strong> that can be done and is quite simple. You could write an extension method and just use:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">// Actually, Groovy does have ".trunc(int)" extension method for that
+String coordStr = coordinate.withDecimals(4)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So if that can be done to data classes, why shouldn&#8217;t we use it on Android?</p>
+</div>
+<div class="paragraph">
+<p>Short answer is: <strong>we do.</strong></p>
 </div>
 <div class="sect2">
-<h3 id="__onbackground">@OnBackground</h3>
+<h3 id="_types_of_dsl_methods">Types of DSL methods</h3>
 <div class="paragraph">
-<p>This annotation will execute the code inside the method on a background Thread.</p>
-</div>
-<div class="sect3">
-<h4 id="_example_13">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@OnBackground()
-public boolean getResult(){...}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__saveinstance">@SaveInstance</h3>
-<div class="paragraph">
-<p>This annotation will help you to reduce your persistance code. It has two sepparated behaviours: When it&#8217;s applied to Views, and when it&#8217;s not.</p>
-</div>
-<div class="paragraph">
-<p>Instead of having to override the onSaveInstanceState method, add everything to the Bundle, check if the savedInstanceState was null at the onCreate&#8230;&#8203; you can simplify it by only annotating a variable with @SaveState.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_12">How to use</h4>
-<div class="paragraph">
-<p>In order to work propperly, you must ensure that:</p>
-</div>
-<div class="paragraph">
-<p>Your variable can be written to a Bundle object (check Bundle documentation)
-You must make a call to SwissKnife.restoreState(this, savedInstanceState) in order for the state to be restored.</p>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-Keep calm. Don&#8217;t worry if you manually override the onSaveInstanceState method with some code, it doesn&#8217;t matter, SwissKnife will append any necessary statements to the already existing code
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_14">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@SaveInstance
-public int myInt
-
-// You can also set a custom tag to your variable
-@SaveInstance("MYSTRING")
-public String myString
-
-@Override
-public void onCreate(Bundle savedInstanceState){
-    // Your previous code
-    SwissKnife.restoreState(this, savedInstanceState)
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In case your variable is not one of the types that can be written to a Bundle, the compilation will fail and show which class is giving the error.</p>
-</div>
-<div class="paragraph">
-<p>Of course, it supports Parcelable objects (also arrays and ArrayLists).</p>
-</div>
-<div class="paragraph">
-<p>Make sure you check the sample for more examples.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_views">Views</h4>
-<div class="paragraph">
-<p>@SaveInstance can also be used to save the state of views. Though Android usually will do that automatically if the view has an id, you can still use this annotation to force that restoration or use it on views without id.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@SaveInstance
-TextView myTextView;
-
-@Override
-public void onCreate(Bundle savedInstanceState){
-    // Your previous code
-    if(savedInstanceState == null) {
-         // If the Activity recreates, myTextView will retain the "Hey!" text
-         myTextView.setText("Hey!")
-    }
-    SwissKnife.restoreState(this, savedInstanceState)
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>How is this done? Every view has two methods, onSaveInstanceState() and onRestoreInstanceState(Parcelable) in which they will store their state when called. Usually those methods are called from their containing Activities and Fragments as they are destroyed and recreated when their homonymous methods are called. SwissKnife just forces those calls when needed.</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="__parcelable">@Parcelable</h3>
-<div class="paragraph">
-<p><code>@Parcelable</code> lets you automatically turn any class into a Parcelable object.</p>
-</div>
-<div class="paragraph">
-<p>It will pick every parcelable or serializable attribute of the annotated class and put it into a <code>Parcel</code> object, just like you would have to do implementing the Parcelable interface.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void writeToParcel(Parcel parcel, int flags)
-
-public int describeContents()
-
-public static Parcelable.Creator CREATOR
-
-// Constructor to create a MyClass instance from a Parcel object
-public MyClass(Parcel source)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Also, it will create a <code>MyClass.Creator</code> class which will implement <code>Parcelable.Creator</code> for you.</p>
-</div>
-<div class="sect3">
-<h4 id="_how_to_use_13">How to use</h4>
-<div class="paragraph">
-<p>Just add <code>@Parcelable</code> annotation to the class you want to use as a Parcelable object.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<strong>What about circular dependencies?</strong> Even having only a few classes, you can end up having circular dependencies, where having two parcelable classes A and B, A contains a B instance and B contains an A instance. If you used @Parcelable with them both your app would go crazy while trying to save them as it will end on a never-ending cycle. What to do here? Use exclude parameter on the annotation.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_exclude_some_properties">Exclude some properties</h4>
-<div class="paragraph">
-<p>If there is some attribute that you don&#8217;t want parceled, you can explicitly do that using the <code>exclude</code> parameter on the annotation like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@Parcelable(exclude={anotherObject;andThisToo})
-class ParcelableClass {
-...
-    ParcelableClass anotherObject
-    SomeOtherClass andThisToo</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_15">Example</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@Parcelable
-class ParcelableClass {
-
-    int id
-    String name
-
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Will generate:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">class ParcelableClass implements Parcelable {
-...
-    public ParcelableClass(Parcel source) {
-        this.id = source.readInt()
-        this.name = source.readString()
-    }
-
-    public void writeToParcel(Parcel out) {
-        out.writeInt(id)
-        out.writeString(name)
-   }
-...</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>What classes can be parceled?</p>
-</div>
-<div class="paragraph">
-<p>As previously said, <code>@Parcelable</code> will only parcel what can be put into a Parcel object. This classes are:</p>
+<p>The DSL methods written so far can be classified on these big groups:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>String</p>
+<p><strong>View</strong> methods.</p>
 </li>
 <li>
-<p>String[]</p>
+<p><strong>Context</strong> methods.</p>
 </li>
 <li>
-<p>List</p>
+<p><strong>Fragment</strong> methods.</p>
 </li>
 <li>
-<p>Map</p>
+<p><strong>Bundle</strong> methods.</p>
 </li>
 <li>
-<p>SparseArray</p>
+<p><strong>Event</strong> methods.</p>
 </li>
 <li>
-<p>Parcelable</p>
-</li>
-<li>
-<p>Parcelable[]</p>
-</li>
-<li>
-<p>Bundle</p>
-</li>
-<li>
-<p>CharSequence</p>
-</li>
-<li>
-<p>Serializable</p>
+<p><strong>Misc</strong> methods.</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>Of course, <strong>any other primitive variable (int, long, float, char, etc.) can be parceled too</strong> , as well as arrays (int[], double[]&#8230;&#8203;).</p>
-</div>
-<div class="paragraph">
-<p>Also, please take in mind that <code>static</code> variables won&#8217;t be parceled as they don&#8217;t belong to a single instance.</p>
-</div>
-</div>
 </div>
 <div class="sect2">
-<h3 id="__extra">@Extra</h3>
-<div class="paragraph">
-<p>This annotation will generate hidden code for automatically parsing
-Intent extras.</p>
-</div>
+<h3 id="_view_methods">View methods</h3>
 <div class="sect3">
-<h4 id="_how_to_use_14">How to use</h4>
+<h4 id="__view_fragment_activity_view_int_id_optional_closure_modifier">(View|Fragment|Activity).view(int id, (Optional)Closure modifier)</h4>
 <div class="paragraph">
-<p>You would put extras on an <em>Intent</em> as you usually do:</p>
+<p>A short for <code>findViewById(int)</code>, can be used from <strong>Activity, View and Fragment</strong> instances.</p>
+</div>
+<div class="paragraph">
+<p>The optional closure is a way to modify the retrieved item.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">Intent goToActivityIntent = new Intent(this, SomeActivity.class)
-goToActivityIntent.putExtra("some_key", "my api key")
-startActivity(goToActivityIntent)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>To parse the <code>"some_key"</code> extra, you would add this field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@Extra("some_key")
-String myKey
-
-// or
-
-@Extra
-String some_key</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>And then, to load them, you would need to call:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">public void onCreate(Bundle savedInstanceState) {
-    ...
-    SwissKnife.loadExtras(this)
-    println myKey // It's usable!
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myTextView = activity.view(R.id.text_view) {
+    def textView = it as TextView
+    textView.setText("Hi there!")
 }</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_what_can_be_retrieved_as_an_extra">What can be retrieved as an extra?</h4>
+<h4 id="__view_fragment_activity_text_int_id_optional_closure_modifier">(View|Fragment|Activity).text(int id, (Optional)Closure modifier)</h4>
 <div class="paragraph">
-<p>Almost everything that can be put into a Bundle, just like with <code>@SaveInstance</code>:</p>
+<p>Retrieves a View, but it is downcasted to <code>TextView</code> before it&#8217;s returned and configured using the optional closure. Can be used from <strong>Activity, View and Fragment</strong> instances.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myTextView = activity.text(R.id.text_view) {
+    it.setText("Hi there!")
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_fragment_activity_edittext_int_id_optional_closure_modifier">(View|Fragment|Activity).editText(int id, (Optional)Closure modifier)</h4>
+<div class="paragraph">
+<p>Retrieves a View, but it is downcasted to <code>EditText</code> before it&#8217;s returned and configured using the optional closure. Can be used from <strong>Activity, View and Fragment</strong> instances.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myEditText = activity.editText(R.id.edittext) {
+    it.setHint("Type your name")
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_fragment_activity_button_int_id_optional_closure_modifier">(View|Fragment|Activity).button(int id, (Optional)Closure modifier)</h4>
+<div class="paragraph">
+<p>Retrieves a View, but it is downcasted to <code>Button</code> before it&#8217;s returned and configured using the optional closure. Can be used from <strong>Activity, View and Fragment</strong> instances.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myButton = activity.button(R.id.button) {
+    it.setBackgroundColor(color)
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_fragment_activity_image_int_id_optional_closure_modifier">(View|Fragment|Activity).image(int id, (Optional)Closure modifier)</h4>
+<div class="paragraph">
+<p>Retrieves a View, but it is downcasted to <code>ImageView</code> before it&#8217;s returned and configured using the optional closure. Can be used from <strong>Activity, View and Fragment</strong> instances.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myImageVIew = activity.image(R.id.image_view) {
+    it.setDrawable(R.drawable.photo)
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_fragment_activity_aslistview_int_id_listadapter_adapter">(View|Fragment|Activity).asListView(int id, ListAdapter adapter)</h4>
+<div class="paragraph">
+<p>Retrieves a <code>ListView</code>, applying the provided adapter to it. Can be used from <strong>Activity, View and Fragment</strong> instances.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def listView = activity.asListView(R.id.list_view, adapter)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__iterable_aslistview_context_context_int_id_int_rowlayoutid_optional_closure_closure">(Iterable).asListView(Context context, int id, int rowLayoutId, (Optional) Closure closure)</h4>
+<div class="paragraph">
+<p>Retrieves a <code>ListView</code> and configures it. Can be used from <strong>an Iterable instance</strong>, such as <strong>List, Set</strong>, etc. The internal adapter is a <code>GArrayAdapter</code> which executes the <code>closure</code> param to configure the rows.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">myListOfStrings.asListView(context, R.id.list_view, R.layout.list_row) { String item, View view -&gt;
+    view.text(R.id.title) {
+        it.setText(item)
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_fragment_activity_aslistview_int_id_int_rowlayoutid_iterable_items_optional_closure_closure">(View|Fragment|Activity).asListView(int id, int rowLayoutId, Iterable items, (Optional) Closure closure)</h4>
+<div class="paragraph">
+<p>Retrieves a <code>ListView</code> and configures it. Can be used from <strong>Acitvity, Fragment or View</strong> instances. The internal adapter is a <code>GArrayAdapter</code> which executes the <code>closure</code> param to configure the rows.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">containerView.asListView(R.id.list_view, R.layout.list_row, items) { String item, View view -&gt;
+    view.text(R.id.title) {
+        it.setText(item)
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__listview_onitem_int_rowlayoutid_iterable_items_optional_closure_closure">(ListView).onItem(int rowLayoutId, Iterable items, (Optional) Closure closure)</h4>
+<div class="paragraph">
+<p>Creates a <code>GArrayAdapter</code> which will execute the closure to configure the rows. Can be used from a <strong>ListView</strong> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">listView.onItem(R.layout.list_row, items) { String item, View view -&gt;
+    view.text(R.id.title) {
+        it.setText(item)
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_show">(View).show()</h4>
+<div class="paragraph">
+<p>Makes view&#8217;s visibility <code>VISIBLE</code>. Can be called from a <strong>View</strong> instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_hide">(View).hide()</h4>
+<div class="paragraph">
+<p>Makes view&#8217;s visibility <code>GONE</code>. Can be called from a <strong>View</strong> instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_visible_boolean_visible_optional_closure">(View).visible(boolean visible, (Optional) closure)</h4>
+<div class="paragraph">
+<p>Makes view&#8217;s visibility <code>VISIBLE</code> if <code>visible</code> is true, <code>GONE</code> if it&#8217;s false and applies the provided closure to it. Can be called from a <strong>View</strong> instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__activity_getrootview">(Activity).getRootView()</h4>
+<div class="paragraph">
+<p>Gets an <strong>Activity</strong>'s root view. Can be called from an <strong>Activity</strong> instance.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_context_methods">Context methods</h3>
+<div class="sect3">
+<h4 id="__context_log_string_message_optional_throwable_throwable">(Context).log(String message, (Optional)Throwable throwable)</h4>
+<div class="paragraph">
+<p>Sends a <strong>DEBUG</strong> message to logcat including the provided message and optional throwable exception. Can be called from any Object.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_getcompatnotificationmanager">(Context).getCompatNotificationManager()</h4>
+<div class="paragraph">
+<p>Get a <code>CompatNotificationManager</code> instance for the current <code>Context</code>. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_shownotification_int_notificationid_notification_notification">(Context).showNotification(int notificationId, Notification notification)</h4>
+<div class="paragraph">
+<p>Sends the provided notification with its notificationId. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_shownotification_int_notificationid_closure_notificationspec">(Context).showNotification(int notificationId, Closure notificationSpec)</h4>
+<div class="paragraph">
+<p>Sends the a notification with the provided notificationId, the notification will be created on <code>notificationSpec</code> with `NotificationCompat.Builder&#8217;s methods. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">context.showNotification(1234) {
+    contentTitle = "New message!"
+    ongoing = false
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_notification_closure_notificationspec">(Context).notification(Closure notificationSpec)</h4>
+<div class="paragraph">
+<p>Creates a notification from <code>notificationSpec</code> with `NotificationCompat.Builder&#8217;s methods. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def notification = context.notification {
+    contentTitle = "New message!"
+    ongoing = false
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_bigtextstyle_closure_notificationspec">(Context).bigTextStyle(Closure notificationSpec)</h4>
+<div class="paragraph">
+<p>Creates a <code>BigTextStyle</code> notification from <code>notificationSpec</code> with `NotificationCompat.Builder&#8217;s methods. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def notification = context.bigTextStyle {
+    contentTitle = "New message!"
+    ongoing = false
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_pendingactivityintent_int_requestcode_intent_intent_int_flags">(Context).pendingActivityIntent(int requestCode, Intent intent, int flags)</h4>
+<div class="paragraph">
+<p>Creates a <code>PendingIntent</code> to an <code>Activity</code>. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_intent_class_class">(Context).intent(Class class)</h4>
+<div class="paragraph">
+<p>Creates an explicit <code>Intent</code> to the provided class. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def intent = context.intent(OtherActivity)
+context.startActivity(intent)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__context_startactivity_class_activity_activityclass_closure_closure">(Context).startActivity(Class&lt;Activity&gt; activityClass, Closure closure)</h4>
+<div class="paragraph">
+<p>Creates an explicit <code>Intent</code> to an <code>Activity</code> of the provided class, the Intent can be modified using the closure. Can be called from a <strong>Context</strong> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">context.startActivity(AnotherActivity) {
+    putExtra("key", value)
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fragment_methods">Fragment methods</h3>
+<div class="sect3">
+<h4 id="_class_fragment_withargs_context_context_map_string_args">Class&lt;Fragment&gt;.withArgs(Context context, Map&lt;String, ?&gt; args)</h4>
+<div class="paragraph">
+<p>Creates a <code>Fragment</code> of the selected type with the <code>args</code> pairs as arguments. Can be called from any class that inherits <code>Fragment</code>.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def fragment = MyFragment.withArgs(context, ["page": 0])</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_class_fragment_withargs_context_context_bundle_args">Class&lt;Fragment&gt;.withArgs(Context context, Bundle args)</h4>
+<div class="paragraph">
+<p>Creates a <code>Fragment</code> of the selected type with the <code>args</code> <code>Bundle</code> as arguments. Can be called from any class that inherits <code>Fragment</code>.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def fragment = MyFragment.withArgs(context, bundle)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__fragmentactivity_addfragment_closure_transactionspec">(FragmentActivity).addFragment(Closure transactionSpec)</h4>
+<div class="paragraph">
+<p>Commits an <strong>add</strong> <code>FragmentTransaction</code> with the <code>transactionSpec</code> values.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">fragmentActivity.addFragment {
+    replacedViewId = R.id.container
+    fragment = myFragment
+    // These 2 are not required
+    addToBackStack = false
+    customAnimations = null
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__fragmentactivity_replacefragment_closure_transactionspec">(FragmentActivity).replaceFragment(Closure transactionSpec)</h4>
+<div class="paragraph">
+<p>Commits a <strong>replace</strong> <code>FragmentTransaction</code> with the <code>transactionSpec</code> values.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">fragmentActivity.replaceFragment {
+    replacedViewId = R.id.container
+    fragment = myFragment
+    // These 2 are not required
+    addToBackStack = false
+    customAnimations = null
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bundle_methods">Bundle methods</h3>
+<div class="sect3">
+<h4 id="_bundle_frommap_map_string_argsmap">Bundle.fromMap(Map&lt;String, ?&gt; argsMap)</h4>
+<div class="paragraph">
+<p>Turns a <code>Map</code> object with <code>String</code> keys into a <code>Bundle</code>. It will only add values that can be put into a <code>Bundle</code> object. Can be called from <code>Bundle</code> class.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myMap = ["id": 1, "value": parcelableEntity]
+def bundle = Bundle.fromMap(myMap)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__map_asbundle">(Map).asBundle()</h4>
+<div class="paragraph">
+<p>Turns a <code>Map</code> object with <code>String</code> keys into a <code>Bundle</code>. It will only add values that can be put into a <code>Bundle</code> object. Can be called from a <code>Map&lt;String, ?&gt;</code> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myMap = ["id": 1, "value": parcelableEntity]
+def bundle = myMap.asBundle()</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__bundle_putfrommap_map_string_argsmap">(Bundle).putFromMap(Map&lt;String, ?&gt; argsMap)</h4>
+<div class="paragraph">
+<p>Adds a <code>Map</code> object with <code>String</code> keys to a <code>Bundle</code>. It will only add values that can be put into a <code>Bundle</code> object. Can be called from a <code>Bundle</code> instance.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">def myMap = ["id": 1, "value": parcelableEntity]
+def myBundle = new Bundle()
+myBundle.putFromMap(myMap)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_event_methods">Event methods</h3>
+<div class="sect3">
+<h4 id="__view_onclick_closure_closure">(View).onClick(Closure closure)</h4>
+<div class="paragraph">
+<p>Sets a <code>View&#8217;s `OnClickListener</code> and executes the closure when it&#8217;s called.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">myButton.onClick {
+    callSomeMethod()
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_onlongclick_closure_closure">(View).onLongClick(Closure closure)</h4>
+<div class="paragraph">
+<p>Sets a <code>View&#8217;s `OnLongClickListener</code> and executes the closure when it&#8217;s called.</p>
+</div>
+<div class="paragraph">
+<p>The closure must <strong>return a boolean value</strong>.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">myButton.onClick {
+    callSomeMethod()
+    return true
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__listview_onclick_closure_closure">(ListView).onClick(Closure closure)</h4>
+<div class="paragraph">
+<p>Sets a <code>ListView&#8217;s `OnItemClickListener</code> and executes the closure when it&#8217;s called.</p>
+</div>
+<div class="paragraph">
+<p>Valid closure parameters:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Primitive types <strong>(int, double, long, char&#8230;&#8203;)</strong>.</p>
+<p>ItemClass item</p>
 </li>
 <li>
-<p>Classes that implement <code>Parcelable</code> or <code>Serializable</code>.</p>
+<p>ItemClass item, View v</p>
 </li>
 <li>
-<p>Arrays an Lists all above.</p>
+<p>ItemClass item, View v, int position</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">myList.onClick { Object item, View v -&gt;
+    callSomeMethod(item)
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__view_onlongclick_closure_closure_2">(View).onLongClick(Closure closure)</h4>
+<div class="paragraph">
+<p>Sets a <code>View&#8217;s `OnItemLongClickListener</code> and executes the closure when it&#8217;s called.</p>
+</div>
+<div class="paragraph">
+<p>Valid closure parameters:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ItemClass item</p>
+</li>
+<li>
+<p>ItemClass item, View v</p>
+</li>
+<li>
+<p>ItemClass item, View v, int position</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Must <strong>return a boolean value</strong>.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">myList.onLongClick { Object item, View v -&gt;
+    callSomeMethod()
+    return true
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_misc_methods">Misc methods</h3>
+<div class="sect3">
+<h4 id="__object_async_closure_closure">(Object).async(Closure closure)</h4>
+<div class="paragraph">
+<p><code>AsyncTasks</code> using closures.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async {
+    return getSomeDataFromWeb()
+} before {
+    prepareEverything()
+} after { String result -&gt;
+    showItOnUI()
+} error { Exception e -&gt;
+    showError()
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__string_asimage">(String).asImage()</h4>
+<div class="paragraph">
+<p>Download and decode a <code>Bitmap</code> from a <code>String</code> url.</p>
+</div>
+<div class="paragraph">
+<p>'Example:'</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async {
+    return myOnlinePhotoURL.asImage()
+} after { Bitmap bitmap -&gt;
+    showImage(bitmap)
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1215,7 +1073,7 @@ String some_key</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-07 10:40:43 CEST
+Last updated 2015-04-07 17:51:46 CEST
 </div>
 </div>
 </body>
