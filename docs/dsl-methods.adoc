@@ -455,9 +455,6 @@ _Example:_
 [source, groovy]
 ----
 async { context, GAsyncTask task ->
-        task.before {
-            // here we can run code before async task execution
-        }
         task.error { e ->
             // here we can catch error situation, param "e" is usually Exception
         }
