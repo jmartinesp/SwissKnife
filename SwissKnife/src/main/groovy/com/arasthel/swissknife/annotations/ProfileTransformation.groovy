@@ -199,8 +199,8 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
     Statement createReturnProfile(String tag, int logLevel, MethodNode method) {
         def returnStmt = (method.code as BlockStatement).getStatements().last()
         (method.code as BlockStatement).statements.remove(returnStmt)
-        def returnVarName = 'return_var'
-        def logMessageVarName = 'log_mess'
+        def returnVarName = random()
+        def logMessageVarName = random()
         def returnVar = varX(returnVarName, method.returnType)
         Expression expression
         if (returnStmt instanceof ReturnStatement) {
