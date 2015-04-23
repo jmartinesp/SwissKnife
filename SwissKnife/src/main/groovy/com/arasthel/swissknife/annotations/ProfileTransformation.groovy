@@ -90,7 +90,7 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
         def newBlockStatement = block()
         Statement returnStatement = null
         // generate profile statements
-        def startStatements = createTimeProfileStatements(Log.DEBUG, "${methodNode.declaringClass.nameWithoutPackage}.${methodNode.name}", logTag)
+        def startStatements = createTimeProfileStatements(logLevel, "${methodNode.declaringClass.nameWithoutPackage}.${methodNode.name}", logTag)
         // log method params
         if (logValues && params.length > 0) {
             newBlockStatement.addStatement(createProfileMethodParams(includes, excludes, logTag, logLevel, params, methodNode))
