@@ -68,10 +68,6 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
         }
     }
 
-    void before(Closure closure) {
-        this.before = closure
-    }
-
     /**
      * after closure setter
      * @param closure
