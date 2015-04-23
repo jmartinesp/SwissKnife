@@ -454,15 +454,16 @@ _Example:_
 
 [source, groovy]
 ----
-async {
-    return getSomeDataFromWeb()
-} before {
-    prepareEverything()
-} after { String result ->
-    showItOnUI()
-} error { Exception e ->
-    showError()
-}
+async { context, GAsyncTask task ->
+        task.error { e ->
+            // here we can catch error situation, param "e" is usually Exception
+        }
+        task.after {
+            // here we can catch after task situation
+        }
+        // and here we should execute long running task
+        this.tempApartments = DatabaseService.instance.getApartments(this.offset)
+    }
 ----
 
 ==== (String).asImage()
@@ -473,9 +474,9 @@ _Example:_
 
 [source, groovy]
 ----
-async {
-    return myOnlinePhotoURL.asImage()
-} after { Bitmap bitmap ->
-    showImage(bitmap)
-}
+async { ctx, task ->
+        task.error { e ->
+        }
+        this.imageView.imageBitmap = 'http://someurlwithimage.com/'.asImage()
+    }
 ----

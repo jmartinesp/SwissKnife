@@ -20,12 +20,6 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
     private final Closure<T> task
 
     /**
-     * Closure which will be executed before task
-     * Is optional
-     */
-    private Closure before
-
-    /**
      * Closure which will be executed after successful task execution
      * Is optional
      */
@@ -48,7 +42,6 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
 
     @Override
     protected void onPreExecute() {
-        before?.call()
     }
 
     @Override
