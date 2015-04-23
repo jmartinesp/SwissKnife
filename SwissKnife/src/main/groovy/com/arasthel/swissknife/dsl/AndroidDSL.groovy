@@ -423,6 +423,10 @@ class AndroidDSL {
 
     /**
      * Start simple {@link GAsyncTask}
+     * Syntax:
+     *  async {
+     *
+     *  }
      *
      * @param clazz
      * @param closure

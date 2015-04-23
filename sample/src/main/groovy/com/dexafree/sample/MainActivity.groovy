@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.widget.*
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.annotations.*
+import com.arasthel.swissknife.dsl.components.GAsyncTask
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -30,12 +31,14 @@ public class MainActivity extends Activity {
 
     // tag::methodAwareAnnotation[]
     @OnTextChanged(value = R.id.edit_text, method = OnTextChanged.Method.ON_TEXT_CHANGED)
+    @Profile(tag =  'TAG', time = false)
     public void onTextChanged(CharSequence sequence) {
         writtenTextView.setText(sequence)
     }
     // end::methodAwareAnnotation[]
 
     @OnEditorAction(R.id.edit_text)
+    @Profile
     public boolean onEditorAction(KeyEvent key) {
         Toast.makeText(mContext, "Editor action received", Toast.LENGTH_SHORT).show()
         true
@@ -43,6 +46,7 @@ public class MainActivity extends Activity {
 
     // tag::onClick[]
     @OnClick(R.id.first_button)
+    @Profile
     public void clicked() {
         firstButton.setText("I've been clicked! Click me longer!")
     }
@@ -65,11 +69,13 @@ public class MainActivity extends Activity {
     }
 
     @OnItemClick(R.id.list_view)
+    @Profile
     public void onItemClick(int position) {
         Toast.makeText(mContext, "Pressed item number $position", Toast.LENGTH_SHORT).show()
     }
 
     @OnItemLongClick(R.id.list_view)
+    @Profile
     public boolean onItemLongClick(int position) {
         Toast.makeText(mContext, "Long pressed item number $position", Toast.LENGTH_SHORT).show()
         true
@@ -92,17 +98,17 @@ public class MainActivity extends Activity {
         SwissKnife.inject(this)
         firstTextView.setText("HELLO")
 
-        def items = generateItems()
+        def items = generateItems(1,2,null)
         listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items))
     }
 
-    List<String> generateItems() {
+    @Profile(excludes =  'a', time = false)
+    List<String> generateItems(int a, engi = 1, GAsyncTask gasync) {
         def strings = []
         20.times {
             strings << "Element $it"
         }
-
-        strings
+        return strings
     }
 
 
