@@ -53,7 +53,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
-maven_push.gradle
 local.properties
 
 */gradlew

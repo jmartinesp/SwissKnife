@@ -1,1 +1,17 @@
-include 'SwissKnife', 'sample'
+include  \
+    ':SwissKnife',
+    ':sample',
+    ':wear',
+
+rootProject.name = 'SwissKnife'
+
+def setBuildFile(project) {
+  project.buildFileName = "${project.name.toLowerCase()}.gradle"
+  project.children.each {
+    setBuildFile(it)
+  }
+}
+
+rootProject.children.each {
+  setBuildFile(it)
+}

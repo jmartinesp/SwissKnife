@@ -1,6 +1,18 @@
 import com.android.build.gradle.tasks.MergeResources
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules
+ext {
+    minSdkVersion = 8
+    targetSdkVersion = 22
+    versionCode = 1
+
+    commonVersions = [
+            grooidVersion: '2.4.3',
+            androidSupportVersion: '22.0.0',
+            buildToolsVersion: '22.0.1',
+            compileSdkVersion: 22
+    ]
+}
+
 buildscript {
     repositories {
         jcenter()
@@ -19,6 +31,9 @@ allprojects {
     repositories {
         jcenter()
     }
+
+    version = "1.2.2"
+    group = 'com.arasthel.swissknife'
 }
 
 gradle.taskGraph.whenReady {
