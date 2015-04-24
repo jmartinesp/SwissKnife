@@ -1,5 +1,4 @@
 package com.dexafree.sample
-
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -10,12 +9,13 @@ import android.view.MenuItem
 import android.widget.*
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.annotations.*
+import com.arasthel.swissknife.dsl.components.GAsyncTask
 import groovy.transform.CompileStatic
 
 @CompileStatic
 public class MainActivity extends Activity {
 
-    private Context mContext;
+    private Context mContext
 
     @InjectView(R.id.first_textview)
     TextView firstTextView
@@ -30,81 +30,98 @@ public class MainActivity extends Activity {
 
     // tag::methodAwareAnnotation[]
     @OnTextChanged(value = R.id.edit_text, method = OnTextChanged.Method.ON_TEXT_CHANGED)
+    @Profile
     public void onTextChanged(CharSequence sequence) {
-        writtenTextView.setText(sequence)
+        writtenTextView.text = sequence
     }
     // end::methodAwareAnnotation[]
 
     @OnEditorAction(R.id.edit_text)
+    @Profile
     public boolean onEditorAction(KeyEvent key) {
-        Toast.makeText(mContext, "Editor action received", Toast.LENGTH_SHORT).show()
+        toast 'Editor action received' show()
         true
     }
 
     // tag::onClick[]
     @OnClick(R.id.first_button)
+    @Profile
     public void clicked() {
-        firstButton.setText("I've been clicked! Click me longer!")
+        firstButton.text = 'I\'ve been clicked! Click me longer!'
+        profileMethod('param1Value', 'param2Value')
     }
     // end::onClick[]
 
     @OnLongClick(R.id.first_button)
     public boolean longClicked() {
-        firstButton.setText("I've been clicked for a long time!")
+        firstButton.text = 'I\'ve been clicked for a long time!'
+        profileMethod('anotherValue1', 'anotherValue2', 5)
         return true
     }
 
     @OnClick(R.id.second_button)
     public void changeText() {
-        firstTextView.setText("You have pressed the second button!")
+        firstTextView.text = 'You have pressed the second button!'
     }
 
     @OnClick(R.id.new_activity)
+    @Profile
     public void newActivity() {
-        startActivity(new Intent(mContext, BackgroundActivity.class))
+        startActivity new Intent(mContext, BackgroundActivity.class)
     }
 
     @OnItemClick(R.id.list_view)
+    @Profile
     public void onItemClick(int position) {
-        Toast.makeText(mContext, "Pressed item number $position", Toast.LENGTH_SHORT).show()
+        toast "Pressed item number $position" show()
     }
 
     @OnItemLongClick(R.id.list_view)
+    @Profile
     public boolean onItemLongClick(int position) {
-        Toast.makeText(mContext, "Long pressed item number $position", Toast.LENGTH_SHORT).show()
+        toast "Long pressed item number $position" show()
         true
     }
 
     // tag::multipleOnClick[]
     @OnClick([R.id.third_button, R.id.fourth_button])
     public void onClick() {
-        Toast.makeText(
-            this, "Button three or four has been clicked", Toast.LENGTH_SHORT).show()
+        toast 'Button three or four has been clicked' show()
     }
     // end::multipleOnClick[]
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState)
-        mContext = this;
-        setContentView(R.layout.activity_main)
-
-        SwissKnife.inject(this)
-        firstTextView.setText("HELLO")
-
+        mContext = this
+        contentView = R.layout.activity_main
+        SwissKnife.inject this
+        firstTextView.text = 'HELLO'
         def items = generateItems()
-        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items))
+        listView.adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items)
     }
 
+    @Profile
     List<String> generateItems() {
         def strings = []
         20.times {
             strings << "Element $it"
         }
-
-        strings
+        return strings
     }
 
+    @Profile
+    def profileMethod(String param1, String param2, int f = 4) {
+        async { Activity context, GAsyncTask task ->
+            task.after {
+                context.toast('Hey! Async task just finished') show()
+            }
+            task.error { e ->
+                context.toast('WTF. Error raised.') show()
+            }
+            Thread.sleep(10000)
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,10 +131,9 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId()
-        if (id == R.id.action_settings) {
+        if (item.getItemId() == R.id.action_settings) {
             return true
         }
-        return super.onOptionsItemSelected(item)
+        super.onOptionsItemSelected(item)
     }
 }
