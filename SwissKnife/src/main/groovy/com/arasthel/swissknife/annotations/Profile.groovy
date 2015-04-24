@@ -34,10 +34,6 @@ import java.lang.annotation.Target
      */
     boolean values() default true
     /**
-     * Log method result
-     */
-    boolean result() default true
-    /**
      * Exclude logging method parameters
      */
     String[] excludes() default []

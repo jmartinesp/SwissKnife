@@ -68,10 +68,6 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
         }
     }
 
-    void before(Closure closure) {
-        this.before = closure
-    }
-
     /**
      * after closure setter
      * @param closure
@@ -84,8 +80,7 @@ class GAsyncTask<T> extends AsyncTask<Object, Object, T> {
      * error closure setter
      * @param closure
      */
-    void error(
-            @ClosureParams(value = FromString, options = 'java.lang.Exception') Closure closure) {
+    void error(@ClosureParams(value = FromString, options = 'java.lang.Exception') Closure closure) {
         this.error = closure
     }
 }

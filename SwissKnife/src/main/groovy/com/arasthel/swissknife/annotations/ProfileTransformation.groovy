@@ -47,9 +47,8 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
         def includes = annotationValue(annotation.members.includes, []) as List<String>
         def profileTime = annotationValue(annotation.members.time, true) as Boolean
         def logValues = annotationValue(annotation.members.values, true) as Boolean
-        def logResult = annotationValue(annotation.members.logResult, true) as Boolean
         def parameters = annotatedMethod.parameters
-        addInstructions(originalCode, annotatedMethod, parameters, logTag, logLevel, excludes, includes, profileTime, logValues, logResult)
+        addInstructions(originalCode, annotatedMethod, parameters, logTag, logLevel, excludes, includes, profileTime, logValues)
     }
 
     /**
@@ -69,9 +68,8 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
             return constant?.value
         }
     }
+
     /**
-     * @todo I am not sure this will work fine for methods with try catch blocks
-     *
      * @param code
      * @param methodNode
      * @param params
@@ -85,7 +83,7 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
      */
     void addInstructions(BlockStatement code, MethodNode methodNode, Parameter[] params,
                          String logTag, int logLevel, List excludes, List includes, boolean profileTime,
-                         boolean logValues, boolean logResult) {
+                         boolean logValues) {
         // create new block statement
         def newBlockStatement = block()
         Statement returnStatement = null
@@ -99,26 +97,11 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
         if (profileTime) {
             newBlockStatement.addStatement(startStatements.start)
         }
-        // check if method has return type
-        if (!methodNode.voidMethod) {
-            if (logResult) {
-                (methodNode.code as BlockStatement).statements.add(createReturnProfile(logTag, logLevel, methodNode))
-            }
-            // should be
-            // returnStatement = code.statements.find { it instanceof ReturnStatement }
-            // but cant workaround for now
-            returnStatement = code.statements.last()
-            code.statements.remove(returnStatement)
-        }
         // add all method statements
         newBlockStatement.addStatements(code.statements)
         // add profile end statements
         if (profileTime) {
             newBlockStatement.addStatement(startStatements.end)
-        }
-        // if method has return type, inject return statement last
-        if (!methodNode.voidMethod) {
-            newBlockStatement.addStatement(returnStatement)
         }
         // set new code block
         methodNode.code = newBlockStatement
@@ -147,6 +130,7 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
         def endStatement = stmt(callX(classX(logNode), logMethodName(logLevel), args(constX(logTag), callX(varX(messageVar), 'toString'))))
         [start: startStatement, end: block(endTime, logMessage, endStatement)]
     }
+
     /**
      * Create profile statements for method parameters
      * @param includes
@@ -190,34 +174,6 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
     }
 
     /**
-     * Create profile return statement
-     * @param tag
-     * @param logLevel
-     * @param method
-     * @return
-     */
-    Statement createReturnProfile(String tag, int logLevel, MethodNode method) {
-        def returnStmt = (method.code as BlockStatement).getStatements().last()
-        (method.code as BlockStatement).statements.remove(returnStmt)
-        def returnVarName = random()
-        def logMessageVarName = random()
-        def returnVar = varX(returnVarName, method.returnType)
-        Expression expression
-        if (returnStmt instanceof ReturnStatement) {
-            expression = returnStmt.getExpression()
-        }
-        if (returnStmt instanceof ExpressionStatement) {
-            expression = returnStmt.getExpression()
-        }
-        assert expression != null
-        def returnVarDecl = declS(varX(returnVar), expression)
-        def messageVar = varX(logMessageVarName, gStringNode)
-        def logMessage = declS(varX(messageVar), new GStringExpression('',[constX(''), constX('')] as List<ConstantExpression>,[constX('⇛⇛⇛ Method ' + method.name + ' returned: '), varX(returnVar)] as List<Expression>))
-        def logStatement = stmt(callX(classX(logNode), logMethodName(logLevel), args(constX(tag), callX(varX(messageVar), 'toString'))))
-        block(returnVarDecl, logMessage, logStatement, returnS(castX(method.returnType, varX(returnVar))))
-    }
-
-    /**
      * Get a method name to call Log instance
      * @param logLevel
      * @return
@@ -234,8 +190,6 @@ class ProfileTransformation extends AbstractASTTransformation implements Opcodes
     }
 
     public static String random() {
-        String r = 's' + new Random().nextInt(1000000)+1
-        println "generated name $r"
-        return r
+        'swissknife_' + new Random().nextInt(1000000)+1
     }
 }
