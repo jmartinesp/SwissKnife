@@ -1,5 +1,6 @@
 package com.arasthel.swissknife.dsl.components
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
@@ -20,6 +21,7 @@ import groovy.transform.stc.FromString
  */
 @CompileStatic
 @InheritConstructors
+@SuppressLint('NewApi') // suppress lint warnings for constructors that are inherited.
 class Form<T> extends LinearLayout {
 
     T object
