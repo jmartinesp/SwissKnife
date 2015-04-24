@@ -1,23 +1,5 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
-        classpath 'me.champeau.gradle:gradle-groovy-android-plugin:0.3.4'
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-    }
-
-}
-
 apply plugin: 'com.android.application'
-apply plugin: 'me.champeau.gradle.groovy-android'
+apply plugin: 'groovyx.grooid.groovy-android'
 
 androidGroovy {
     options {
@@ -31,15 +13,16 @@ androidGroovy {
 }
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "21.1.1"
+    compileSdkVersion commonVersions.compileSdkVersion
+    buildToolsVersion commonVersions.buildToolsVersion
 
     defaultConfig {
         applicationId "me.groovy.wearapp"
         minSdkVersion 20
-        targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion project.targetSdkVersion
+
+        versionCode project.versionCode
+        versionName project.version
     }
     buildTypes {
         release {
@@ -51,6 +34,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
     }
+    lintOptions {
+        ignore "InvalidPackage"
+    }
 }
 
 repositories {
@@ -59,8 +45,7 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.android.support:wearable:+'
-    compile 'com.android.support:support-v13:20.0.+'
-    compile 'org.codehaus.groovy:groovy:2.4.0-beta-4:grooid'
+    compile 'com.google.android.support:wearable:1.1.0'
+    compile "com.android.support:support-v13:$commonVersions.androidSupportVersion"
+    compile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
 }
