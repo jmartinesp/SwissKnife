@@ -3,8 +3,8 @@ apply plugin: 'groovyx.grooid.groovy-android'
 
 androidGroovy {
     options {
-        targetCompatibility = '1.6'
-        sourceCompatibility = '1.6'
+        targetCompatibility = '1.7'
+        sourceCompatibility = '1.7'
         configure(groovyOptions) {
             encoding = 'UTF-8'
             forkOptions.jvmArgs = ['-noverify']
