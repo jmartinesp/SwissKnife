@@ -54,4 +54,5 @@ dependencies {
     compile project(':SwissKnife')
     compile 'org.codehaus.groovy:groovy:2.4.3:grooid'
     compile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
+    compile 'com.android.support:appcompat-v7:22.1.1'
 }
