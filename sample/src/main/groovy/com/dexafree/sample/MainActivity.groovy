@@ -3,17 +3,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 import com.arasthel.swissknife.SwissKnife
 import com.arasthel.swissknife.annotations.*
+import com.arasthel.swissknife.annotations.resources.StringRes
 import com.arasthel.swissknife.dsl.components.GAsyncTask
 import groovy.transform.CompileStatic
 
 @CompileStatic
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private Context mContext
 
@@ -27,6 +29,10 @@ public class MainActivity extends Activity {
     ListView listView
     @InjectView(R.id.written_text)
     TextView writtenTextView
+
+    //for now only R.* resources are supported, so you can't use android.R.* on resource annotations
+    @StringRes(R.string.app_name)
+    String title
 
     // tag::methodAwareAnnotation[]
     @OnTextChanged(value = R.id.edit_text, method = OnTextChanged.Method.ON_TEXT_CHANGED)
@@ -96,7 +102,12 @@ public class MainActivity extends Activity {
         mContext = this
         contentView = R.layout.activity_main
         SwissKnife.inject this
-        firstTextView.text = 'HELLO'
+
+
+        firstTextView.text = "$title <-- this thing was injected from strings.xml"
+
+        getSupportActionBar()?.title = title
+
         def items = generateItems()
         listView.adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items)
     }
@@ -112,7 +123,7 @@ public class MainActivity extends Activity {
 
     @Profile
     def profileMethod(String param1, String param2, int f = 4) {
-        async { Activity context, GAsyncTask task ->
+        async { MainActivity context, GAsyncTask task ->
             task.after {
                 context.toast('Hey! Async task just finished') show()
             }
