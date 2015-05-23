@@ -149,7 +149,10 @@ class Finder {
 
         Resources resources = context.getResources()
         int identifier = resources.getIdentifier(idStr, "drawable", context.packageName)
-        return resources.getDrawable(identifier, null)
+
+        int api = android.os.Build.VERSION.SDK_INT
+
+        return api >= 21 ? resources.getDrawable(identifier, context.getTheme()) : resources.getDrawable(identifier)
     }
 
     static Animation getAnimation(Object target, String idStr) {

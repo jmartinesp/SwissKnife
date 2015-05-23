@@ -19,6 +19,7 @@ import static org.codehaus.groovy.ast.tools.GeneralUtils.args
 import static org.codehaus.groovy.ast.tools.GeneralUtils.assignS
 import static org.codehaus.groovy.ast.tools.GeneralUtils.callX
 import static org.codehaus.groovy.ast.tools.GeneralUtils.constX
+import static org.codehaus.groovy.ast.tools.GeneralUtils.isOrImplements
 import static org.codehaus.groovy.ast.tools.GeneralUtils.varX
 
 /**
@@ -64,14 +65,14 @@ public class ResTransformation implements ASTTransformation, Opcodes {
                 break
             case "StringArrayRes":
                 if (!isSubtype(annotatedField.type, String[].class))
-                    throw new WrongTypeException("Animation", annotatedField.type.name)
+                    throw new WrongTypeException("String[]", annotatedField.type.name)
                 break
             case "DrawableRes":
                 if (!isSubtype(annotatedField.type, Drawable))
                     throw new WrongTypeException("Drawable", annotatedField.type.name)
                 break
             case "AnimationRes":
-                if (!isSubtype(annotatedField.type, Animation))
+                if (!isOrImplements(annotatedField.type, ClassHelper.make(Animation)))
                     throw new WrongTypeException("Animation", annotatedField.type.name)
                 break
             case "ColorStateListRes":
