@@ -50,20 +50,6 @@ public class MainActivity extends AppCompatActivity {
         true
     }
 
-    @OnClick(R.id.first_button)
-    def testEmbeddedParcelable(){
-        Team aInstance = new Team()
-        Person p1 = new Person("Jing",38)
-        aInstance.guys.add(p1)
-        Person p2 = new Person("MrX",25)
-        aInstance.guys.add(p2)
-
-        Intent intent = new Intent(this,ParcelableReceiveActivity.class)
-        intent.putExtra("team",aInstance as android.os.Parcelable)
-        startActivity(intent)
-    }
-
-/*
     // tag::onClick[]
     @OnClick(R.id.first_button)
     @Profile
@@ -79,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         profileMethod('anotherValue1', 'anotherValue2', 5)
         return true
     }
-*/
 
 
     @OnClick(R.id.second_button)

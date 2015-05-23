@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="int_res">1</integer>
+    <integer-array name="int_array"><item>1</item></integer-array>
+</resources>
