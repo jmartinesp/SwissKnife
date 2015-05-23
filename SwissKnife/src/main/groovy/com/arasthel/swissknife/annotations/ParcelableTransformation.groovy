@@ -240,10 +240,6 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             )
         }
 
-        def classLoaderVar = varX('classLoader', ClassHelper.make(ClassLoader))
-
-        // We create the classLoader variable just in case for complex classes
-        statements.add(declS(classLoaderVar, callX(classX(ClassHelper.OBJECT_TYPE), 'getClassLoader')))
         fields.each { FieldNode field ->
             // Every method will be read____
             String methodPostfix = null
@@ -270,15 +266,26 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                     || field.getType() == ClassHelper.LIST_TYPE) {
                 argumentListExpression.addExpression(new FieldExpression(field))
                 // There are some classes that also need the classLoader variable as an argument
-                NEED_CLASSLOADER.find {
-                    if (fieldClass.isDerivedFrom(ClassHelper.make(it)) || fieldClass
-                            .implementsInterface(ClassHelper.make(it))) {
-                        argumentListExpression.addExpression(classLoaderVar)
-                        return true
+
+                if (field.getType().implementsInterface(ClassHelper.LIST_TYPE)
+                        || field.getType() == ClassHelper.LIST_TYPE) {
+                    def genericType = field.getType().getGenericsTypes().first()
+                    argumentListExpression.addExpression(fieldX(genericType.getType(), "CREATOR"))
+                    statements.add(stmt(callX(parcelVar, "readTypedList", argumentListExpression)))
+
+                } else {
+                    NEED_CLASSLOADER.find {
+                        if (fieldClass.isDerivedFrom(ClassHelper.make(it)) || fieldClass
+                                .implementsInterface(ClassHelper.make(it)) || fieldClass == ClassHelper.make(it)) {
+
+                            argumentListExpression.addExpression(callX(ClassHelper.make(it),
+                                    "getClassLoader"))
+                            return true
+                        }
+                        return false
                     }
-                    return false
+                    statements.add(stmt(callX(parcelVar, "read$methodPostfix", argumentListExpression)))
                 }
-                statements.add(stmt(callX(parcelVar, "read$methodPostfix", argumentListExpression)))
             }
             else {
                 // Else, just "field = parcel.read___()"
@@ -287,7 +294,7 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                     if (fieldClass.isDerivedFrom(ClassHelper.make(it).plainNodeReference) ||
                             fieldClass.implementsInterface(ClassHelper.make(it)
                                     .plainNodeReference)) {
-                        argumentListExpression.addExpression(classLoaderVar)
+                        argumentListExpression.addExpression(callX(ClassHelper.make(it), "getClassLoader"))
                         return true
                     }
                     return false
