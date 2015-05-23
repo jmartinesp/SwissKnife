@@ -3,6 +3,7 @@ package com.arasthel.swissknife.annotations
 import android.os.Bundle
 import android.os.Parcel
 import android.util.SparseArray
+import com.arasthel.swissknife.utils.AnnotationUtils
 import groovy.transform.CompileStatic
 import groovyjarjarasm.asm.Opcodes
 import org.codehaus.groovy.ast.*
@@ -267,8 +268,9 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                 argumentListExpression.addExpression(new FieldExpression(field))
                 // There are some classes that also need the classLoader variable as an argument
 
-                if (field.getType().implementsInterface(ClassHelper.LIST_TYPE)
-                        || field.getType() == ClassHelper.LIST_TYPE) {
+                if ((field.getType().implementsInterface(ClassHelper.LIST_TYPE)
+                        || field.getType() == ClassHelper.LIST_TYPE) &&
+                        AnnotationUtils.doesClassImplementInterface(field.getType().getGenericsTypes().first().getType(), android.os.Parcelable)) {
                     def genericType = field.getType().getGenericsTypes().first()
                     argumentListExpression.addExpression(fieldX(genericType.getType(), "CREATOR"))
                     statements.add(stmt(callX(parcelVar, "readTypedList", argumentListExpression)))
