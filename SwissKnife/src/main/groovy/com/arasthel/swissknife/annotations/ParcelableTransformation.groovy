@@ -64,6 +64,25 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
         println "Implemented Parcelable class for $annotatedClass"
     }
 
+    def checkIfParentIsParcelable(ClassNode parentClass) {
+        boolean isParcelable = false
+
+        if (!parentClass) {
+            return isParcelable
+        }
+
+        if (parentClass.superClass) {
+            isParcelable = checkIfParentIsParcelable(parentClass.superClass) || checkIfClassIsParcelable(parentClass)
+        } else {
+            isParcelable = checkIfClassIsParcelable(parentClass)
+        }
+        return isParcelable
+    }
+
+    def checkIfClassIsParcelable(ClassNode classNode) {
+        return classNode.implementsInterface(ClassHelper.make(android.os.Parcelable)) || ClassHelper.make(Parcelable) in classNode.annotations
+    }
+
     def readExcludedFields(AnnotationNode annotationNode, ClassNode annotatedClass) {
         Expression excludesExpression = annotationNode.members.exclude as ClosureExpression
         if (excludesExpression) {
@@ -145,17 +164,30 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     }
 
     MethodNode createWriteToParcelMethod(ClassNode annotatedClass) {
-        Statement statement = writeToParcelCode(annotatedClass)
         Parameter[] parameters = [new Parameter(ClassHelper.make(Parcel), "dest"),
                                   new Parameter(ClassHelper.int_TYPE, "flags")]
+        Statement statement = writeToParcelCode(annotatedClass, parameters)
         MethodNode methodNode = new MethodNode("writeToParcel", ACC_PUBLIC,
                 ClassHelper.VOID_TYPE, parameters, [] as ClassNode[], statement)
         return methodNode
     }
 
-    Statement writeToParcelCode(ClassNode annotatedClass) {
+    Statement writeToParcelCode(ClassNode annotatedClass, Parameter[] parameters) {
         BlockStatement statement = new BlockStatement()
         List<FieldNode> fields = getParcelableFields(annotatedClass)
+
+        if (checkIfParentIsParcelable(annotatedClass.superClass)) {
+            statement.addStatement(
+                    new ExpressionStatement(
+                            new MethodCallExpression(
+                                    new VariableExpression("super"),
+                                    "writeToParcel",
+                                    new ArgumentListExpression(parameters)
+                            )
+                    )
+            )
+        }
+
         fields.each {
             // Every method will start with "write____" where ___ will be methodPostfix
             String methodPostfix = null
@@ -201,6 +233,12 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
         List<FieldNode> fields = getParcelableFields(annotatedClass)
         def parcelVar = varX(parcelParam)
         parcelVar.accessedVariable = parcelParam
+
+        if (checkIfParentIsParcelable(annotatedClass.superClass)) {
+            statements.add(
+                    ctorSuperS(args([parcelParam] as Parameter[]))
+            )
+        }
 
         def classLoaderVar = varX('classLoader', ClassHelper.make(ClassLoader))
 
