@@ -73,7 +73,7 @@ public class AnnotationUtils {
         Parameter[] parameters = [new Parameter(ClassHelper.make(Object.class), "view")]
 
         MethodNode node = new MethodNode("injectViews",
-                Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+                Opcodes.ACC_PUBLIC,
                 ClassHelper.VOID_TYPE,
                 parameters,
                 null,
