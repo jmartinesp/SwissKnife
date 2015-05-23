@@ -2,6 +2,7 @@ package com.arasthel.swissknife.annotations.resources
 
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.view.animation.Animation
 import com.arasthel.swissknife.utils.AnnotationUtils
 import com.arasthel.swissknife.utils.Finder
 import groovyjarjarasm.asm.Opcodes
@@ -57,7 +58,8 @@ public class ResTransformation implements ASTTransformation, Opcodes {
                     throw new WrongTypeException("Integer(or int)", annotatedField.type.name)
                 break
             case "IntegerArrayRes":
-                if (!isSubtype(annotatedField.type, int[].class))
+                if (!isSubtype(annotatedField.type, int[].class) &&
+                        !isSubtype(annotatedField.type, Integer[].class))
                     throw new WrongTypeException("int[]", annotatedField.type.name)
                 break
             case "StringArrayRes":
@@ -69,7 +71,7 @@ public class ResTransformation implements ASTTransformation, Opcodes {
                     throw new WrongTypeException("Drawable", annotatedField.type.name)
                 break
             case "AnimationRes":
-                if (!isSubtype(annotatedField.type, Drawable))
+                if (!isSubtype(annotatedField.type, Animation))
                     throw new WrongTypeException("Animation", annotatedField.type.name)
                 break
             case "ColorStateListRes":
