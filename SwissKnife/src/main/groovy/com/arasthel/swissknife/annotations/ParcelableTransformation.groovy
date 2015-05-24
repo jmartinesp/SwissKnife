@@ -81,7 +81,11 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     }
 
     def checkIfClassIsParcelable(ClassNode classNode) {
-        return classNode.implementsInterface(ClassHelper.make(android.os.Parcelable)) || ClassHelper.make(Parcelable) in classNode.annotations
+        boolean hasAnnotation = classNode.annotations.find {
+            return it.classNode.equals(ClassHelper.make(Parcelable))
+        }
+        boolean isParcelable = classNode.implementsInterface(ClassHelper.make(android.os.Parcelable)) || hasAnnotation
+        return isParcelable
     }
 
     def readExcludedFields(AnnotationNode annotationNode, ClassNode annotatedClass) {
@@ -176,6 +180,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     Statement writeToParcelCode(ClassNode annotatedClass, Parameter[] parameters) {
         BlockStatement statement = new BlockStatement()
         List<FieldNode> fields = getParcelableFields(annotatedClass)
+
+        println("Processing $annotatedClass")
 
         if (checkIfParentIsParcelable(annotatedClass.superClass)) {
             statement.addStatement(
