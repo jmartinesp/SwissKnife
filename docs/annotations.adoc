@@ -572,3 +572,35 @@ Almost everything that can be put into a Bundle, just like with `@SaveInstance`:
 * Primitive types *(int, double, long, char...)*.
 * Classes that implement `Parcelable` or `Serializable`.
 * Arrays an Lists all above.
+
+=== @Res annotations
+
+Some annotations have been added to inject resources directly on your groovy classes:
+
+* `@StringRes`: String.
+* `@IntegerRes`: int, Integer.
+* `@BooleanRes`: boolean, Boolean.
+* `@DimenRes`: float, Float.
+* `@ColorRes`: int, Integer.
+* `@StringArrayRes`: String[].
+* `@IntegerArrayRes`: int[], Integer[].
+* `@DrawableRes`: Drawable.
+* `@AnimationRes`: Animation.
+* `@ColorStateListRes`: ColorStateList.
+
+These will be linked to their resources when `SwissKnife.inject` method is called.
+
+Also, at its current state, resource injection will only work with your project's **R** resources, it won't work with any **android.R** resources.
+
+==== Example:
+
+Here's a quick example:
+
+[source,groovy]
+----
+@AnimationRes(R.anim.fade_in)
+Animation fadeInAnimation
+
+@StringArrayRes
+String[] menuOptions // will look for R.array.menuOptions
+----

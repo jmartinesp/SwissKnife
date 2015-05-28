@@ -13,16 +13,20 @@ ProGuard shrinks all unused methods by default from your code. As most methods a
 # Groovy stuff so the compiler doesn't complain
 -dontwarn org.codehaus.groovy.**
 -dontwarn groovy**
+-dontwarn com.vividsolutions.**
+-dontwarn com.squareup.**
+-dontwarn okio.**
 -keep class org.codehaus.groovy.vmplugin.**
--keep class org.codehaus.groovy.runtime.dgm*
+-keep class org.codehaus.groovy.runtime.**
 -keepclassmembers class org.codehaus.groovy.runtime.dgm* {*;}
 -keepclassmembers class ** implements org.codehaus.groovy.runtime.GeneratedClosure {*;}
 -keepclassmembers class org.codehaus.groovy.reflection.GroovyClassValue* {*;}
 
-# Don't shrink SwissKnife methods
--dontshrink class com.arasthel.swissknife.**
 
-# Don't shrink annotated methods on your classes
--dontshrink class com.myname.myproject.MyClass
--dontshrink class com.myname.myproject.subpackage.**
+# Don't shrink SwissKnife methods
+-keep class com.arasthel.swissknife** { *; }
+
+# Add this for any classes that will have SK injections
+-keep class * extends android.app.Activity
+-keepclassmembers class * extends android.app.Activity {*;}
 ----
