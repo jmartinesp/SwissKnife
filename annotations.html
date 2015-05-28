@@ -436,6 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#__saveinstance">@SaveInstance</a></li>
 <li><a href="#__parcelable">@Parcelable</a></li>
 <li><a href="#__extra">@Extra</a></li>
+<li><a href="#__res_annotations">@Res annotations</a></li>
 </ul>
 </li>
 </ul>
@@ -1210,12 +1211,73 @@ String some_key</code></pre>
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="__res_annotations">@Res annotations</h3>
+<div class="paragraph">
+<p>Some annotations have been added to inject resources directly on your groovy classes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>@StringRes</code>: String.</p>
+</li>
+<li>
+<p><code>@IntegerRes</code>: int, Integer.</p>
+</li>
+<li>
+<p><code>@BooleanRes</code>: boolean, Boolean.</p>
+</li>
+<li>
+<p><code>@DimenRes</code>: float, Float.</p>
+</li>
+<li>
+<p><code>@ColorRes</code>: int, Integer.</p>
+</li>
+<li>
+<p><code>@StringArrayRes</code>: String[].</p>
+</li>
+<li>
+<p><code>@IntegerArrayRes</code>: int[], Integer[].</p>
+</li>
+<li>
+<p><code>@DrawableRes</code>: Drawable.</p>
+</li>
+<li>
+<p><code>@AnimationRes</code>: Animation.</p>
+</li>
+<li>
+<p><code>@ColorStateListRes</code>: ColorStateList.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These will be linked to their resources when <code>SwissKnife.inject</code> method is called.</p>
+</div>
+<div class="paragraph">
+<p>Also, at its current state, resource injection will only work with your project&#8217;s <strong>R</strong> resources, it won&#8217;t work with any <strong>android.R</strong> resources.</p>
+</div>
+<div class="sect3">
+<h4 id="_example_16">Example:</h4>
+<div class="paragraph">
+<p>Here&#8217;s a quick example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@AnimationRes(R.anim.fade_in)
+Animation fadeInAnimation
+
+@StringArrayRes
+String[] menuOptions // will look for R.array.menuOptions</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-07 10:40:43 CEST
+Last updated 2015-05-28 19:54:28 CEST
 </div>
 </div>
 </body>

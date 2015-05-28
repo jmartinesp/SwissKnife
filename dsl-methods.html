@@ -1037,15 +1037,16 @@ myBundle.putFromMap(myMap)</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async {
-    return getSomeDataFromWeb()
-} before {
-    prepareEverything()
-} after { String result -&gt;
-    showItOnUI()
-} error { Exception e -&gt;
-    showError()
-}</code></pre>
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async { context, GAsyncTask task -&gt;
+        task.error { e -&gt;
+            // here we can catch error situation, param "e" is usually Exception
+        }
+        task.after {
+            // here we can catch after task situation
+        }
+        // and here we should execute long running task
+        this.tempApartments = DatabaseService.instance.getApartments(this.offset)
+    }</code></pre>
 </div>
 </div>
 </div>
@@ -1059,11 +1060,11 @@ myBundle.putFromMap(myMap)</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async {
-    return myOnlinePhotoURL.asImage()
-} after { Bitmap bitmap -&gt;
-    showImage(bitmap)
-}</code></pre>
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async { ctx, task -&gt;
+        task.error { e -&gt;
+        }
+        this.imageView.imageBitmap = 'http://someurlwithimage.com/'.asImage()
+    }</code></pre>
 </div>
 </div>
 </div>
@@ -1073,7 +1074,7 @@ myBundle.putFromMap(myMap)</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-07 18:01:37 CEST
+Last updated 2015-05-28 19:54:28 CEST
 </div>
 </div>
 </body>

@@ -451,6 +451,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#__saveinstance">3.14. @SaveInstance</a></li>
 <li><a href="#__parcelable">3.15. @Parcelable</a></li>
 <li><a href="#__extra">3.16. @Extra</a></li>
+<li><a href="#__res_annotations">3.17. @Res annotations</a></li>
 </ul>
 </li>
 <li><a href="#_dsl_methods_aka_method_extensions">4. DSL Methods - aka method extensions</a>
@@ -547,19 +548,21 @@ which method of the listener interface will be triggered.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">    @OnClick(R.id.first_button)
+    @Profile
     public void clicked() {
-        firstButton.setText("I've been clicked! Click me longer!")
+        firstButton.text = 'I\'ve been clicked! Click me longer!'
+        profileMethod('param1Value', 'param2Value')
     }
 
     @OnClick([R.id.third_button, R.id.fourth_button])
     public void onClick() {
-        Toast.makeText(
-            this, "Button three or four has been clicked", Toast.LENGTH_SHORT).show()
+        toast 'Button three or four has been clicked' show()
     }
 
     @OnTextChanged(value = R.id.edit_text, method = OnTextChanged.Method.ON_TEXT_CHANGED)
+    @Profile
     public void onTextChanged(CharSequence sequence) {
-        writtenTextView.setText(sequence)
+        writtenTextView.text = sequence
     }</code></pre>
 </div>
 </div>
@@ -669,8 +672,8 @@ Every Groovy class or Java class which references a Groovy one must be inside of
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
-        classpath 'org.codehaus.groovy:gradle-groovy-android-plugin:0.3.5'
+        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'org.codehaus.groovy:gradle-groovy-android-plugin:0.3.6'
     }
 }
 
@@ -1463,6 +1466,67 @@ String some_key</code></pre>
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="__res_annotations">3.17. @Res annotations</h3>
+<div class="paragraph">
+<p>Some annotations have been added to inject resources directly on your groovy classes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>@StringRes</code>: String.</p>
+</li>
+<li>
+<p><code>@IntegerRes</code>: int, Integer.</p>
+</li>
+<li>
+<p><code>@BooleanRes</code>: boolean, Boolean.</p>
+</li>
+<li>
+<p><code>@DimenRes</code>: float, Float.</p>
+</li>
+<li>
+<p><code>@ColorRes</code>: int, Integer.</p>
+</li>
+<li>
+<p><code>@StringArrayRes</code>: String[].</p>
+</li>
+<li>
+<p><code>@IntegerArrayRes</code>: int[], Integer[].</p>
+</li>
+<li>
+<p><code>@DrawableRes</code>: Drawable.</p>
+</li>
+<li>
+<p><code>@AnimationRes</code>: Animation.</p>
+</li>
+<li>
+<p><code>@ColorStateListRes</code>: ColorStateList.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These will be linked to their resources when <code>SwissKnife.inject</code> method is called.</p>
+</div>
+<div class="paragraph">
+<p>Also, at its current state, resource injection will only work with your project&#8217;s <strong>R</strong> resources, it won&#8217;t work with any <strong>android.R</strong> resources.</p>
+</div>
+<div class="sect3">
+<h4 id="_example_16">3.17.1. Example:</h4>
+<div class="paragraph">
+<p>Here&#8217;s a quick example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">@AnimationRes(R.anim.fade_in)
+Animation fadeInAnimation
+
+@StringArrayRes
+String[] menuOptions // will look for R.array.menuOptions</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -2069,15 +2133,16 @@ myBundle.putFromMap(myMap)</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async {
-    return getSomeDataFromWeb()
-} before {
-    prepareEverything()
-} after { String result -&gt;
-    showItOnUI()
-} error { Exception e -&gt;
-    showError()
-}</code></pre>
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async { context, GAsyncTask task -&gt;
+        task.error { e -&gt;
+            // here we can catch error situation, param "e" is usually Exception
+        }
+        task.after {
+            // here we can catch after task situation
+        }
+        // and here we should execute long running task
+        this.tempApartments = DatabaseService.instance.getApartments(this.offset)
+    }</code></pre>
 </div>
 </div>
 </div>
@@ -2091,11 +2156,11 @@ myBundle.putFromMap(myMap)</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async {
-    return myOnlinePhotoURL.asImage()
-} after { Bitmap bitmap -&gt;
-    showImage(bitmap)
-}</code></pre>
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">async { ctx, task -&gt;
+        task.error { e -&gt;
+        }
+        this.imageView.imageBitmap = 'http://someurlwithimage.com/'.asImage()
+    }</code></pre>
 </div>
 </div>
 </div>
@@ -2121,18 +2186,22 @@ myBundle.putFromMap(myMap)</code></pre>
 <pre class="prettyprint highlight"><code class="language-text" data-lang="text"># Groovy stuff so the compiler doesn't complain
 -dontwarn org.codehaus.groovy.**
 -dontwarn groovy**
+-dontwarn com.vividsolutions.**
+-dontwarn com.squareup.**
+-dontwarn okio.**
 -keep class org.codehaus.groovy.vmplugin.**
--keep class org.codehaus.groovy.runtime.dgm*
+-keep class org.codehaus.groovy.runtime.**
 -keepclassmembers class org.codehaus.groovy.runtime.dgm* {*;}
 -keepclassmembers class ** implements org.codehaus.groovy.runtime.GeneratedClosure {*;}
 -keepclassmembers class org.codehaus.groovy.reflection.GroovyClassValue* {*;}
 
-# Don't shrink SwissKnife methods
--dontshrink class com.arasthel.swissknife.**
 
-# Don't shrink annotated methods on your classes
--dontshrink class com.myname.myproject.MyClass
--dontshrink class com.myname.myproject.subpackage.**</code></pre>
+# Don't shrink SwissKnife methods
+-keep class com.arasthel.swissknife** { *; }
+
+# Add this for any classes that will have SK injections
+-keep class * extends android.app.Activity
+-keepclassmembers class * extends android.app.Activity {*;}</code></pre>
 </div>
 </div>
 </div>
@@ -2181,7 +2250,7 @@ myBundle.putFromMap(myMap)</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-07 10:41:30 CEST
+Last updated 2015-05-28 19:54:28 CEST
 </div>
 </div>
 </body>

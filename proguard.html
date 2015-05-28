@@ -446,18 +446,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <pre class="prettyprint highlight"><code class="language-text" data-lang="text"># Groovy stuff so the compiler doesn't complain
 -dontwarn org.codehaus.groovy.**
 -dontwarn groovy**
+-dontwarn com.vividsolutions.**
+-dontwarn com.squareup.**
+-dontwarn okio.**
 -keep class org.codehaus.groovy.vmplugin.**
--keep class org.codehaus.groovy.runtime.dgm*
+-keep class org.codehaus.groovy.runtime.**
 -keepclassmembers class org.codehaus.groovy.runtime.dgm* {*;}
 -keepclassmembers class ** implements org.codehaus.groovy.runtime.GeneratedClosure {*;}
 -keepclassmembers class org.codehaus.groovy.reflection.GroovyClassValue* {*;}
 
-# Don't shrink SwissKnife methods
--dontshrink class com.arasthel.swissknife.**
 
-# Don't shrink annotated methods on your classes
--dontshrink class com.myname.myproject.MyClass
--dontshrink class com.myname.myproject.subpackage.**</code></pre>
+# Don't shrink SwissKnife methods
+-keep class com.arasthel.swissknife** { *; }
+
+# Add this for any classes that will have SK injections
+-keep class * extends android.app.Activity
+-keepclassmembers class * extends android.app.Activity {*;}</code></pre>
 </div>
 </div>
 </div>
@@ -466,7 +470,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-10 12:56:33 CET
+Last updated 2015-05-28 19:54:28 CEST
 </div>
 </div>
 </body>
