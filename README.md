@@ -15,12 +15,16 @@ With **SwissKnife** you can:
 * Execute methods in the UI Thread or a background one using ``@OnUIThread`` and ``@OnBackground``.
 * Make your variables persistent across state changes **without messing with** `onSaveInstanceState`.
 * Make anything Parcelable with the `@Parcelable` annotation - which can be used with `@SaveInstance` to automatize data persistance. **NO MORE PARCELABLES! YAY!**
+* Inject resources into your classes with `@Res` annotations (`@StringRes`, `@AnontationRes`, etc.).
 * Read intent extras automatically with `@Extra` annotation.
 
 You can see an example here:
 
 ```groovy
 class MyActivity extends Activity {
+
+  @StringRes(R.string.important_message)
+  String reallyImportantMessage
 
   @Extra("api_key")
   String apiKey
@@ -59,33 +63,22 @@ class MyActivity extends Activity {
 
 I'd really want to thank:
 
+* [Mario García](https://github.com/mariogarcia) for his help on the new GH-Pages based documentation.
 * [Dexafree](https://github.com/dexafree) for adding `@SaveInstance` annotation and helping with the testing.
 * [Eugene Kamenev](https://github.com/eugene-kamenev) for adding DSL functionality to *[android-dsl](https://github.com/Arasthel/SwissKnife/tree/android-dsl)* branch.
+* [Karol](https://github.com/OrdonTeam) for injection on any object.
+* [Andrew Reitz](https://github.com/pieces029) for keeping the build files up to date.
+* [Pavel](https://github.com/MrBIMC) for his resource injection AST transforms.
+
+You all make SwissKnife the great tool it is!
 
 ## Documentation
 
-For more info, please [read the wiki pages](https://github.com/Arasthel/SwissKnife/wiki). They contain explanations about how to use the library and the available annotations:
+If you want to learn more, you can check [Swissknife's docs page](arasthel.github.io/SwissKnife).
 
-* [@OnClick](https://github.com/Arasthel/SwissKnife/wiki/@OnClick)
-* [@OnLongClick](https://github.com/Arasthel/SwissKnife/wiki/@OnLongClick)
-* [@OnItemClick](https://github.com/Arasthel/SwissKnife/wiki/@OnItemClick)
-* [@OnItemLongClick](https://github.com/Arasthel/SwissKnife/wiki/@OnItemLongClick)
-* [@OnItemSelected](https://github.com/Arasthel/SwissKnife/wiki/@OnItemSelected)
-* [@OnChecked](https://github.com/Arasthel/SwissKnife/wiki/@OnChecked)
-* [@OnFocusChanged](https://github.com/Arasthel/SwissKnife/wiki/@OnFocusChanged)
-* [@OnTouch](https://github.com/Arasthel/SwissKnife/wiki/@OnTouch)
-* [@OnPageChanged](https://github.com/Arasthel/SwissKnife/wiki/@OnPageChanged)
-* [@OnTextChanged](https://github.com/Arasthel/SwissKnife/wiki/@OnTextChanged)
-* [@OnEditorAction](https://github.com/Arasthel/SwissKnife/wiki/@OnEditorAction)
-* [@OnUIThread](https://github.com/Arasthel/SwissKnife/wiki/@OnUIThread)
-* [@OnBackground](https://github.com/Arasthel/SwissKnife/wiki/@OnBackground)
-* [@SaveInstance](https://github.com/Arasthel/SwissKnife/wiki/@SaveInstance)
-* [@Parcelable](https://github.com/Arasthel/SwissKnife/wiki/@Parcelable)
-* [@Extra](https://github.com/Arasthel/SwissKnife/wiki/@Extra)
+It contains info about the install instructions, all the annotations, DSLs, configurations, etc.
 
-I would also like to thank **[@Dexafree](https://github.com/dexafree)** for his help writing the wiki, testing the library and creating the sample app, which contains some usage examples.
-
-You can find a all the releases and their changes here: [RELEASES](https://github.com/OrdonTeam/SwissKnife/releases)
+You can find all the releases and their changes here: [RELEASES](https://github.com/Arasthel/SwissKnife/releases)
 
 ## Using it
 
@@ -96,7 +89,7 @@ Once your project App Module is configured to use Groovy you can add this librar
 ```groovy
 dependencies {
     ...
-    compile "com.arasthel:swissknife:1.3.0"
+    compile "com.arasthel:swissknife:1.3.1"
     ...
 }
 ```
@@ -110,6 +103,8 @@ dependencies {
     ...
 }
 ```
+
+But make sure you remember to clear Gradle's cache to get the latest version.
 
 Also, [there is an IntelliJ IDEA plugin](https://github.com/Arasthel/SwissKnife/wiki/SwissKnife-IDEA-Plugin) *compatible with Android Studio* that lets you auto-generate the annotations and compatible method declarations.
 
