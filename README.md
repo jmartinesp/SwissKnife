@@ -74,7 +74,7 @@ You all make SwissKnife the great tool it is!
 
 ## Documentation
 
-If you want to learn more, you can check [Swissknife's docs page](arasthel.github.io/SwissKnife).
+If you want to learn more, you can check [Swissknife's docs page](http://arasthel.github.io/SwissKnife).
 
 It contains info about the install instructions, all the annotations, DSLs, configurations, etc.
 
