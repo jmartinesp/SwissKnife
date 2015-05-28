@@ -99,7 +99,7 @@ If you want *SwissKnife* to update automatically, you could just type:
 ```groovy
 dependencies {
     ...
-    compile "com.arasthel:swissknife:+""
+    compile "com.arasthel:swissknife:+"
     ...
 }
 ```
