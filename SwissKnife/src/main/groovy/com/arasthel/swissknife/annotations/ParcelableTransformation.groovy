@@ -275,12 +275,13 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                 // There are some classes that also need the classLoader variable as an argument
 
                 if ((field.getType().implementsInterface(ClassHelper.LIST_TYPE)
-                        || field.getType() == ClassHelper.LIST_TYPE) &&
-                        AnnotationUtils.doesClassImplementInterface(field.getType().getGenericsTypes().first().getType(), android.os.Parcelable)) {
+                        || field.getType().equals(ClassHelper.LIST_TYPE)) &&
+                        checkIfClassIsParcelable(field.getType().getGenericsTypes().first().getType())) {
+                    println("TYPED LIST")
                     def genericType = field.getType().getGenericsTypes().first()
-                    argumentListExpression.addExpression(fieldX(genericType.getType(), "CREATOR"))
+                    println(genericType.getType())
+                    argumentListExpression.addExpression(varX("CREATOR"))
                     statements.add(stmt(callX(parcelVar, "readTypedList", argumentListExpression)))
-
                 } else {
                     NEED_CLASSLOADER.find {
                         if (fieldClass.isDerivedFrom(ClassHelper.make(it)) || fieldClass

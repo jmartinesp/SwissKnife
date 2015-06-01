@@ -55,9 +55,14 @@ public class AnnotationUtils {
     public static MethodNode getInjectViewsMethod(ClassNode declaringClass) {
         Parameter[] parameters = [new Parameter(ClassHelper.make(Object.class), "view")]
 
-        MethodNode injectMethod = declaringClass.getMethod("injectViews", parameters)
+        MethodNode injectMethod = declaringClass.getDeclaredMethod("injectViews", parameters)
         if (injectMethod == null) {
             injectMethod = createInjectMethod()
+            // Some parent class has injectViews
+            if (declaringClass.getMethod("injectViews", parameters)) {
+                def block = injectMethod.getCode() as BlockStatement
+                block.addStatement(stmt(callSuperX("injectViews", args(parameters))))
+            }
             declaringClass.addMethod(injectMethod)
         }
 
