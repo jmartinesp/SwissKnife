@@ -11,6 +11,9 @@ import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.ast.stmt.TryCatchStatement
+
+import java.lang.reflect.Method
 
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*
 import static org.codehaus.groovy.ast.tools.GeneralUtils.args
@@ -72,6 +75,10 @@ public class AnnotationUtils {
     private static MethodNode createInjectMethod() {
 
         BlockStatement blockStatement = block(
+                declS(varX("currentClass", ClassHelper.CLASS_Type), callThisX("getClass")),
+                declS(varX("superClass"), callX(callX(varX("currentClass"), "getClass"), "getSuperclass")),
+                declS(varX("method", ClassHelper.make(MetaMethod)), callX(callX(varX("superClass"), "getMetaClass"), "pickMethod", args(constX("injectViews"), classX(Object)))),
+                ifS(notNullX(varX("method")), callSuperX("injectViews", args(castX(ClassHelper.OBJECT_TYPE, varX("view"))))),
                 declS(varX("v", ClassHelper.make(View)), constX(null))
         )
 
