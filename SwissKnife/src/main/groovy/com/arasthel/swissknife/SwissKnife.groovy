@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.support.v4.app.Fragment
 import android.support.v4.view.ViewPager
 import android.text.Editable
 import android.text.TextWatcher
@@ -55,6 +56,22 @@ public class SwissKnife {
         def extras = target.getIntent()?.getExtras()
         if(extras) {
             target.setExtras(extras)
+        }
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
+    public static void loadFragmentArgs(Fragment target) {
+        def args = target.getArguments()
+        if(args) {
+            target.setFragmentArgs(args)
+        }
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
+    public static void loadFragmentArgs(android.app.Fragment target) {
+        def args = target.getArguments()
+        if(args) {
+            target.setFragmentArgs(args)
         }
     }
 
@@ -565,7 +582,5 @@ public class SwissKnife {
         if (state) {
             target.restoreSavedState(state)
         }
-
-
     }
 }

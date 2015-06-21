@@ -23,10 +23,10 @@ public class AnnotationUtils {
     static final Class[] PARCELABLE_CLASSES = [String, int, byte, char, double, boolean, float,
                                                long, short, Integer, CharSequence, Bundle]
 
-    public static MethodNode getSetExtrasMethod(ClassNode declaringClass) {
-        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle), "extras")]
+    public static MethodNode getSetExtrasMethod(ClassNode declaringClass, String methodName, String paramName) {
+        Parameter[] parameters = [new Parameter(ClassHelper.make(Bundle), paramName)]
 
-        MethodNode setExtrasMethod = declaringClass.getMethod("setExtras", parameters)
+        MethodNode setExtrasMethod = declaringClass.getMethod(methodName, parameters)
         if(setExtrasMethod == null) {
             setExtrasMethod = createSetExtrasMethod()
             declaringClass.addMethod(setExtrasMethod)
@@ -34,15 +34,15 @@ public class AnnotationUtils {
         return setExtrasMethod
     }
 
-    private static MethodNode createSetExtrasMethod() {
+    private static MethodNode createSetExtrasMethod(String methodName, String paramName) {
 
-        def activityParam = new Parameter(ClassHelper.make(Bundle), "extras")
+        def activityParam = new Parameter(ClassHelper.make(Bundle), paramName)
 
         Parameter[] parameters = [activityParam]
 
         BlockStatement blockStatement = block()
 
-        MethodNode node = new MethodNode("setExtras",
+        MethodNode node = new MethodNode(methodName,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
                 ClassHelper.VOID_TYPE,
                 parameters,

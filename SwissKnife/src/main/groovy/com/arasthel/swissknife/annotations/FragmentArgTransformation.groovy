@@ -10,13 +10,13 @@ import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
-import static org.codehaus.groovy.ast.tools.GeneralUtils.*
+import static org.codehaus.groovy.ast.tools.GeneralUtils.varX
 
 /**
  * Created by Arasthel on 05/04/15.
  */
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
-public class ExtraTransformation implements ASTTransformation, Opcodes {
+public class FragmentArgTransformation implements ASTTransformation, Opcodes {
 
     @Override
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
@@ -24,7 +24,7 @@ public class ExtraTransformation implements ASTTransformation, Opcodes {
         AnnotationNode annotation = astNodes[0];
         ClassNode declaringClass = annotatedField.declaringClass;
 
-        MethodNode setExtrasMethod = AnnotationUtils.getSetExtrasMethod(declaringClass, "setExtras", "extras");
+        MethodNode setParamsMethod = AnnotationUtils.getSetExtrasMethod(declaringClass, "setFragmentArgs", "args");
 
         String name = null;
 
@@ -36,17 +36,16 @@ public class ExtraTransformation implements ASTTransformation, Opcodes {
             name = annotatedField.name;
         }
 
-        List<Statement> statementList = ((BlockStatement) setExtrasMethod.getCode()).getStatements();
+        List<Statement> statementList = ((BlockStatement) setParamsMethod.getCode()).getStatements();
 
-        Variable extrasParam = setExtrasMethod.getParameters()[0]
+        Variable argsParam = setParamsMethod.getParameters()[0]
 
-        Statement statement = getSetExtraStatement(annotatedField, extrasParam, name)
+        Statement statement = getSetExtraStatement(annotatedField, argsParam, name)
 
         statementList.add(statement);
     }
 
     private Statement getSetExtraStatement(FieldNode property, Variable extras, String extraName) {
         return AnnotationUtils.createRestoreStatement(property, varX(extras), extraName)
-
     }
 }
