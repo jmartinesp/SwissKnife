@@ -218,7 +218,7 @@ public class AnnotationUtils {
 
         return original.getInterfaces().find {
             it == ClassHelper.make(implementable)
-        }
+        } || original == ClassHelper.make(implementable)
 
     }
 

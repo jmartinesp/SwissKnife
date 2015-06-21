@@ -34,7 +34,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
         ClassNode fieldClass = annotatedField.getType();
 
         if (!AnnotationUtils.doesClassImplementInterface(fieldClass, List.class)) {
-            throw new Exception("The annotated field must extend List. Type: ${fieldClass.name}");
+            throw new Exception("The annotated field must implement or be a List. Type: ${fieldClass.name}");
         }
 
         if (annotation.members.size() > 0) {
