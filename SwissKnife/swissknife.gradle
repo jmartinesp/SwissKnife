@@ -46,13 +46,15 @@ dependencies {
     compile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
     compile 'com.android.support:appcompat-v7:22.0.0'
 
-    androidTestCompile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
-    androidTestCompile "com.andrewreitz:spock-android:1.0.0"
+    androidTestCompile "com.andrewreitz:spock-android:1.2.1"
 
     androidTestCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
         exclude group: 'junit'
     }
+
+    androidTestCompile 'com.android.support.test:testing-support-lib:0.1'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
 }
 
 // Script to upload plugin to Maven
