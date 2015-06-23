@@ -10,6 +10,8 @@ android {
 
         versionCode project.versionCode
         versionName project.version
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     packagingOptions {
@@ -18,6 +20,9 @@ android {
         exclude 'META-INF/license.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/notice.txt'
+        // For Spock
+        exclude 'META-INF/services/org.codehaus.groovy.transform.ASTTransformation'
+        exclude 'LICENSE.txt'
     }
 
     buildTypes {
@@ -40,6 +45,14 @@ task jar(type: Jar) {
 dependencies {
     compile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
     compile 'com.android.support:appcompat-v7:22.0.0'
+
+    androidTestCompile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
+    androidTestCompile "com.andrewreitz:spock-android:1.0.0"
+
+    androidTestCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude group: 'org.codehaus.groovy'
+        exclude group: 'junit'
+    }
 }
 
 // Script to upload plugin to Maven

@@ -97,7 +97,7 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     }
 
     List<FieldNode> getParcelableFields(ClassNode declaringClass) {
-        def parcelableFields = []
+        List<FieldNode> parcelableFields = []
         declaringClass.getFields().each { FieldNode field ->
             if (!(field in excludedFields)) {
                 // We don't want to parcel static fields
@@ -109,16 +109,22 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                     }
                     else if (fieldClass.isArray()) {
                         // If it's an array of primitives, too
-                        if (ClassHelper.isPrimitiveType(fieldClass.getComponentType())) {
+
+                        fieldClass = fieldClass.getComponentType()
+                        if (ClassHelper.isPrimitiveType(fieldClass)) {
                             parcelableFields << field
                         }
                         else {
                             // If it's an array of objects, find if it's one of the parcelable
                             // classes
+
+                            if (checkIfClassIsParcelable(fieldClass)) {
+                                return true
+                            }
+
                             PARCELABLE_CLASSES.find {
                                 if (fieldClass.isDerivedFrom(ClassHelper.make(it))
-                                        || fieldClass.implementsInterface(ClassHelper.make(it))
-                                        || checkIfClassIsParcelable(ClassHelper.make(it))) {
+                                        || fieldClass.implementsInterface(ClassHelper.make(it))) {
                                     parcelableFields << field
                                     return true
                                 }
@@ -128,13 +134,18 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                     }
                     else {
                         // If it's an object, check if it's parcelable
+
+                        if (checkIfClassIsParcelable(fieldClass)) {
+                            return true
+                        }
+
                         PARCELABLE_CLASSES.find {
                             if (fieldClass.isDerivedFrom(ClassHelper.make(it))
-                                    || fieldClass.implementsInterface(ClassHelper.make(it))
-                                    || checkIfClassIsParcelable(ClassHelper.make(it))) {
+                                    || fieldClass.implementsInterface(ClassHelper.make(it))) {
                                 parcelableFields << field
                                 return true
                             }
+
                             return false
                         }
                     }
@@ -190,6 +201,10 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             // Is Primitive (int, char...)
             if (ClassHelper.isPrimitiveType(field.getType())) {
                 statement.addStatement(getWritePrimitiveStatement(field, parcelVar))
+            } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())) {
+                // write___Array(field) -> writeCharArray(field)...
+                String primitiveType = field.getType().getComponentType().getName().capitalize()
+                statement.addStatement(stmt(callX(varX(parcelVar), "write${primitiveType}Array", args(fieldX(field)))))
             } else {
                 // writeValue(field)
                 statement.addStatement(stmt(callX(varX(parcelVar), "writeValue", args(fieldX(field)))))
@@ -201,9 +216,9 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     private Statement getWritePrimitiveStatement(FieldNode field, Variable parcelVar) {
         // write___(field) -> writeChar, writeInt...
         return stmt(callX(
-                        varX(parcelVar),
-                        "write${field.getType().name.capitalize()}",
-                        args(fieldX(field))))
+                varX(parcelVar),
+                "write${field.getType().name.capitalize()}",
+                args(fieldX(field))))
     }
 
     Statement readFromParcelCode(ClassNode annotatedClass, Parameter parcelParam) {
@@ -221,6 +236,10 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             // Every method will be read____
             if (ClassHelper.isPrimitiveType(field.getType())) {
                 statements << getReadPrimitiveStatement(field, parcelVar)
+            } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())) {
+                // field = create___Array() -> createCharArray()...
+                String primitiveType = field.getType().getComponentType().getName().capitalize()
+                statements << stmt(callX(varX(parcelVar), "create${primitiveType}Array"))
             } else {
                 Expression classLoader = constX(null)
 
@@ -240,10 +259,10 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     private Statement getReadPrimitiveStatement(FieldNode field, Variable parcelVar) {
         // field = read___() -> readChar, readInt...
         return assignS(fieldX(field),
-                        callX(
-                            varX(parcelVar),
-                            "read${field.getType().name.capitalize()}",
-                            args(Parameter.EMPTY_ARRAY)))
+                callX(
+                        varX(parcelVar),
+                        "read${field.getType().name.capitalize()}",
+                        args(Parameter.EMPTY_ARRAY)))
     }
 
     void createCREATORField(ClassNode ownerClass, SourceUnit sourceUnit) {

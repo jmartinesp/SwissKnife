@@ -31,7 +31,7 @@ public class AnnotationUtils {
 
         MethodNode setExtrasMethod = declaringClass.getMethod(methodName, parameters)
         if(setExtrasMethod == null) {
-            setExtrasMethod = createSetExtrasMethod()
+            setExtrasMethod = createSetExtrasMethod(methodName, paramName)
             declaringClass.addMethod(setExtrasMethod)
         }
         return setExtrasMethod
