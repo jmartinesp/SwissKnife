@@ -199,7 +199,7 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
 
         fields.each { FieldNode field ->
             // Is Primitive (int, char...)
-            if (ClassHelper.isPrimitiveType(field.getType())) {
+            if (isParcelablePrimitive(field.getType())) {
                 statement.addStatement(getWritePrimitiveStatement(field, parcelVar))
             } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())) {
                 // write___Array(field) -> writeCharArray(field)...
@@ -234,7 +234,7 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
 
         fields.each { FieldNode field ->
             // Every method will be read____
-            if (ClassHelper.isPrimitiveType(field.getType())) {
+            if (isParcelablePrimitive(field.getType())) {
                 statements << getReadPrimitiveStatement(field, parcelVar)
             } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())) {
                 // field = create___Array() -> createCharArray()...
@@ -263,6 +263,11 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                         varX(parcelVar),
                         "read${field.getType().name.capitalize()}",
                         args(Parameter.EMPTY_ARRAY)))
+    }
+
+    private boolean isParcelablePrimitive(ClassNode classNode) {
+        // For some reason, readChar doesn't exist but readCharArray does
+        return ClassHelper.isPrimitiveType(classNode) && classNode != ClassHelper.char_TYPE
     }
 
     void createCREATORField(ClassNode ownerClass, SourceUnit sourceUnit) {

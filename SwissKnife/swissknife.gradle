@@ -44,7 +44,7 @@ task jar(type: Jar) {
 
 dependencies {
     compile "org.codehaus.groovy:groovy:$commonVersions.grooidVersion:grooid"
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
 
     androidTestCompile "com.andrewreitz:spock-android:1.2.1"
 
