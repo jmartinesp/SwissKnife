@@ -65,3 +65,7 @@ asciidoctor {
         ]
     ]
 }
+
+task getVersion << {
+    println VERSION_NAME
+}
