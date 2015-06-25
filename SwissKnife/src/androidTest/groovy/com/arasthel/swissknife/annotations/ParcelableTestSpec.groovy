@@ -40,16 +40,16 @@ public class ParcelableTestSpec extends AndroidSpecification {
 
     def "Parcelling an @Parcelable annotated object works"() {
         given:
-        Person
+        Person person = new Person(name: "John", age: 34)
         Parcel parcel = Parcel.obtain()
 
         when:
-        parcel.writeValue(string)
+        parcel.writeValue(person)
         ParcelableUtil.saveAndRestoreParcel(parcel)
-        String resultString = parcel.readValue(null)
+        Person resultPerson = parcel.readValue(Person.class.getClassLoader())
 
         then:
-        resultString == string
+        resultPerson == person
     }
 
     def "Parcelling List of non parcelable objects throws RuntimeException"() {
