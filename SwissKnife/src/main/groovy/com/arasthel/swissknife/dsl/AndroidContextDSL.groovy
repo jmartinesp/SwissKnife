@@ -56,12 +56,14 @@ public class AndroidContextDSL {
 
     static void startActivity(Context self,
                               Class<? extends Activity> activity,
-                              @DelegatesTo(value=Intent, strategy = Closure.DELEGATE_FIRST) Closure intentSpec) {
+                              @DelegatesTo(value=Intent, strategy = Closure.DELEGATE_FIRST) Closure intentSpec = null) {
         def intent = new Intent(self, activity)
-        def clone = (Closure) intentSpec.clone()
-        clone.resolveStrategy = Closure.DELEGATE_FIRST
-        clone.delegate = intent
-        clone()
+        if(intentSpec != null){
+            def clone = (Closure) intentSpec.clone()
+            clone.resolveStrategy = Closure.DELEGATE_FIRST
+            clone.delegate = intent
+            clone()
+        }
         self.startActivity(intent)
     }
 
