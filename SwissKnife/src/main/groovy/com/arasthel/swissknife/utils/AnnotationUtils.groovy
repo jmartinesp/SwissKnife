@@ -96,18 +96,19 @@ public class AnnotationUtils {
 
     public
     static ExpressionStatement createInjectExpression(Variable variable, Parameter viewParameter,
-                                                      String id) {
+                                                      String id, String type = null) {
 
         return assignS(varX(variable), callX(ClassHelper.make(Finder), "findView",
-                args(varX(viewParameter), constX(id))))
+                args(varX(viewParameter), constX(id), constX(type))))
     }
 
     public
     static ExpressionStatement createListInjectExpression(Variable variable,
-                                                          Parameter viewParameter, String id) {
+                                                          Parameter viewParameter, String id,
+                                                          String type) {
 
         return stmt(callX(varX(variable), "add", callX(ClassHelper.make(Finder), "findView",
-                args(varX(viewParameter), constX(id)))))
+                args(varX(viewParameter), constX(id), constX(type)))))
     }
 
     private static MethodNode createRestoreStateMethod(boolean overrideSuper) {

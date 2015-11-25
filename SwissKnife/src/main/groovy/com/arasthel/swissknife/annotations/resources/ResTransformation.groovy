@@ -86,13 +86,19 @@ public class ResTransformation implements ASTTransformation, Opcodes {
         String id = annotation.members.size() ?
                 annotation.members.value.property.getValue() : annotatedField.name
 
+        String type = null
+
+        if (annotation.members.size()) {
+            type = annotation.members.value.objectExpression.type.name
+        }
+
 
         ClassNode declaringClass = annotatedField.declaringClass
         MethodNode injectMethod = AnnotationUtils.getInjectViewsMethod(declaringClass)
         Variable viewParameter = injectMethod.parameters.first()
 
         Statement statement = assignS(varX(annotatedField), callX(ClassHelper.make(Finder),
-                method, args(varX(viewParameter), constX(id))))
+                method, args(varX(viewParameter), constX(id), constX(type))))
 
         ((BlockStatement) injectMethod.getCode()).getStatements().add(statement)
     }

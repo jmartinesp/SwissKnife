@@ -23,24 +23,52 @@ class Finder {
     static final String TAG = "Finder";
     static final String ERROR_MSG = "Passed target is null, couldn't inject from it";
 
-    static View findView(Object target, String idStr) {
+    static View findView(View target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG);
             return null;
         }
 
-        if(target instanceof View) {
-            Context context = target.getContext()
-            int identifier = context.getResources().getIdentifier(idStr, "id", context.packageName)
-            return target.findViewById(identifier)
+        int identifier = getViewId(target.context, idStr, type)
+        return target.findViewById(identifier)
+    }
+
+    static View findView(Activity target, String idStr, String type = null) {
+        if (!target) {
+            Log.e(TAG, ERROR_MSG);
+            return null;
+        }
+
+        int identifier = getViewId(target, idStr, type)
+        return target.findViewById(identifier)
+    }
+
+    private static int getViewId(Context context, String idStr, String type = null) {
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+
+        int identifier = resources.getIdentifier(idStr, "id", packageName)
+
+        return identifier
+    }
+
+    private static Resources getResources(Context context, String type) {
+        if (type?.startsWith("android.R\$")) {
+            return Resources.getSystem()
         } else {
-            Activity activity = target as Activity
-            int identifier = activity.getResources().getIdentifier(idStr, "id", activity.packageName)
-            return activity.findViewById(identifier)
+            return context.getResources()
         }
     }
 
-    static String getString(Object target, String idStr) {
+    private static String getPackageName(Context context, String type) {
+        if (type?.startsWith("android.R\$")) {
+            return "android"
+        } else {
+            return context.getPackageName()
+        }
+    }
+
+    static String getString(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -49,12 +77,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "string", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "string", packageName)
         return resources.getString(identifier)
     }
 
-    static Float getDimen(Object target, String idStr) {
+    static Float getDimen(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -63,12 +92,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "dimen", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "dimen", packageName)
         return resources.getDimension(identifier)
     }
 
-    static Boolean getBoolean(Object target, String idStr) {
+    static Boolean getBoolean(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -77,12 +107,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "bool", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "bool", packageName)
         return resources.getBoolean(identifier)
     }
 
-    static Integer getColor(Object target, String idStr) {
+    static Integer getColor(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -91,12 +122,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "color", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "color", packageName)
         return resources.getColor(identifier)
     }
 
-    static Integer getInteger(Object target, String idStr) {
+    static Integer getInteger(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -105,12 +137,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "integer", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "integer", packageName)
         return resources.getInteger(identifier)
     }
 
-    static int[] getIntegerArray(Object target, String idStr) {
+    static int[] getIntegerArray(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -119,12 +152,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "array", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "array", packageName)
         return resources.getIntArray(identifier)
     }
 
-    static String[] getStringArray(Object target, String idStr) {
+    static String[] getStringArray(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -133,12 +167,13 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "array", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "array", packageName)
         return resources.getStringArray(identifier)
     }
 
-    static Drawable getDrawable(Object target, String idStr) {
+    static Drawable getDrawable(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -147,15 +182,16 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "drawable", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "drawable", packageName)
 
         int api = android.os.Build.VERSION.SDK_INT
 
         return api >= 21 ? resources.getDrawable(identifier, context.getTheme()) : resources.getDrawable(identifier)
     }
 
-    static Animation getAnimation(Object target, String idStr) {
+    static Animation getAnimation(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -164,11 +200,14 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        int identifier = context.getResources().getIdentifier(idStr, "anim", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+
+        int identifier = resources.getIdentifier(idStr, "anim", packageName)
         return AnimationUtils.loadAnimation(context, identifier)
     }
 
-    static ColorStateList getColorStateList(Object target, String idStr) {
+    static ColorStateList getColorStateList(Object target, String idStr, String type = null) {
         if (!target) {
             Log.e(TAG, ERROR_MSG)
             return null
@@ -177,8 +216,9 @@ class Finder {
         Context context = (target instanceof Activity) ?
                 (target as Activity) : (target as View).getContext()
 
-        Resources resources = context.getResources()
-        int identifier = resources.getIdentifier(idStr, "color", context.packageName)
+        Resources resources = getResources(context, type)
+        String packageName = getPackageName(context, type)
+        int identifier = resources.getIdentifier(idStr, "color", packageName)
         return resources.getColorStateList(identifier)
     }
 }

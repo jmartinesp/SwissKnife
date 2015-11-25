@@ -30,6 +30,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
         Parameter viewParameter = injectMethod.parameters.first()
 
         def ids = [];
+        def types = [:];
 
         ClassNode fieldClass = annotatedField.getType();
 
@@ -40,7 +41,9 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
         if (annotation.members.size() > 0) {
             if (annotation.members.value instanceof ListExpression) {
                 annotation.members.value.getExpressions().each {
-                    ids << it.property.getValue() as String;
+                    String id = it.property.getValue() as String
+                    ids << id
+                    types[id] = it.objectExpression.type.name
                 };
             }
             else {
@@ -57,7 +60,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
         statementList.add(createViewListStatement(annotatedField));
 
         ids.each { String id -> statementList.add(createInjectViewStatement(annotatedField,
-                viewParameter, id)); }
+                viewParameter, id, types[id])); }
 
     }
 
@@ -66,7 +69,7 @@ public class InjectViewsTransformation implements ASTTransformation, Opcodes {
     }
 
     private Statement createInjectViewStatement(FieldNode field, Parameter viewParameter,
-                                                String id) {
-        return AnnotationUtils.createListInjectExpression(field, viewParameter, id)
+                                                String id, String type) {
+        return AnnotationUtils.createListInjectExpression(field, viewParameter, id, type)
     }
 }

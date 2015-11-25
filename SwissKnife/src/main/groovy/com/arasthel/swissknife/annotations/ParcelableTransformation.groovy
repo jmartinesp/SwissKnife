@@ -35,6 +35,15 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             android.os.Parcelable[], Bundle, CharSequence, Serializable
     ]
 
+    // Primitive types that can't be parcelled as primitives
+    private static final List<ClassNode> NON_PARCELABLE_PRIMITIVES = [
+            ClassHelper.char_TYPE, ClassHelper.short_TYPE
+    ]
+
+    private static final List<ClassNode> NON_PARCELABLE_PRIMITIVE_ARRAYS = [
+            ClassHelper.short_TYPE
+    ]
+
     List<FieldNode> excludedFields = []
 
     @Override
@@ -75,6 +84,9 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
     }
 
     def checkIfClassIsParcelable(ClassNode classNode) {
+        if (!classNode) {
+            return false
+        }
         boolean hasAnnotation = classNode.annotations.find {
             return it.classNode.equals(ClassHelper.make(Parcelable))
         }
@@ -119,16 +131,20 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                             // classes
 
                             if (checkIfClassIsParcelable(fieldClass)) {
+                                parcelableFields << field
                                 return true
                             }
 
-                            PARCELABLE_CLASSES.find {
+                            def found = PARCELABLE_CLASSES.find {
                                 if (fieldClass.isDerivedFrom(ClassHelper.make(it))
                                         || fieldClass.implementsInterface(ClassHelper.make(it))) {
-                                    parcelableFields << field
                                     return true
                                 }
                                 return false
+                            }
+
+                            if (found) {
+                                parcelableFields << field
                             }
                         }
                     }
@@ -136,17 +152,21 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
                         // If it's an object, check if it's parcelable
 
                         if (checkIfClassIsParcelable(fieldClass)) {
+                            parcelableFields << field
                             return true
                         }
 
-                        PARCELABLE_CLASSES.find {
+                        def found = PARCELABLE_CLASSES.find {
                             if (fieldClass.isDerivedFrom(ClassHelper.make(it))
                                     || fieldClass.implementsInterface(ClassHelper.make(it))) {
-                                parcelableFields << field
                                 return true
                             }
 
                             return false
+                        }
+
+                        if (found) {
+                            parcelableFields << field
                         }
                     }
 
@@ -201,7 +221,8 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             // Is Primitive (int, char...)
             if (isParcelablePrimitive(field.getType())) {
                 statement.addStatement(getWritePrimitiveStatement(field, parcelVar))
-            } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())) {
+            } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType()) &&
+                    !(field.getType().getComponentType() in NON_PARCELABLE_PRIMITIVE_ARRAYS)) {
                 // write___Array(field) -> writeCharArray(field)...
                 String primitiveType = field.getType().getComponentType().getName().capitalize()
                 statement.addStatement(stmt(callX(varX(parcelVar), "write${primitiveType}Array", args(fieldX(field)))))
@@ -236,17 +257,22 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
             // Every method will be read____
             if (isParcelablePrimitive(field.getType())) {
                 statements << getReadPrimitiveStatement(field, parcelVar)
-            } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())) {
+            } else if (field.getType().isArray() && ClassHelper.isPrimitiveType(field.getType().getComponentType())
+                    && !(field.getType().getComponentType() in NON_PARCELABLE_PRIMITIVE_ARRAYS)) {
                 // field = create___Array() -> createCharArray()...
                 String primitiveType = field.getType().getComponentType().getName().capitalize()
-                statements << stmt(callX(varX(parcelVar), "create${primitiveType}Array"))
+                statements << assignS(fieldX(field), callX(varX(parcelVar), "create${primitiveType}Array"))
             } else {
                 Expression classLoader = constX(null)
 
                 if (field.getType().isArray()) {
                     classLoader = callX(field.getType().getComponentType(), "getClassLoader")
                 } else if (AnnotationUtils.doesClassImplementInterface(field.getType(), List)) {
-                    classLoader = callX(field.getType().getGenericsTypes().first().getType(), "getClassLoader")
+                    if (checkIfClassIsParcelable(field.getType().getGenericsTypes()?.first()?.getType())) {
+                        classLoader = callX(annotatedClass, "getClassLoader")
+                    }
+                } else if (field.getType() != ClassHelper.make(Bundle)) {
+                    classLoader = callX(field.getType(), "getClassLoader")
                 }
 
                 // field = readValue(DeclaringClass.getClassLoader())
@@ -267,7 +293,7 @@ public class ParcelableTransformation extends AbstractASTTransformation implemen
 
     private boolean isParcelablePrimitive(ClassNode classNode) {
         // For some reason, readChar doesn't exist but readCharArray does
-        return ClassHelper.isPrimitiveType(classNode) && classNode != ClassHelper.char_TYPE
+        return ClassHelper.isPrimitiveType(classNode) && !(classNode in NON_PARCELABLE_PRIMITIVES)
     }
 
     void createCREATORField(ClassNode ownerClass, SourceUnit sourceUnit) {
