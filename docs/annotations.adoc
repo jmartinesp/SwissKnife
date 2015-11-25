@@ -20,7 +20,7 @@ public void onClick(View v)
 ----
 @OnClick(R.id.button)
 public void onClick() {
-    Toast.makeText(this, "Button clicked", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "Button clicked", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -42,8 +42,8 @@ Notice it must return a boolean
 ----
 @OnLongClick(R.id.button)
 public boolean onLongClick() {
-    Toast.makeText(this, "Button long clicked", Toast.LENGTH_SHORT).show();
-    return true;
+    Toast.makeText(this, "Button long clicked", Toast.LENGTH_SHORT).show()
+    return true
 }
 ----
 
@@ -70,7 +70,7 @@ public void onItemClick(int position, AdapterView adapterView, View clickedView)
 ----
 @OnItemClick(R.id.list)
 public void onItemClick(int position) {
-    Toast.makeText(this, "Item $position clicked", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "Item $position clicked", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -97,7 +97,7 @@ Notice it must return a boolean
 ----
 @OnItemLongClick(R.id.list)
 public void onItemLongClick(int position) {
-    Toast.makeText(this, "Item $position long-clicked", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "Item $position long-clicked", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -139,7 +139,7 @@ public void onNothingSelected(AdapterView adapterView)
 ----
 @OnItemSelected(value=R.id.list, method=OnItemSelected.Method.ITEM_SELECTED)
 public void onItemSelected(int position) {
-    Toast.makeText(this, "Item $position selected", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "Item $position selected", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -163,8 +163,8 @@ public boolean onChecked(CompoundButton button, boolean checked)
 ----
 @OnChecked(R.id.radio_button)
 public public boolean onChecked(CompoundButton button, boolean checked) {
-    Toast.makeText(this, "Button checked: $checked", Toast.LENGTH_SHORT).show();
-    return false;
+    Toast.makeText(this, "Button checked: $checked", Toast.LENGTH_SHORT).show()
+    return false
 }
 ----
 
@@ -188,7 +188,7 @@ public void onFocusChanged(View v, boolean hasFocus)
 ----
 @OnFocusChanged(R.id.my_view)
 public void onFocusChanged(boolean hasFocus) {
-    Toast.makeText(this, "View has focus: $hasFocus", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "View has focus: $hasFocus", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -212,8 +212,8 @@ public boolean onClick(View v, MotionEvent event)
 ----
 @OnTouch(R.id.button)
 public boolean onTouch(MotionEvent event) {
-    Toast.makeText(this, "Button touched, action: $event.action", Toast.LENGTH_SHORT).show();
-    return false;
+    Toast.makeText(this, "Button touched, action: $event.action", Toast.LENGTH_SHORT).show()
+    return false
 }
 ----
 
@@ -256,7 +256,7 @@ public void onPageScrollStateChanged(int state)
 ----
 @OnPageChanged(value=R.id.list, method=OnPageChanged.Method.PAGE_SELECTED)
 public void onPageSelected(int position) {
-    Toast.makeText(this, "Current page: $position", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "Current page: $position", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -316,7 +316,7 @@ public void afterTextChanged(Editable editable)
 ----
 @OnTextChanged(value=R.id.edit_text, method=OnTextChanged.Method.ON_TEXT_CHANGED)
 public void onTextChanged(CharSequence sequence) {
-    Toast.makeText(this, "Sentence written: $sequence", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, "Sentence written: $sequence", Toast.LENGTH_SHORT).show()
 }
 ----
 
@@ -340,8 +340,8 @@ public boolean onEditorAction(TextView textView, KeyEvent event)
 ----
 @OnEditorAction(R.id.edit_text)
 public boolean onEditorAction(KeyEvent event) {
-    Toast.makeText(this, "Editor action received", Toast.LENGTH_SHORT).show();
-    return false;
+    Toast.makeText(this, "Editor action received", Toast.LENGTH_SHORT).show()
+    return false
 }
 ----
 
@@ -421,7 +421,7 @@ Make sure you check the sample for more examples.
 [source, groovy]
 ----
 @SaveInstance
-TextView myTextView;
+TextView myTextView
 
 @Override
 public void onCreate(Bundle savedInstanceState){

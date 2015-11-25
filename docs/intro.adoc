@@ -27,16 +27,16 @@ only annotation parameter, the *"value="* part can be ignored.
 include::{skSampleSrc}/com/dexafree/sample/MainActivity.groovy[tags=injectViewWithId,indent=0]
 
 @InjectView(value=R.id.button)
-Button myButton;
+Button myButton
 
 // To inject several views, the annotation is @InjectViews, in plural
 @InjectViews([R.id.view_1, R.id.view_2])
-List<View> myViews;
+List<View> myViews
 
 // This case here is special. If the name of the field is the same as the id,
 // the @InjectView annotation doesn't need any parameters
 @InjectView()
-Button button_1;
+Button button_1
 ----
 
 Also, you can have several listener injection methods. When the listener is
@@ -61,31 +61,44 @@ will need to tell your class to use SwissKnife. You can do it like this:
 [source, groovy]
 ----
 // Inject an Activity or a View in which "findViewById()" method is accesible
-SwissKnife.inject(Object objectInjected);
+SwissKnife.inject(Object objectInjected)
 
 // If you are using a Fragment or want to inject a View's children into any object, you use this
-SwissKnife.inject(Object objectInjected, View viewToInject);
+SwissKnife.inject(Object objectInjected, View viewToInject)
 ----
 
 For example, in an Activity, you would do it like this:
 
 [source, groovy]
 ----
-SwissKnife.inject(this);
+SwissKnife.inject(this)
 ----
 
 And in a Fragment, it would be:
 
 [source, groovy]
 ----
-SwissKnife.inject(this, getView());
+SwissKnife.inject(this, getView())
 ----
 
-You can also  inject views and listeners on other objects, like a Controller or a Presenter like this:
+But be careful! If you do it on the onCreateView method, you should pass the inflated View, as `getView()` would return null
 
 [source, groovy]
 ----
-SwissKnife.inject(controller, view);
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+    View v = inflater.inflate(R.layout.left, container, false)
+    SwissKnife.inject(this, v)
+    return v
+}
+----
+
+You can also inject views and listeners on other objects, like a Controller or a Presenter like this:
+
+[source, groovy]
+----
+SwissKnife.inject(controller, view)
 ----
 
 This means that injection can be used on any class and is done on runtime, so
